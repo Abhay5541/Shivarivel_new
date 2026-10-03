@@ -1,0 +1,17 @@
+{
+  "name": "Shivarivel Construction & Interiors — ERP",
+  "short_name": "Shivarivel ERP",
+  "description": "Unified Construction Management & Interior Specialist ERP for Tamil Nadu",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#F7F5F0",
+  "theme_color": "#4A0E0E",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64 128x128 256x256 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

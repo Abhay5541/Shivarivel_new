@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  --color-maroon: #4A0E0E;
+  --color-maroon-hover: #380A0A;
+  --color-maroon-light: #F7EFEF;
+  --color-gold: #C99A2E;
+  --color-gold-hover: #B38722;
+  --color-gold-light: #F9F3E5;
+  --color-cream: #F7F5F0;
+  --color-charcoal: #242424;
+  --color-muted: #6B6B6B;
+  --color-border-subtle: #E2DDD5;
+  --color-surface-subtle: #EFECE6;
+
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body {
+  font-family: var(--font-body, 'Inter', sans-serif);
+  background-color: #F7F5F0;
+  color: #242424;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+}
+
+/* Browser Surface Theming (Impeccable Craft Floor) */
+::selection {
+  background-color: #F9F3E5;
+  color: #4A0E0E;
+}
+
+input, textarea, select {
+  caret-color: #4A0E0E;
+}
+
+:focus-visible {
+  outline: 2px solid #4A0E0E;
+  outline-offset: 2px;
+}
+
+/* Tabular Numerals for Currency, Metrics, Dates */
+.tabular-nums, .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Architectural Construction Surfaces (Impeccable Command Center) */
+.arch-surface {
+  background-color: #FFFFFF;
+  border: 1px solid #E2DDD5;
+  border-radius: 0.75rem;
+}
+
+.arch-surface-inset {
+  background-color: #F7F5F0;
+  border: 1px solid #E2DDD5;
+  border-radius: 0.5rem;
+}
+
+.arch-divider {
+  border-color: #E2DDD5;
+}
+
+/* Custom scrollbars for data tables and sidebar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F5F0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E2DDD5;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C99A2E;
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print Layout Standards */
+@media print {
+  aside,
+  header,
+  nav,
+  button,
+  .no-print,
+  [aria-label="Open Quick Add Menu (Hotkey: Q)"],
+  [aria-label="Mobile Bottom Navigation"] {
+    display: none !important;
+  }
+
+  body, main {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
