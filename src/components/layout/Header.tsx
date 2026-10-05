@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { Bell, ChevronDown, User, LogOut, Settings, Plus } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import { Bell, ChevronDown, LogOut, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/Button';
 
@@ -44,7 +44,6 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
     user?.email?.split('@')[0] ||
     'K. Senthil Nathan';
   const userRole = user?.user_metadata?.role || 'Owner';
-  const isSupervisor = userRole.toLowerCase().includes('supervisor');
 
   return (
     <header className="h-16 px-6 bg-white border-b border-[#E2DDD5] flex items-center justify-between shrink-0 select-none">
@@ -125,29 +124,6 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                   {userRole}
                 </span>
               </div>
-
-              {!isSupervisor && (
-                <div className="py-1">
-                  <Link
-                    to="/company-profile"
-                    role="menuitem"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs text-[#242424] hover:bg-[#F7F5F0] transition-colors"
-                  >
-                    <Settings className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                    <span>Company Settings</span>
-                  </Link>
-                  <Link
-                    to="/users-roles"
-                    role="menuitem"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-xs text-[#242424] hover:bg-[#F7F5F0] transition-colors"
-                  >
-                    <User className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                    <span>Users &amp; Roles</span>
-                  </Link>
-                </div>
-              )}
 
               <div className="border-t border-[#E2DDD5]/60 pt-1">
                 <button

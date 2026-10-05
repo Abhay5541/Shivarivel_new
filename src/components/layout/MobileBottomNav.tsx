@@ -1,228 +1,245 @@
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  CalendarCheck,
-  Building2,
-  Plus,
-  Coins,
-  Menu,
-  X,
   Users,
-  HelpCircle,
-  Compass,
-  Calculator,
-  ListTodo,
-  ClipboardList,
-  Truck,
-  Package,
+  Building2,
   ShoppingCart,
+  Plus,
+  X,
+  UserPlus,
   UserCheck,
-  Clock4,
-  FileBarChart,
-  Settings,
+  Calendar,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MobileBottomNavProps {
-  onOpenQuickAdd: () => void;
+  onOpenQuickAdd?: () => void;
 }
 
-export function MobileBottomNav({ onOpenQuickAdd }: MobileBottomNavProps) {
-  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd }) => {
+  const navigate = useNavigate();
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
 
-  const moreSections = [
-    {
-      title: 'Business & CRM',
-      items: [
-        { label: 'Customers', href: '/customers', icon: Users },
-        { label: 'Enquiries', href: '/enquiries', icon: HelpCircle },
-        { label: 'Site Visits', href: '/site-visits', icon: Compass },
-        { label: 'Estimates', href: '/estimates', icon: Calculator },
-      ],
-    },
-    {
-      title: 'Field & Operations',
-      items: [
-        { label: 'Work Progress', href: '/work-progress', icon: ListTodo },
-        { label: 'Daily Reports', href: '/daily-reports', icon: ClipboardList },
-        { label: 'Attendance', href: '/attendance', icon: Clock4 },
-      ],
-    },
-    {
-      title: 'Procurement & Labor',
-      items: [
-        { label: 'Suppliers', href: '/suppliers', icon: Truck },
-        { label: 'Materials', href: '/materials', icon: Package },
-        { label: 'Purchases', href: '/purchases', icon: ShoppingCart },
-        { label: 'Employees', href: '/employees', icon: UserCheck },
-      ],
-    },
-    {
-      title: 'Administration',
-      items: [
-        { label: 'Reports', href: '/reports/weekly', icon: FileBarChart },
-        { label: 'Settings', href: '/company-profile', icon: Settings },
-      ],
-    },
-  ];
+  const handleAction = (route: string) => {
+    setIsActionSheetOpen(false);
+    navigate(route);
+  };
 
   return (
     <>
-      {/* "More" Sheet Modal on Mobile */}
-      {isMoreMenuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
+      {/* Mobile Action Sheet Modal */}
+      {isActionSheetOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
-            onClick={() => setIsMoreMenuOpen(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsActionSheetOpen(false)}
           />
-          <div className="fixed bottom-16 inset-x-0 bg-white rounded-t-2xl border-t border-[#E2DDD5] p-5 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[75vh] overflow-y-auto">
-            {/* Grab Bar */}
+          <div className="fixed bottom-16 inset-x-0 bg-white rounded-t-2xl border-t border-[#E2DDD5] p-5 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[80vh] overflow-y-auto">
             <div className="w-12 h-1.5 bg-[#E2DDD5] rounded-full mx-auto mb-3" />
 
             <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E2DDD5]/60">
-              <div>
-                <span className="text-sm font-bold text-[#242424] font-heading">
-                  All ERP Modules
-                </span>
-                <p className="text-[11px] text-[#6B6B6B]">
-                  Direct navigation to all departments
-                </p>
-              </div>
+              <span className="text-sm font-bold text-[#242424] font-heading">
+                Quick Action
+              </span>
               <button
                 type="button"
                 aria-label="Close menu"
-                onClick={() => setIsMoreMenuOpen(false)}
+                onClick={() => setIsActionSheetOpen(false)}
                 className="w-8 h-8 rounded-full bg-[#F7F5F0] border border-[#E2DDD5] flex items-center justify-center text-[#6B6B6B]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-4">
-              {moreSections.map((sec) => (
-                <div key={sec.title} className="space-y-2">
-                  <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wider font-heading">
-                    {sec.title}
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {sec.items.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <NavLink
-                          key={item.href}
-                          to={item.href}
-                          onClick={() => setIsMoreMenuOpen(false)}
-                          className="flex items-center gap-2.5 p-2.5 rounded-xl border border-[#E2DDD5] hover:bg-[#F7F5F0] active:bg-[#F9F3E5] transition-colors"
-                        >
-                          <div className="w-8 h-8 rounded-lg bg-[#F7F5F0] flex items-center justify-center text-[#4A0E0E] shrink-0">
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <span className="text-xs font-semibold text-[#242424] truncate">
-                            {item.label}
-                          </span>
-                        </NavLink>
-                      );
-                    })}
-                  </div>
+            <div className="grid grid-cols-2 gap-2.5 pb-2">
+              {/* Add Customer */}
+              <button
+                type="button"
+                onClick={() => handleAction('/customers?new=1')}
+                className="p-3.5 rounded-xl border border-[#E2DDD5] bg-[#F7F5F0]/60 hover:bg-[#F7F5F0] text-left flex flex-col gap-2 cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#4A0E0E] text-white flex items-center justify-center shadow-xs">
+                  <UserPlus className="w-4 h-4" />
                 </div>
-              ))}
+                <div>
+                  <span className="text-xs font-bold text-[#242424] block">
+                    Add Customer
+                  </span>
+                  <span className="text-[10px] text-[#6B6B6B]">
+                    Register client
+                  </span>
+                </div>
+              </button>
+
+              {/* Add Project */}
+              <button
+                type="button"
+                onClick={() => handleAction('/projects?new=1')}
+                className="p-3.5 rounded-xl border border-[#E2DDD5] bg-[#F7F5F0]/60 hover:bg-[#F7F5F0] text-left flex flex-col gap-2 cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#C99A2E] text-white flex items-center justify-center shadow-xs">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-[#242424] block">
+                    Add Project
+                  </span>
+                  <span className="text-[10px] text-[#6B6B6B]">
+                    New work location
+                  </span>
+                </div>
+              </button>
+
+              {/* Add Purchase */}
+              <button
+                type="button"
+                onClick={() => handleAction('/procurement?new=1')}
+                className="p-3.5 rounded-xl border border-[#E2DDD5] bg-[#F7F5F0]/60 hover:bg-[#F7F5F0] text-left flex flex-col gap-2 cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#4A0E0E] text-white flex items-center justify-center shadow-xs">
+                  <ShoppingCart className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-[#242424] block">
+                    Add Purchase
+                  </span>
+                  <span className="text-[10px] text-[#6B6B6B]">
+                    Materials bought
+                  </span>
+                </div>
+              </button>
+
+              {/* Add Laborer */}
+              <button
+                type="button"
+                onClick={() => handleAction('/wages?laborer=1')}
+                className="p-3.5 rounded-xl border border-[#E2DDD5] bg-[#F7F5F0]/60 hover:bg-[#F7F5F0] text-left flex flex-col gap-2 cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#4A0E0E] text-white flex items-center justify-center shadow-xs">
+                  <UserCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-[#242424] block">
+                    Add Laborer
+                  </span>
+                  <span className="text-[10px] text-[#6B6B6B]">
+                    Register worker
+                  </span>
+                </div>
+              </button>
+
+              {/* Add Wage */}
+              <button
+                type="button"
+                onClick={() => handleAction('/wages?new=1')}
+                className="p-3.5 rounded-xl border border-[#E2DDD5] bg-[#F7F5F0]/60 hover:bg-[#F7F5F0] text-left flex flex-col gap-2 cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#C99A2E] text-white flex items-center justify-center shadow-xs">
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-[#242424] block">
+                    Add Wage
+                  </span>
+                  <span className="text-[10px] text-[#6B6B6B]">
+                    Record site labor
+                  </span>
+                </div>
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Primary Fixed Bottom Navigation (360px+ Mobile Viewport) */}
+      {/* Persistent Bottom Bar */}
       <nav
-        aria-label="Mobile Bottom Navigation"
-        className="fixed bottom-0 inset-x-0 z-30 h-16 bg-white border-t border-[#E2DDD5] flex items-center justify-around px-1 lg:hidden select-none shadow-lg"
-        style={{ paddingBottom: 'var(--safe-bottom, 0px)' }}
+        aria-label="Mobile Navigation"
+        className="lg:hidden fixed bottom-0 inset-x-0 bg-white border-t border-[#E2DDD5] h-16 flex items-center justify-around z-30 px-2 select-none shadow-lg"
       >
-        {/* Today */}
+        {/* 1. Customers */}
         <NavLink
-          to="/today"
+          to="/customers"
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center justify-center flex-1 py-1 transition-colors min-h-[48px]',
+              'flex flex-col items-center justify-center py-1 transition-colors min-h-[48px] min-w-[56px]',
               isActive ? 'text-[#4A0E0E]' : 'text-[#6B6B6B] hover:text-[#242424]'
             )
           }
         >
           {({ isActive }) => (
             <>
-              <CalendarCheck
-                className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#C99A2E]')}
-              />
-              <span className="text-[10px] font-semibold">Today</span>
+              <Users className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#4A0E0E]')} />
+              <span className="text-[10px] font-bold">Customers</span>
             </>
           )}
         </NavLink>
 
-        {/* Projects */}
+        {/* 2. Projects */}
         <NavLink
           to="/projects"
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center justify-center flex-1 py-1 transition-colors min-h-[48px]',
+              'flex flex-col items-center justify-center py-1 transition-colors min-h-[48px] min-w-[56px]',
               isActive ? 'text-[#4A0E0E]' : 'text-[#6B6B6B] hover:text-[#242424]'
             )
           }
         >
           {({ isActive }) => (
             <>
-              <Building2
-                className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#C99A2E]')}
-              />
-              <span className="text-[10px] font-semibold">Projects</span>
+              <Building2 className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#4A0E0E]')} />
+              <span className="text-[10px] font-bold">Projects</span>
             </>
           )}
         </NavLink>
 
-        {/* Central Quick Add Action FAB Button */}
-        <div className="flex-1 flex justify-center -mt-5">
+        {/* 3. Central Add Action Button */}
+        <div className="flex justify-center -mt-5">
           <button
             type="button"
             aria-label="Open Quick Add Menu"
-            onClick={onOpenQuickAdd}
-            className="w-13 h-13 rounded-full bg-[#C99A2E] text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform cursor-pointer border-3 border-white hover:bg-[#B38722]"
+            onClick={() => (onOpenQuickAdd ? onOpenQuickAdd() : setIsActionSheetOpen(true))}
+            className="w-12 h-12 rounded-full bg-[#C99A2E] text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform cursor-pointer border-3 border-white hover:bg-[#B38722]"
           >
-            <Plus className="w-7 h-7" />
+            <Plus className="w-6 h-6" />
           </button>
         </div>
 
-        {/* Money / Finance */}
+        {/* 4. Wages */}
         <NavLink
-          to="/financial-summary"
+          to="/wages"
           className={({ isActive }) =>
             cn(
-              'flex flex-col items-center justify-center flex-1 py-1 transition-colors min-h-[48px]',
+              'flex flex-col items-center justify-center py-1 transition-colors min-h-[48px] min-w-[56px]',
               isActive ? 'text-[#4A0E0E]' : 'text-[#6B6B6B] hover:text-[#242424]'
             )
           }
         >
           {({ isActive }) => (
             <>
-              <Coins
-                className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#C99A2E]')}
-              />
-              <span className="text-[10px] font-semibold">Money</span>
+              <Calendar className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#4A0E0E]')} />
+              <span className="text-[10px] font-bold">Wages</span>
             </>
           )}
         </NavLink>
 
-        {/* More */}
-        <button
-          type="button"
-          aria-label="More navigation options"
-          onClick={() => setIsMoreMenuOpen((prev) => !prev)}
-          className={cn(
-            'flex flex-col items-center justify-center flex-1 py-1 transition-colors cursor-pointer min-h-[48px]',
-            isMoreMenuOpen ? 'text-[#4A0E0E]' : 'text-[#6B6B6B] hover:text-[#242424]'
-          )}
+        {/* 5. Procurement */}
+        <NavLink
+          to="/procurement"
+          className={({ isActive }) =>
+            cn(
+              'flex flex-col items-center justify-center py-1 transition-colors min-h-[48px] min-w-[56px]',
+              isActive ? 'text-[#4A0E0E]' : 'text-[#6B6B6B] hover:text-[#242424]'
+            )
+          }
         >
-          <Menu className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px] font-semibold">More</span>
-        </button>
+          {({ isActive }) => (
+            <>
+              <ShoppingCart className={cn('w-5 h-5 mb-0.5', isActive && 'text-[#4A0E0E]')} />
+              <span className="text-[10px] font-bold">Procurement</span>
+            </>
+          )}
+        </NavLink>
       </nav>
     </>
   );
-}
+};

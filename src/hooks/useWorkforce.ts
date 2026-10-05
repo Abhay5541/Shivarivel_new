@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase/client';
+import { devEvalProjects } from '@/hooks/useProjects';
 import type {
   Employee,
   EmployeeFormData,
@@ -1315,6 +1316,256 @@ export function useWages(filters?: {
         }
         return list;
       }
+    },
+  });
+}
+
+export interface RecordDailyWagePayload {
+  wage_id?: string;
+  attendance_id?: string;
+  employee_id: string;
+  project_id?: string | null;
+  wage_date: string;
+  daily_wage: number;
+  attendance_status?: AttendanceStatus; // 'Present' | 'Half Day' | 'Absent'
+}
+
+export function useRecordDailyWage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: RecordDailyWagePayload) => {
+      const status: AttendanceStatus = payload.attendance_status || 'Present';
+      const wageAmount = status === 'Absent' ? 0 : Math.max(0, Number(payload.daily_wage) || 0);
+      const units = status === 'Present' ? 1.0 : status === 'Half Day' ? 0.5 : 0.0;
+      const rate = status === 'Half Day' ? wageAmount * 2 : wageAmount;
+
+      // 1. If wage_id provided, attempt direct update
+      if (payload.wage_id) {
+        try {
+          const { error } = await (supabase as any)
+            .from('daily_wages')
+            .update({
+              project_id: payload.project_id || null,
+              wage_date: payload.wage_date,
+              payable_units: units,
+              rate: rate,
+              base_wage: wageAmount,
+              amount: wageAmount,
+              amount_payable: wageAmount,
+            })
+            .eq('id', payload.wage_id);
+
+          if (error) throw error;
+
+          // Also update linked attendance record if present
+          if (payload.attendance_id) {
+            await (supabase as any)
+              .from('attendance')
+              .update({
+                status: status,
+                project_id: payload.project_id || null,
+                attendance_date: payload.wage_date,
+                daily_wage_snapshot: rate,
+              })
+              .eq('id', payload.attendance_id);
+          }
+        } catch {
+          // Update in-memory fallback
+          const idx = memoryDailyWages.findIndex((w) => w.id === payload.wage_id);
+          const proj = devEvalProjects.find((p) => p.id === payload.project_id);
+          if (idx >= 0) {
+            const attId = payload.attendance_id || memoryDailyWages[idx].attendance_id;
+            memoryDailyWages[idx] = {
+              ...memoryDailyWages[idx],
+              project_id: payload.project_id || null,
+              wage_date: payload.wage_date,
+              payable_units: units,
+              rate: rate,
+              base_wage: wageAmount,
+              amount: wageAmount,
+              amount_payable: wageAmount,
+              project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
+              updated_at: new Date().toISOString(),
+            };
+
+            const attIdx = memoryAttendance.findIndex((a) => a.id === attId);
+            if (attIdx >= 0) {
+              memoryAttendance[attIdx] = {
+                ...memoryAttendance[attIdx],
+                status: status,
+                project_id: payload.project_id || null,
+                attendance_date: payload.wage_date,
+                daily_wage_snapshot: rate,
+                updated_at: new Date().toISOString(),
+              };
+            }
+          }
+        }
+      } else {
+        // 2. Insert new daily wage using atomic RPC record_attendance
+        try {
+          const { error } = await (supabase as any).rpc('record_attendance', {
+            p_employee_id: payload.employee_id,
+            p_status: status,
+            p_attendance_date: payload.wage_date,
+            p_project_id: payload.project_id || null,
+            p_overtime_hours: 0,
+            p_overtime_amount: 0,
+            p_daily_wage_rate: rate,
+            p_notes: 'Daily wage entry',
+            p_auto_generate_wage: true,
+          });
+
+          if (error) {
+            // Check for duplicate constraint violation
+            if (error.code === '23505' || String(error.message || '').toLowerCase().includes('unique')) {
+              throw new Error('A wage entry already exists for this laborer on this date.');
+            }
+            throw error;
+          }
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          if (errMsg.includes('already exists')) {
+            throw err;
+          }
+          console.warn('Supabase record_attendance RPC notice, updating in memory fallback:', err);
+          const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
+          const proj = devEvalProjects.find((p) => p.id === payload.project_id);
+          const existingIdx = memoryDailyWages.findIndex(
+            (w) => w.employee_id === payload.employee_id && w.wage_date === payload.wage_date
+          );
+
+          if (existingIdx >= 0) {
+            memoryDailyWages[existingIdx] = {
+              ...memoryDailyWages[existingIdx],
+              project_id: payload.project_id || null,
+              payable_units: units,
+              rate: rate,
+              base_wage: wageAmount,
+              amount: wageAmount,
+              amount_payable: wageAmount,
+              project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
+              updated_at: new Date().toISOString(),
+            };
+          } else {
+            const nextNum = memoryDailyWages.length + 1;
+            const newAttId = `att-${Date.now()}-${payload.employee_id}`;
+            const wageRecord: DailyWage = {
+              id: `dw-${Date.now()}-${payload.employee_id}`,
+              company_id: 'comp-shivarivel-001',
+              employee_id: payload.employee_id,
+              attendance_id: newAttId,
+              project_id: payload.project_id || null,
+              wage_number: `WG-${String(nextNum).padStart(4, '0')}`,
+              wage_date: payload.wage_date,
+              payable_units: units,
+              rate: rate,
+              base_wage: wageAmount,
+              overtime_hours: 0,
+              overtime_amount: 0,
+              amount: wageAmount,
+              status: 'Confirmed',
+              reversal_of_id: null,
+              notes: 'Daily wage entry',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              employee: emp
+                ? {
+                    id: emp.id,
+                    employee_code: emp.employee_code,
+                    name: emp.name,
+                    worker_type: emp.worker_type,
+                  }
+                : undefined,
+              project: proj
+                ? {
+                    id: proj.id,
+                    name: proj.name,
+                    project_code: proj.project_code,
+                  }
+                : null,
+              amount_paid: 0,
+              amount_payable: wageAmount,
+            };
+            memoryDailyWages = [wageRecord, ...memoryDailyWages];
+
+            // Also add to memoryAttendance
+            const attRecord: AttendanceRecord = {
+              id: newAttId,
+              company_id: 'comp-shivarivel-001',
+              employee_id: payload.employee_id,
+              project_id: payload.project_id || null,
+              attendance_date: payload.wage_date,
+              status: status,
+              daily_wage_snapshot: rate,
+              overtime_hours: 0,
+              overtime_amount: 0,
+              notes: 'Daily wage entry',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              employee: emp,
+              project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
+            };
+            memoryAttendance.push(attRecord);
+          }
+        }
+      }
+
+      // Recalculate employee summary in memory
+      const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
+      if (emp) {
+        const empWages = memoryDailyWages.filter((w) => w.employee_id === emp.id && w.status === 'Confirmed');
+        emp.total_wages_earned = empWages.reduce((sum, w) => sum + w.amount, 0);
+        emp.total_present_days = empWages.length;
+      }
+
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wages'] });
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['project-workforce'] });
+    },
+  });
+}
+
+export function useDeleteDailyWage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ wageId, attendanceId }: { wageId: string; attendanceId?: string }) => {
+      try {
+        const { error } = await (supabase as any)
+          .from('daily_wages')
+          .update({ status: 'Cancelled' })
+          .eq('id', wageId);
+        if (error) {
+          await (supabase as any).from('daily_wages').delete().eq('id', wageId);
+        }
+        if (attendanceId) {
+          await (supabase as any).from('attendance').delete().eq('id', attendanceId);
+        }
+      } catch {
+        // Continue to memory fallback
+      }
+
+      // In-memory fallback removal
+      memoryDailyWages = memoryDailyWages.filter((w) => w.id !== wageId);
+      if (attendanceId) {
+        memoryAttendance = memoryAttendance.filter((a) => a.id !== attendanceId);
+      }
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wages'] });
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['project-workforce'] });
     },
   });
 }

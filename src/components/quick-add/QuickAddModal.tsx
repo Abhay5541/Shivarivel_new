@@ -3,19 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   X,
   UserPlus,
-  HelpCircle,
-  Compass,
-  Calculator,
   Building2,
   ShoppingCart,
-  ArrowDownLeft,
-  ArrowUpRight,
-  Banknote,
-  CalendarCheck2,
-  Receipt,
-  CheckSquare,
-  ClipboardList,
   Search,
+  UserCheck,
+  Calendar,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,12 +16,12 @@ interface QuickAddModalProps {
   onClose: () => void;
 }
 
-export type ActionCategory = 'All' | 'Commercial' | 'Projects' | 'Procurement' | 'Finance & Labor';
+export type ActionCategory = 'All' | 'Customers' | 'Projects' | 'Wages' | 'Procurement';
 
 interface QuickAction {
   id: string;
   title: string;
-  category: 'Commercial' | 'Projects' | 'Procurement' | 'Finance & Labor';
+  category: 'Customers' | 'Projects' | 'Wages' | 'Procurement';
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   iconBg: string;
@@ -38,151 +30,64 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
-  // Commercial
   {
     id: 'customer',
-    title: 'New Customer',
-    category: 'Commercial',
-    description: 'Register client profile, site location, phone, and billing details',
+    title: 'Add Customer',
+    category: 'Customers',
+    description: 'Register customer name, phone, and location',
     icon: UserPlus,
     iconBg: 'bg-[#F9F3E5]',
     iconColor: 'text-[#C99A2E]',
     route: '/customers?new=1',
   },
   {
-    id: 'enquiry',
-    title: 'New Enquiry',
-    category: 'Commercial',
-    description: 'Capture prospective lead requirement (Planning, 3D Elevation, Civil)',
-    icon: HelpCircle,
-    iconBg: 'bg-[#F7F5F0]',
-    iconColor: 'text-[#4A0E0E]',
-    route: '/enquiries?new=1',
-  },
-  {
-    id: 'site-visit',
-    title: 'Site Visit',
-    category: 'Commercial',
-    description: 'Schedule plot inspection, topographical survey, or client consultation',
-    icon: Compass,
-    iconBg: 'bg-[#F7F5F0]',
-    iconColor: 'text-[#4A0E0E]',
-    route: '/site-visits?new=1',
-  },
-  {
-    id: 'estimate',
-    title: 'New Estimate',
-    category: 'Commercial',
-    description: 'Draft itemized bill of quantities (BOQ) valuation for client approval',
-    icon: Calculator,
-    iconBg: 'bg-[#F9F3E5]',
-    iconColor: 'text-[#C99A2E]',
-    route: '/estimates/new',
-  },
-
-  // Projects & Execution
-  {
     id: 'project',
-    title: 'New Project',
+    title: 'Add Project',
     category: 'Projects',
-    description: 'Initialize active construction site with contract value and stage targets',
+    description: 'Register project name, client, and location',
     icon: Building2,
     iconBg: 'bg-[#F7EFEF]',
     iconColor: 'text-[#4A0E0E]',
-    route: '/projects/new',
+    route: '/projects?new=1',
   },
-  {
-    id: 'task',
-    title: 'Add Task',
-    category: 'Projects',
-    description: 'Create site inspection, client follow-up, or material check reminder',
-    icon: CheckSquare,
-    iconBg: 'bg-[#F9F3E5]',
-    iconColor: 'text-[#C99A2E]',
-    route: '/tasks',
-  },
-  {
-    id: 'daily-report',
-    title: 'Add Daily Site Report',
-    category: 'Projects',
-    description: 'Submit evening site log: weather conditions, work done, and photos',
-    icon: ClipboardList,
-    iconBg: 'bg-[#F9F3E5]',
-    iconColor: 'text-[#C99A2E]',
-    route: '/daily-reports',
-  },
-
-  // Procurement
   {
     id: 'purchase',
     title: 'Add Purchase',
     category: 'Procurement',
-    description: 'Log vendor delivery: cement, TMT steel, M-sand, with delivery challan',
+    description: 'Log materials bought for a specific project or general stock',
     icon: ShoppingCart,
     iconBg: 'bg-[#F9F3E5]',
     iconColor: 'text-[#C99A2E]',
-    route: '/purchases/new',
+    route: '/procurement?new=1',
   },
   {
-    id: 'expense',
-    title: 'Add Expense',
-    category: 'Procurement',
-    description: 'Record direct site petty cash, equipment hire, machinery, or fuel',
-    icon: Receipt,
+    id: 'laborer',
+    title: 'Add Laborer',
+    category: 'Wages',
+    description: 'Register laborer name, phone, and auto-generated ID',
+    icon: UserCheck,
     iconBg: 'bg-[#F7EFEF]',
     iconColor: 'text-[#4A0E0E]',
-    route: '/expenses/new',
-  },
-
-  // Finance & Labor (Strict Rule 18 Non-Netting)
-  {
-    id: 'customer-payment',
-    title: 'Record Customer Payment',
-    category: 'Finance & Labor',
-    description: 'Record client milestone receipt voucher against project contract',
-    icon: ArrowDownLeft,
-    iconBg: 'bg-[#EAF5EE]',
-    iconColor: 'text-[#1E6B37]',
-    route: '/customer-payments/new',
+    route: '/wages?laborer=1',
   },
   {
-    id: 'supplier-payment',
-    title: 'Record Supplier Payment',
-    category: 'Finance & Labor',
-    description: 'Disburse payment against pending material purchase bills',
-    icon: ArrowUpRight,
-    iconBg: 'bg-[#EFECE6]',
-    iconColor: 'text-[#242424]',
-    route: '/supplier-payments/new',
-  },
-  {
-    id: 'employee-payment',
-    title: 'Record Employee Payment',
-    category: 'Finance & Labor',
-    description: 'Disburse verified wage payout settlement or recover advance loan',
-    icon: Banknote,
-    iconBg: 'bg-[#F7EFEF]',
-    iconColor: 'text-[#4A0E0E]',
-    route: '/employee-payments/new',
-  },
-  {
-    id: 'attendance',
-    title: 'Mark Attendance',
-    category: 'Finance & Labor',
-    description: 'Open Fast Field Muster for 15-second multi-worker shift logging',
-    icon: CalendarCheck2,
-    iconBg: 'bg-[#EAF5EE]',
-    iconColor: 'text-[#1E6B37]',
-    route: '/attendance',
+    id: 'wage',
+    title: 'Add Wage',
+    category: 'Wages',
+    description: 'Record daily wage entry for laborer on a project',
+    icon: Calendar,
+    iconBg: 'bg-[#F9F3E5]',
+    iconColor: 'text-[#C99A2E]',
+    route: '/wages?new=1',
   },
 ];
 
 const categoryTabs: ActionCategory[] = [
   'All',
-  'Commercial',
+  'Customers',
   'Projects',
+  'Wages',
   'Procurement',
-  'Finance & Labor',
 ];
 
 export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {

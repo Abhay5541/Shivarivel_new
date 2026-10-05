@@ -1,38 +1,10 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  CalendarCheck,
-  CheckSquare,
-  PhoneCall,
-  Bell,
   Users,
-  HelpCircle,
-  Compass,
-  Calculator,
   Building2,
-  ListTodo,
-  ClipboardList,
   Truck,
-  Package,
-  ShoppingCart,
-  ReceiptIndianRupee,
-  UserCheck,
-  Clock4,
-  Coins,
-  HandCoins,
-  Wallet,
-  CreditCard,
-  Receipt,
-  PieChart,
   Calendar,
-  BarChart3,
-  ShoppingBag,
-  Users2,
-  FileSpreadsheet,
-  Building,
-  ShieldCheck,
-  Briefcase,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
@@ -51,82 +23,12 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    title: 'MAIN',
-    items: [
-      { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: 'BUSINESS',
+    title: 'MENU',
     items: [
       { label: 'Customers', href: '/customers', icon: Users },
-      { label: 'Enquiries', href: '/enquiries', icon: HelpCircle },
-      { label: 'Site Visits', href: '/site-visits', icon: Compass },
-      { label: 'Estimates', href: '/estimates', icon: Calculator },
-    ],
-  },
-  {
-    title: 'PROJECTS',
-    items: [
       { label: 'Projects', href: '/projects', icon: Building2 },
-      { label: 'Work Progress', href: '/work-progress', icon: ListTodo },
-      { label: 'Daily Reports', href: '/daily-reports', icon: ClipboardList },
-    ],
-  },
-  {
-    title: 'PROCUREMENT',
-    items: [
-      { label: 'Suppliers', href: '/suppliers', icon: Truck },
-      { label: 'Materials', href: '/materials', icon: Package },
-      { label: 'Purchases', href: '/purchases', icon: ShoppingCart },
-      { label: 'Supplier Payments', href: '/supplier-payments', icon: ReceiptIndianRupee },
-    ],
-  },
-  {
-    title: 'WORKFORCE',
-    items: [
-      { label: 'Employees', href: '/employees', icon: UserCheck },
-      { label: 'Attendance', href: '/attendance', icon: Clock4 },
-      { label: 'Wages', href: '/wages', icon: Coins },
-      { label: 'Advances', href: '/advances', icon: HandCoins },
-      { label: 'Employee Payments', href: '/employee-payments', icon: Wallet },
-    ],
-  },
-  {
-    title: 'FINANCE',
-    items: [
-      { label: 'Customer Payments', href: '/customer-payments', icon: CreditCard },
-      { label: 'Supplier Payments', href: '/finance/supplier-payments', icon: ReceiptIndianRupee },
-      { label: 'Employee Payments', href: '/finance/employee-payments', icon: Wallet },
-      { label: 'Expenses', href: '/expenses', icon: Receipt },
-      { label: 'Financial Summary', href: '/financial-summary', icon: PieChart },
-    ],
-  },
-  {
-    title: 'MY DAY',
-    items: [
-      { label: 'Today', href: '/today', icon: CalendarCheck },
-      { label: 'Tasks', href: '/tasks', icon: CheckSquare },
-      { label: 'Follow-ups', href: '/follow-ups', icon: PhoneCall },
-      { label: 'Reminders', href: '/reminders', icon: Bell },
-    ],
-  },
-  {
-    title: 'REPORTS',
-    items: [
-      { label: 'Weekly', href: '/reports/weekly', icon: Calendar },
-      { label: 'Project', href: '/reports/project', icon: BarChart3 },
-      { label: 'Purchase', href: '/reports/purchase', icon: ShoppingBag },
-      { label: 'Workforce', href: '/reports/workforce', icon: Users2 },
-      { label: 'Payment', href: '/reports/payment', icon: FileSpreadsheet },
-    ],
-  },
-  {
-    title: 'SETTINGS',
-    items: [
-      { label: 'Company Profile', href: '/settings/company', icon: Building, adminOnly: true },
-      { label: 'Users & Roles', href: '/settings/users', icon: ShieldCheck, adminOnly: true },
-      { label: 'Service Types', href: '/settings/service-types', icon: Briefcase, adminOnly: true },
+      { label: 'Wages', href: '/wages', icon: Calendar },
+      { label: 'Procurement', href: '/procurement', icon: Truck },
     ],
   },
 ];

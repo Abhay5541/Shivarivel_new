@@ -1,41 +1,39 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   UserPlus,
   Search,
   Phone,
   MapPin,
-  Eye,
-  Edit2,
-  Users,
-  Briefcase,
-  Compass,
+  Building2,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
-import { CustomerFormDrawer } from '@/components/business/CustomerFormDrawer';
+import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
+import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { useCustomers } from '@/hooks/useCustomers';
+import { useProjects } from '@/hooks/useProjects';
 import type { Customer } from '@/types/business';
-import { cn } from '@/lib/utils';
+import type { Project } from '@/types/projects';
 
-export function CustomersPage() {
+export const CustomersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
+  const [isSiteModalOpen, setIsSiteModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [targetCustomerForSite, setTargetCustomerForSite] = useState<Customer | null>(null);
 
-  // Auto-open drawer if navigated with ?new=1 or ?new=true
+  // Auto-open modal if navigated with ?new=1 or ?new=true
   useEffect(() => {
     if (searchParams.get('new') === '1' || searchParams.get('new') === 'true') {
       setEditingCustomer(null);
-      setIsDrawerOpen(true);
-      // Clean query parameter
+      setIsCustomerModalOpen(true);
       const nextParams = new URLSearchParams(searchParams);
       nextParams.delete('new');
       setSearchParams(nextParams, { replace: true });
@@ -44,366 +42,215 @@ export function CustomersPage() {
 
   const {
     data: customers = [],
-    isLoading,
+    isLoading: isCustomersLoading,
     isError,
     error,
     refetch,
-  } = useCustomers({
-    search: searchTerm,
-    status: statusFilter,
-  });
+  } = useCustomers();
 
-  const totalCount = customers.length;
-  const activeCount = customers.filter((c) => c.status === 'active').length;
+  const { data: allProjects = [] } = useProjects();
 
-  const handleCreateNew = () => {
+  // Map customerId -> count of sites
+  const siteCountByCustomer = useMemo(() => {
+    const map: Record<string, number> = {};
+    allProjects.forEach((p) => {
+      if (p.customer_id) {
+        map[p.customer_id] = (map[p.customer_id] || 0) + 1;
+      }
+    });
+    return map;
+  }, [allProjects]);
+
+  // Client-side search by name or phone
+  const filteredCustomers = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return customers;
+    return customers.filter((c) => {
+      const nameMatch = c.name.toLowerCase().includes(term);
+      const phoneMatch = c.phone ? c.phone.includes(term) : false;
+      return nameMatch || phoneMatch;
+    });
+  }, [customers, searchTerm]);
+
+  const handleOpenAddCustomer = () => {
     setEditingCustomer(null);
-    setIsDrawerOpen(true);
+    setIsCustomerModalOpen(true);
   };
 
-  const handleEdit = (customer: Customer, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setEditingCustomer(customer);
-    setIsDrawerOpen(true);
+  const handleRequestCreateSite = (newlySavedCust: Customer) => {
+    setTargetCustomerForSite(newlySavedCust);
+    setIsSiteModalOpen(true);
   };
+
+  const handleSiteCreated = (createdSite: Project) => {
+    navigate(`/sites/${createdSite.id}`);
+  };
+
+  if (isCustomersLoading) {
+    return (
+      <div className="space-y-6 max-w-5xl mx-auto">
+        <div className="h-10 w-48 bg-[#E2DDD5]/60 rounded-lg animate-pulse" />
+        <TableSkeleton rows={5} />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="max-w-5xl mx-auto py-8">
+        <ErrorState
+          title="Could not load customers"
+          description={error?.message || 'Unable to retrieve customer records.'}
+          onRetry={refetch}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-[#242424] font-heading tracking-tight">
             Customers
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-1">
-            Client phonebook, project sites, and commercial contact records
+          <p className="text-xs text-[#6B6B6B] mt-0.5">
+            Client directory and their construction/interior work sites
           </p>
         </div>
 
         <Button
+          type="button"
           variant="primary"
-          size="md"
-          onClick={handleCreateNew}
-          className="shadow-xs min-h-[44px] cursor-pointer"
+          onClick={handleOpenAddCustomer}
+          className="h-11 px-5 text-sm font-bold flex items-center justify-center gap-2 self-start sm:self-auto cursor-pointer"
         >
-          <UserPlus className="w-4 h-4 mr-2" />
-          + New Customer
+          <UserPlus className="w-4 h-4" />
+          <span>+ Add Customer</span>
         </Button>
       </div>
 
-      {/* Summary Metrics Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div className="p-4 bg-white border border-[#E2DDD5] rounded-xl shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
-              Total Clients
-            </span>
-            <Users className="w-4 h-4 text-[#4A0E0E]" />
-          </div>
-          <p className="text-2xl font-bold text-[#242424] font-heading mt-2">
-            {totalCount}
-          </p>
-        </div>
-
-        <div className="p-4 bg-white border border-[#E2DDD5] rounded-xl shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
-              Active Accounts
-            </span>
-            <div className="w-2.5 h-2.5 rounded-full bg-[#1E6B37]" />
-          </div>
-          <p className="text-2xl font-bold text-[#1E6B37] font-heading mt-2">
-            {activeCount}
-          </p>
-        </div>
-
-        <div className="p-4 bg-white border border-[#E2DDD5] rounded-xl shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
-              Enquiries Linked
-            </span>
-            <Briefcase className="w-4 h-4 text-[#C99A2E]" />
-          </div>
-          <p className="text-2xl font-bold text-[#242424] font-heading mt-2">
-            {customers.reduce((acc, c) => acc + (c.enquiries_count || 0), 0)}
-          </p>
-        </div>
-
-        <div className="p-4 bg-white border border-[#E2DDD5] rounded-xl shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
-              Site Visits Recorded
-            </span>
-            <Compass className="w-4 h-4 text-[#4A0E0E]" />
-          </div>
-          <p className="text-2xl font-bold text-[#242424] font-heading mt-2">
-            {customers.reduce((acc, c) => acc + (c.site_visits_count || 0), 0)}
-          </p>
-        </div>
-      </div>
-
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 bg-white border border-[#E2DDD5] rounded-xl">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3 top-3" />
-          <input
-            type="text"
-            placeholder="Search by customer name, phone, or location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 pl-9 pr-3 text-sm bg-[#F7F5F0]/60 border border-[#E2DDD5] rounded-lg focus:outline-none focus:border-[#4A0E0E] focus:bg-white transition-colors"
-          />
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 shrink-0 overflow-x-auto pb-1 sm:pb-0">
-          {(['all', 'active', 'inactive'] as const).map((filter) => (
-            <button
-              key={filter}
-              type="button"
-              onClick={() => setStatusFilter(filter)}
-              className={cn(
-                'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors capitalize cursor-pointer shrink-0 min-h-[36px]',
-                statusFilter === filter
-                  ? 'bg-[#4A0E0E] text-white shadow-2xs'
-                  : 'bg-white text-[#6B6B6B] border border-[#E2DDD5] hover:bg-[#F7F5F0] hover:text-[#242424]'
-              )}
-            >
-              {filter === 'all' ? 'All Customers' : filter}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      {isLoading ? (
-        <TableSkeleton rows={6} />
-      ) : isError ? (
-        <ErrorState
-          title="Failed to load customers"
-          description={error?.message || 'Unable to retrieve customer directory.'}
-          onRetry={refetch}
+      {/* Simple Search Bar (by Name or Phone) */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-[#6B6B6B]" />
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by customer name or phone..."
+          className="w-full h-11 pl-10 pr-4 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all text-[#242424] placeholder:text-[#6B6B6B]"
         />
-      ) : customers.length === 0 ? (
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={() => setSearchTerm('')}
+            className="absolute right-3 top-3 text-xs font-semibold text-[#6B6B6B] hover:text-[#242424]"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* Customer List */}
+      {filteredCustomers.length === 0 ? (
         <EmptyState
-          icon={<Users className="w-6 h-6 text-[#4A0E0E]" />}
-          title={searchTerm || statusFilter !== 'all' ? 'No matching customers' : 'No customers yet'}
+          icon={<UserPlus className="w-6 h-6" />}
+          title={searchTerm ? 'No matching customers found' : 'No customers yet.'}
           description={
-            searchTerm || statusFilter !== 'all'
-              ? 'No client accounts match your search query or filter criteria. Try clearing filters.'
-              : 'Add your first customer to start tracking enquiries, scheduling site visits, and managing projects.'
+            searchTerm
+              ? `No customer matching "${searchTerm}". Try another name or phone number.`
+              : 'Add your first customer to get started.'
           }
-          actionLabel="+ New Customer"
-          onAction={handleCreateNew}
+          actionLabel={searchTerm ? undefined : '+ Add Customer'}
+          onAction={searchTerm ? undefined : handleOpenAddCustomer}
         />
       ) : (
-        <>
-          {/* Desktop Table (Hidden on Mobile) */}
-          <div className="hidden md:block bg-white border border-[#E2DDD5] rounded-xl overflow-hidden shadow-2xs">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="h-10 bg-[#F7F5F0] border-b border-[#E2DDD5] text-[11px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
-                  <th className="pl-6 pr-4">Customer Name</th>
-                  <th className="px-4">Phone / Contact</th>
-                  <th className="px-4">Location</th>
-                  <th className="px-4 text-center">Enquiries</th>
-                  <th className="px-4 text-center">Visits</th>
-                  <th className="px-4">Status</th>
-                  <th className="pr-6 pl-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E2DDD5]/60 text-sm">
-                {customers.map((c) => (
-                  <tr
-                    key={c.id}
-                    onClick={() => navigate(`/customers/${c.id}`)}
-                    className="h-14 hover:bg-[#F9F3E5]/40 transition-colors cursor-pointer group"
-                  >
-                    <td className="pl-6 pr-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#F7F5F0] border border-[#E2DDD5] flex items-center justify-center text-xs font-bold text-[#4A0E0E] shrink-0 group-hover:border-[#C99A2E] transition-colors">
-                          {c.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <span className="font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors">
-                            {c.name}
-                          </span>
-                          {c.email && (
-                            <p className="text-[11px] text-[#6B6B6B] truncate max-w-[180px]">
-                              {c.email}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="px-4">
-                      {c.phone ? (
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-medium text-[#242424]">
-                            +91 {c.phone}
-                          </span>
-                          <a
-                            href={`tel:${c.phone}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="p-1 text-[#1E6B37] hover:bg-[#EAF5EE] rounded transition-colors"
-                            title="Call customer"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                          </a>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-[#8C8880]">—</span>
-                      )}
-                    </td>
-
-                    <td className="px-4">
-                      <span className="text-xs text-[#6B6B6B] truncate max-w-[200px] block">
-                        {c.address || '—'}
-                      </span>
-                    </td>
-
-                    <td className="px-4 text-center">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-[#F7F5F0] border border-[#E2DDD5] rounded-md text-[#242424]">
-                        {c.enquiries_count || 0}
-                      </span>
-                    </td>
-
-                    <td className="px-4 text-center">
-                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-[#F7F5F0] border border-[#E2DDD5] rounded-md text-[#242424]">
-                        {c.site_visits_count || 0}
-                      </span>
-                    </td>
-
-                    <td className="px-4">
-                      <StatusBadge variant={c.status === 'active' ? 'active' : 'inactive'}>
-                        {c.status === 'active' ? 'Active' : 'Inactive'}
-                      </StatusBadge>
-                    </td>
-
-                    <td className="pr-6 pl-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/customers/${c.id}`);
-                          }}
-                          className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] hover:bg-[#F7F5F0] rounded-lg transition-colors cursor-pointer"
-                          title="View customer record"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => handleEdit(c, e)}
-                          className="p-1.5 text-[#6B6B6B] hover:text-[#C99A2E] hover:bg-[#F9F3E5] rounded-lg transition-colors cursor-pointer"
-                          title="Edit details"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Stacked Cards (Visible on Mobile < 768px) */}
-          <div className="md:hidden space-y-3">
-            {customers.map((c) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {filteredCustomers.map((c) => {
+            const count = siteCountByCustomer[c.id] || 0;
+            return (
               <div
                 key={c.id}
                 onClick={() => navigate(`/customers/${c.id}`)}
-                className="p-4 bg-white border border-[#E2DDD5] rounded-xl shadow-2xs space-y-3 cursor-pointer active:scale-[0.99] transition-transform"
+                className="bg-white border border-[#E2DDD5] rounded-2xl p-5 hover:border-[#4A0E0E]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
               >
-                {/* Header Row */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-[#F7F5F0] border border-[#E2DDD5] flex items-center justify-center font-bold text-sm text-[#4A0E0E] shrink-0">
-                      {c.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-[#242424] leading-tight">
-                        {c.name}
-                      </h3>
-                      {c.phone && (
-                        <p className="text-xs font-mono text-[#6B6B6B] mt-0.5">
-                          +91 {c.phone}
-                        </p>
-                      )}
-                    </div>
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <h2 className="text-base font-bold text-[#242424] font-heading group-hover:text-[#4A0E0E] transition-colors">
+                      {c.name}
+                    </h2>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 ${
+                        count > 0
+                          ? 'bg-[#F9F3E5] text-[#8C6B1B] border border-[#C99A2E]/30'
+                          : 'bg-[#F7F5F0] text-[#6B6B6B] border border-[#E2DDD5]'
+                      }`}
+                    >
+                      <Building2 className="w-3.5 h-3.5" />
+                      {count === 1 ? '1 Project' : `${count} Projects`}
+                    </span>
                   </div>
 
-                  <StatusBadge variant={c.status === 'active' ? 'active' : 'inactive'}>
-                    {c.status === 'active' ? 'Active' : 'Inactive'}
-                  </StatusBadge>
+                  <div className="mt-3 space-y-1.5 text-xs text-[#6B6B6B]">
+                    {c.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
+                        <span className="font-semibold text-[#242424] font-mono">
+                          {c.phone}
+                        </span>
+                      </div>
+                    )}
+                    {c.address && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
+                        <span className="truncate">{c.address}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Location row */}
-                {c.address && (
-                  <p className="text-xs text-[#6B6B6B] flex items-center gap-1.5 line-clamp-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#C99A2E] shrink-0" />
-                    {c.address}
-                  </p>
-                )}
-
-                {/* Activity Counts */}
-                <div className="flex items-center gap-3 pt-2 border-t border-[#E2DDD5]/60 text-xs text-[#6B6B6B]">
-                  <span>Enquiries: <strong className="text-[#242424]">{c.enquiries_count || 0}</strong></span>
-                  <span>•</span>
-                  <span>Site Visits: <strong className="text-[#242424]">{c.site_visits_count || 0}</strong></span>
-                </div>
-
-                {/* Action Buttons (Touch Target >= 48px) */}
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {c.phone ? (
-                    <a
-                      href={`tel:${c.phone}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex items-center justify-center gap-2 py-3 px-3 bg-[#EAF5EE] text-[#1E6B37] border border-[#1E6B37]/20 rounded-lg text-xs font-bold active:scale-95 transition-transform min-h-[48px]"
-                    >
-                      <Phone className="w-4 h-4" />
-                      Call Client
-                    </a>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled
-                      className="py-3 px-3 bg-[#F7F5F0] text-[#8C8880] rounded-lg text-xs font-medium min-h-[48px]"
-                    >
-                      No Phone
-                    </button>
-                  )}
-
+                <div className="mt-4 pt-3 border-t border-[#E2DDD5]/60 flex items-center justify-between text-xs">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/customers/${c.id}`);
+                      setEditingCustomer(c);
+                      setIsCustomerModalOpen(true);
                     }}
-                    className="flex items-center justify-center gap-2 py-3 px-3 bg-[#4A0E0E] text-white rounded-lg text-xs font-bold active:scale-95 transition-transform min-h-[48px]"
+                    className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] px-2 py-1 -ml-2 rounded-md hover:bg-[#F7F5F0] transition-colors cursor-pointer"
                   >
-                    <Eye className="w-4 h-4" />
-                    Open Profile
+                    Edit Customer
                   </button>
+                  <span className="font-bold text-[#4A0E0E] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                    View Customer
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-        </>
+            );
+          })}
+        </div>
       )}
 
-      {/* Customer Form Drawer */}
-      <CustomerFormDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setEditingCustomer(null);
-        }}
+      {/* Customer Modal */}
+      <SimpleCustomerModal
+        isOpen={isCustomerModalOpen}
+        onClose={() => setIsCustomerModalOpen(false)}
         customer={editingCustomer}
+        onRequestCreateSite={handleRequestCreateSite}
+      />
+
+      {/* Site Modal (invoked if user creates customer and chooses Create Site) */}
+      <SimpleSiteModal
+        isOpen={isSiteModalOpen}
+        onClose={() => {
+          setIsSiteModalOpen(false);
+          setTargetCustomerForSite(null);
+        }}
+        preselectedCustomer={targetCustomerForSite}
+        onSuccess={handleSiteCreated}
       />
     </div>
   );
-}
+};

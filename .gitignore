@@ -31,3 +31,9 @@ dist-ssr
 *.sln
 *.sw?
 .env
+ 
+# Temporary IDE agent files and screenshots
+.agent/
+.gemini/
+scratch/
+*.png

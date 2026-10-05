@@ -623,6 +623,9 @@ export function useCreateProject() {
         const nextCodeNum = memoryProjects.length + 1;
         const newCode = `PRJ-${nextCodeNum.toString().padStart(4, '0')}`;
 
+        // Find customer if available from existing project or memory
+        const existingWithCust = memoryProjects.find((p) => p.customer_id === payload.customer_id);
+
         const createdProject: Project = {
           id: newProjId,
           company_id: 'comp-shivarivel-001',
@@ -640,6 +643,7 @@ export function useCreateProject() {
           contract_value: payload.contract_value ?? null,
           assigned_to: payload.assigned_to || null,
           notes: payload.notes?.trim() || null,
+          customer: existingWithCust?.customer,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -671,6 +675,7 @@ export function useUpdateProject() {
       const { data, error } = await (supabase
         .from('projects') as any)
         .update({
+          customer_id: payload.customer_id !== undefined ? payload.customer_id : undefined,
           name: payload.name !== undefined ? payload.name.trim() : undefined,
           description: payload.description !== undefined ? payload.description?.trim() || null : undefined,
           site_address: payload.site_address !== undefined ? payload.site_address?.trim() || null : undefined,
@@ -682,16 +687,23 @@ export function useUpdateProject() {
           notes: payload.notes !== undefined ? payload.notes?.trim() || null : undefined,
         })
         .eq('id', id)
-        .select()
+        .select(`
+          *,
+          customer:customers!customer_id (id, name, phone, email, address, city)
+        `)
         .single();
 
       if (error) {
         console.warn('Supabase project update error; updating in local memory for evaluation:', error.message);
         const idx = memoryProjects.findIndex((p) => p.id === id);
         if (idx >= 0) {
+          const custId = payload.customer_id !== undefined ? payload.customer_id : memoryProjects[idx].customer_id;
+          const existingWithCust = memoryProjects.find((p) => p.customer_id === custId && p.customer);
           memoryProjects[idx] = {
             ...memoryProjects[idx],
             ...payload,
+            customer_id: custId,
+            customer: existingWithCust?.customer || memoryProjects[idx].customer,
             updated_at: new Date().toISOString(),
           };
           return memoryProjects[idx];

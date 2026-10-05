@@ -15,9 +15,9 @@ import { SiteVisitsPage } from '@/pages/site-visits/SiteVisitsPage';
 import { EstimatesPage } from '@/pages/estimates/EstimatesPage';
 import { EstimateEditorPage } from '@/pages/estimates/EstimateEditorPage';
 import { EstimateDetailPage } from '@/pages/estimates/EstimateDetailPage';
-import { ProjectsPage } from '@/pages/projects/ProjectsPage';
+import { SitesPage } from '@/pages/projects/SitesPage';
+import { SiteDetailPage } from '@/pages/projects/SiteDetailPage';
 import { ProjectEditorPage } from '@/pages/projects/ProjectEditorPage';
-import { ProjectDetailPage } from '@/pages/projects/ProjectDetailPage';
 import { SuppliersPage } from '@/pages/procurement/SuppliersPage';
 import { SupplierEditorPage } from '@/pages/procurement/SupplierEditorPage';
 import { SupplierDetailPage } from '@/pages/procurement/SupplierDetailPage';
@@ -83,7 +83,13 @@ function App() {
                 }
               >
                 {/* Default Index Redirect */}
-                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route index element={<Navigate to="/customers" replace />} />
+
+                {/* Simplified Client Modules (Phase 02: Customers & Sites) */}
+                <Route path="/customers" element={<CustomersPage />} />
+                <Route path="/customers/:id" element={<CustomerDetailPage />} />
+                <Route path="/sites" element={<SitesPage />} />
+                <Route path="/sites/:id" element={<SiteDetailPage />} />
 
                 {/* Main Command Center */}
                 <Route path="/dashboard" element={<DashboardPage />} />
@@ -96,8 +102,6 @@ function App() {
                 <Route path="/reminders" element={<PlaceholderPage />} />
 
                 {/* Business & CRM (Phase 03) */}
-                <Route path="/customers" element={<CustomersPage />} />
-                <Route path="/customers/:id" element={<CustomerDetailPage />} />
                 <Route path="/enquiries" element={<EnquiriesPage />} />
                 <Route path="/site-visits" element={<SiteVisitsPage />} />
                 {/* Estimates Module (Phase 04) */}
@@ -107,15 +111,16 @@ function App() {
                 <Route path="/estimates/:id/edit" element={<EstimateEditorPage />} />
 
                 {/* Projects & Operations (Phase 05) */}
-                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/projects" element={<SitesPage />} />
                 <Route path="/projects/new" element={<ProjectEditorPage />} />
-                <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                <Route path="/projects/:id" element={<SiteDetailPage />} />
                 <Route path="/projects/:id/edit" element={<ProjectEditorPage />} />
                 <Route path="/work-progress" element={<PlaceholderPage />} />
                 <Route path="/projects/progress" element={<PlaceholderPage />} />
                 <Route path="/daily-reports" element={<PlaceholderPage />} />
 
                 {/* Procurement & Suppliers */}
+                <Route path="/procurement" element={<PurchasesPage />} />
                 <Route path="/suppliers" element={<SuppliersPage />} />
                 <Route path="/suppliers/new" element={<SupplierEditorPage />} />
                 <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
@@ -135,6 +140,7 @@ function App() {
                 <Route path="/employees/:id/edit" element={<EmployeeEditorPage />} />
                 <Route path="/attendance" element={<AttendancePage />} />
                 <Route path="/wages" element={<WagesPage />} />
+                <Route path="/daily-wages" element={<Navigate to="/wages" replace />} />
                 <Route path="/advances" element={<AdvancesPage />} />
                 <Route path="/advances/new" element={<AdvanceEditorPage />} />
                 <Route path="/employee-payments" element={<EmployeePaymentsPage />} />

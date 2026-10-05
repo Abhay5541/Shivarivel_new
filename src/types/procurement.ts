@@ -259,3 +259,28 @@ export const PAYMENT_METHODS = [
   'Cash',
   'Demand Draft',
 ] as const;
+
+// ==========================================
+// PHASE 03C: SIMPLIFIED PROCUREMENT TYPES
+// ==========================================
+
+export interface SimplePurchaseInput {
+  id?: string;
+  project_id: string | null;
+  product_name: string;
+  supplier_name: string;
+  quantity: number;
+  unit: string;
+  total_value: number;
+  amount_paid: number;
+  purchase_date?: string;
+  notes?: string | null;
+}
+
+export interface SupplierSummaryItem {
+  supplier_name: string;
+  total_purchased: number;
+  total_paid: number;
+  total_outstanding: number;
+  purchase_count: number;
+}
