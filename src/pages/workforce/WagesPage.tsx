@@ -22,6 +22,8 @@ import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { LaborersDrawer } from '@/components/business/LaborersDrawer';
+import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
+import { SplitText } from '@/components/ui/SplitText';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
 
 function getTodayISO() {
@@ -38,6 +40,25 @@ export function WagesPage() {
   const [isAddWageModalOpen, setIsAddWageModalOpen] = useState(false);
   const [isLaborersDrawerOpen, setIsLaborersDrawerOpen] = useState(false);
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
+
+  // Segment options for Daily Muster vs Weekly Wages
+  const wageViewOptions = useMemo<SegmentOption<'daily' | 'weekly'>[]>(
+    () => [
+      {
+        id: 'daily',
+        label: 'Daily Muster',
+        icon: <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+      {
+        id: 'weekly',
+        label: 'Weekly Wages',
+        icon: <Clock className="w-4 h-4 text-[#C99A2E]" />,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+    ],
+    []
+  );
   const [expandedWeeklyLaborerId, setExpandedWeeklyLaborerId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -330,10 +351,18 @@ export function WagesPage() {
       {/* Top Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">Wages</h1>
-          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
-            Record daily site attendance and review weekly earnings
-          </p>
+          <SplitText
+            text="Wages"
+            tag="h1"
+            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
+            delay={40}
+            duration={0.6}
+            ease="power3.out"
+            splitType="chars"
+            from={{ opacity: 0, y: 18 }}
+            to={{ opacity: 1, y: 0 }}
+            textAlign="left"
+          />
         </div>
 
         <div className="flex items-center gap-2.5">
@@ -359,37 +388,22 @@ export function WagesPage() {
         </div>
       </div>
 
-      {/* View Switcher: [ Daily ] [ Weekly ] */}
-      <div className="flex border-b border-[#E2DDD5] mb-5">
-        <button
-          type="button"
-          onClick={() => setActiveTab('daily')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'daily'
-              ? 'border-[#4A0E0E] text-[#4A0E0E]'
-              : 'border-transparent text-[#6B6B6B] hover:text-[#242424]'
-          }`}
-        >
-          Daily Muster
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('weekly')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
-            activeTab === 'weekly'
-              ? 'border-[#4A0E0E] text-[#4A0E0E]'
-              : 'border-transparent text-[#6B6B6B] hover:text-[#242424]'
-          }`}
-        >
-          Weekly Wages
-        </button>
+      {/* View Switcher: [ Daily Muster ] [ Weekly Wages ] */}
+      <div className="mb-6 overflow-x-auto no-scrollbar">
+        <SlidingSegmentedControl
+          options={wageViewOptions}
+          value={activeTab}
+          onChange={setActiveTab}
+          size="md"
+          ariaLabel="Wages view"
+        />
       </div>
 
       {/* ========================================================= */}
       {/* 1. DAILY VIEW */}
       {/* ========================================================= */}
       {activeTab === 'daily' && (
-        <div className="space-y-4">
+        <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Date Navigator Bar */}
           <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start">
@@ -546,7 +560,6 @@ export function WagesPage() {
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
                     Daily Muster Matrix ({dayEntries.length} Recorded)
                   </h3>
-                  <span className="text-xs text-[#6B6B6B]">Click edit to update records</span>
                 </div>
 
                 <table className="w-full text-left border-collapse">
@@ -673,7 +686,7 @@ export function WagesPage() {
       {/* 2. WEEKLY VIEW */}
       {/* ========================================================= */}
       {activeTab === 'weekly' && (
-        <div className="space-y-4">
+        <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Week Selector Bar */}
           <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
@@ -747,9 +760,6 @@ export function WagesPage() {
               <h3 className="text-base font-bold text-[#242424] font-display">
                 No wage entries recorded for this week.
               </h3>
-              <p className="text-xs text-[#6B6B6B]">
-                Switch to Daily view to record site labor wages for any day in this week.
-              </p>
               <div className="pt-2">
                 <Button
                   type="button"
@@ -769,7 +779,6 @@ export function WagesPage() {
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
                     Laborer Weekly Ledger ({weekRange.label})
                   </h3>
-                  <span className="text-xs text-[#6B6B6B]">Derived strictly from daily cash wage records</span>
                 </div>
 
                 <div className="overflow-x-auto">

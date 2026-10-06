@@ -80,7 +80,6 @@ export function EmployeeDetailPage() {
       {/* Top Header */}
       <PageHeader
         title={employee.name}
-        subtitle="Employee details and recent site work records"
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <Link to="/employees">
@@ -145,7 +144,6 @@ export function EmployeeDetailPage() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-[#242424] font-heading">Recent Work</h3>
-            <p className="text-xs text-[#6B6B6B]">Daily wages recorded for this employee</p>
           </div>
           <Button
             variant="outline"
@@ -162,7 +160,7 @@ export function EmployeeDetailPage() {
           <EmptyState
             icon={<Calendar className="w-6 h-6" />}
             title="No work recorded yet"
-            description={`No daily wage records found for ${employee.name}. Click below to add one.`}
+            description={`No daily wage records found for ${employee.name}.`}
             actionLabel="+ Add Daily Wage"
             onAction={() => setIsAddWageModalOpen(true)}
           />

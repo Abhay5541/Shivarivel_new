@@ -34,9 +34,6 @@ export const MaterialsPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-[#242424] font-heading uppercase tracking-tight">
             Materials
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
-            Manage reusable construction and interior materials
-          </p>
         </div>
 
         <ActionButton
@@ -74,7 +71,7 @@ export const MaterialsPage: React.FC = () => {
           description={
             search
               ? 'Try searching with a different term.'
-              : 'Add your common construction materials like Cement, Sand, Tiles, or Paint.'
+              : undefined
           }
           actionLabel="Add Material"
           onAction={() => setIsAddMaterialOpen(true)}

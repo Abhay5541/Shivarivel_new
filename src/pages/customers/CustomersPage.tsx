@@ -19,6 +19,7 @@ import { useCustomers } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import type { Customer } from '@/types/business';
 import type { Project } from '@/types/projects';
+import { SplitText } from '@/components/ui/SplitText';
 
 export const CustomersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -113,12 +114,18 @@ export const CustomersPage: React.FC = () => {
       {/* Top Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">
-            Customers
-          </h1>
-          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
-            Client directory and their construction/interior work sites
-          </p>
+          <SplitText
+            text="Customers"
+            tag="h1"
+            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
+            delay={40}
+            duration={0.6}
+            ease="power3.out"
+            splitType="chars"
+            from={{ opacity: 0, y: 18 }}
+            to={{ opacity: 1, y: 0 }}
+            textAlign="left"
+          />
         </div>
 
         <div className="flex items-center gap-2.5">
@@ -144,7 +151,7 @@ export const CustomersPage: React.FC = () => {
           description={
             searchTerm
               ? `No customer matching "${searchTerm}". Try another name or phone number.`
-              : 'Add your first customer to get started.'
+              : undefined
           }
           actionLabel={searchTerm ? undefined : '+ Add Customer'}
           onAction={searchTerm ? undefined : handleOpenAddCustomer}

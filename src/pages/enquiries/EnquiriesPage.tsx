@@ -109,9 +109,6 @@ export function EnquiriesPage() {
           <h1 className="text-2xl font-bold text-[#242424] font-heading tracking-tight">
             Enquiries
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-1">
-            Active business inquiries, design requests, and estimate follow-ups
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -260,7 +257,7 @@ export function EnquiriesPage() {
           description={
             searchTerm || selectedStatus !== 'all'
               ? 'No business opportunities match your current filter criteria.'
-              : 'Add your first prospective job requirement to track quotes and schedule site visits.'
+              : undefined
           }
           actionLabel="+ New Enquiry"
           onAction={handleCreateNew}

@@ -80,9 +80,6 @@ export const EstimatesPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-[#242424] font-heading">
             Estimates
           </h1>
-          <p className="text-sm text-[#6B6B6B] mt-0.5">
-            Cost proposals, bill of quantities (BOQ), and commercial quotations
-          </p>
         </div>
 
         <Button
@@ -178,7 +175,7 @@ export const EstimatesPage: React.FC = () => {
           description={
             selectedStatus !== 'all' || searchTerm
               ? 'Try adjusting your search query or switching status filters.'
-              : 'Prepare and send professional construction estimates and interior quotations to customers.'
+              : undefined
           }
           actionLabel="+ New Estimate"
           onAction={() => navigate('/estimates/new')}

@@ -58,9 +58,6 @@ export const SupplierPaymentsPage: React.FC = () => {
             <CreditCard className="w-6 h-6 text-[#1E6B37]" />
             Supplier Payments Register
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-1">
-            Vendor disbursements, invoice allocations, RTGS/UPI bank remittances, and unallocated supplier credits
-          </p>
         </div>
 
         <button
@@ -163,7 +160,7 @@ export const SupplierPaymentsPage: React.FC = () => {
           description={
             search || selectedSupplierId !== 'all'
               ? 'No payments match your search filter.'
-              : 'Record vendor payments, RTGS remittances, or cash settlements against purchases.'
+              : undefined
           }
           actionLabel="Record Payment"
           onAction={() => navigate('/supplier-payments/new')}

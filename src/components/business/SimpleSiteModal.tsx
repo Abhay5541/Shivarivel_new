@@ -128,9 +128,6 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
               >
                 {isEditing ? 'Edit Project' : 'Add New Project'}
               </h2>
-              <p className="text-xs text-[#6B6B6B] leading-tight mt-0.5">
-                Project details and work location
-              </p>
             </div>
           </div>
 

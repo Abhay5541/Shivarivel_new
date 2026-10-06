@@ -98,7 +98,6 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
               <h2 className="text-lg font-bold text-[#242424] font-heading">
                 {isEditing ? 'Edit Supplier' : 'Add Supplier'}
               </h2>
-              <p className="text-xs text-[#6B6B6B]">Quick supplier registration</p>
             </div>
           </div>
           <button

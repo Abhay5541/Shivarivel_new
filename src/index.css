@@ -172,6 +172,22 @@ input, textarea, select {
   animation: modal-backdrop-in 220ms ease-out both;
 }
 
+/* Smooth sliding fade for content transitions when filtering tabs */
+@keyframes filter-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-filter-slide {
+  animation: filter-slide-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* Accessibility: Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {

@@ -32,7 +32,7 @@ export function AppLayout() {
       <Header onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
 
       {/* Scrollable Main Content Area */}
-      <main className="flex-1 overflow-y-auto pb-24 pt-2 px-4 sm:px-6 lg:px-8 max-w-7xl w-full mx-auto">
+      <main className="flex-1 overflow-y-auto pb-24 md:pb-10 pt-2 px-4 sm:px-6 lg:px-8 max-w-7xl w-full mx-auto">
         <Outlet />
       </main>
 

@@ -191,7 +191,6 @@ export function ServiceTypesPage() {
 
       <PageHeader
         title="Service Types"
-        subtitle="Manage master trade offerings, architectural services, and scope classifications"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F9F3E5] text-[#8F6A18] border border-[#C99A2E]/30">
             <Briefcase className="w-3.5 h-3.5 text-[#C99A2E]" />

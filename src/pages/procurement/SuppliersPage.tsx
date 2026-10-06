@@ -62,9 +62,6 @@ export const SuppliersPage: React.FC = () => {
           <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">
             Suppliers
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
-            Manage material suppliers, purchases, and payments
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5">
@@ -98,7 +95,7 @@ export const SuppliersPage: React.FC = () => {
           description={
             search
               ? 'Try searching with a different name or phone number.'
-              : 'Add your material suppliers to begin tracking purchases and payments.'
+              : undefined
           }
           actionLabel="Add Supplier"
           onAction={() => setIsAddSupplierOpen(true)}

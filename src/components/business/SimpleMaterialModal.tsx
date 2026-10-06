@@ -71,7 +71,6 @@ export const SimpleMaterialModal: React.FC<SimpleMaterialModalProps> = ({
               <h2 className="text-lg font-bold text-[#242424] font-heading">
                 Add Material
               </h2>
-              <p className="text-xs text-[#6B6B6B]">Add reusable construction item</p>
             </div>
           </div>
           <button

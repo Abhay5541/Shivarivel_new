@@ -159,9 +159,6 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
               >
                 Quick Add Actions
               </h2>
-              <p className="text-[11px] text-[#6B6B6B] leading-tight">
-                Create new record in under 30 seconds
-              </p>
             </div>
           </div>
 

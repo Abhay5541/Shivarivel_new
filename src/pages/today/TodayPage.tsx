@@ -134,7 +134,6 @@ export function TodayPage() {
       {/* Page Header */}
       <PageHeader
         title="My Day"
-        subtitle="Personal Operational Work Queue &amp; Field Execution"
         badge={
           <Badge variant="primary" className="gap-1">
             <CheckSquare className="w-3 h-3 text-[#C99A2E]" />

@@ -107,7 +107,6 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
               <h2 className="text-lg font-bold text-[#242424] font-heading">
                 {isEditing ? 'Edit Employee' : 'Add Employee'}
               </h2>
-              <p className="text-xs text-[#6B6B6B]">Quick worker registration</p>
             </div>
           </div>
           <button

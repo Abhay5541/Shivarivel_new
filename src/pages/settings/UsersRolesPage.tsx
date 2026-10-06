@@ -154,7 +154,6 @@ export function UsersRolesPage() {
 
       <PageHeader
         title="Users & Access Roles"
-        subtitle="Manage authenticated application accounts, assign supervisory roles, and govern permissions"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#C99A2E]/10 text-[#8F6A18] border border-[#C99A2E]/30">
             <ShieldCheck className="w-3.5 h-3.5" />

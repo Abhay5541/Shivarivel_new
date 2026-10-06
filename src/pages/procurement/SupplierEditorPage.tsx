@@ -95,9 +95,6 @@ export const SupplierEditorPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-[#242424] font-heading mt-1">
             {isEditing ? `Edit Supplier: ${existingSupplier?.name || ''}` : 'New Material Vendor / Supplier'}
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
-            Register vendor business identity, payment terms, contact details, and tax registration
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

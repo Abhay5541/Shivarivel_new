@@ -120,7 +120,6 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-[#242424] font-display">Laborers Directory</h2>
-              <p className="text-xs text-[#6B6B6B]">Registered site workers & auto IDs</p>
             </div>
           </div>
           <button
@@ -250,7 +249,6 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
             <div className="py-12 text-center text-xs text-[#6B6B6B] space-y-2">
               <UserCheck className="w-8 h-8 text-[#99958F] mx-auto opacity-50" />
               <p className="font-semibold text-[#242424]">No laborers registered yet.</p>
-              <p>Click "+ Add Laborer" above to register your first site worker.</p>
             </div>
           ) : (
             <div className="space-y-2">

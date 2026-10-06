@@ -29,7 +29,6 @@ export function SettingsOverviewPage() {
     <PageContainer>
       <PageHeader
         title="Settings & Administration"
-        subtitle="Manage business identity, team access roles, and master service catalog"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F9F3E5] text-[#8F6A18] border border-[#C99A2E]/30">
             <Sparkles className="w-3.5 h-3.5 text-[#C99A2E]" />

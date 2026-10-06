@@ -197,8 +197,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
         </div>
       )}
 
-      {/* Persistent Glass Magnifying Dock Bar (Both PC & Mobile) */}
-      <div className="fixed bottom-3 inset-x-0 z-30 flex justify-center px-4 pointer-events-none select-none">
+      {/* Persistent Glass Magnifying Dock Bar (Mobile & Tablet only) */}
+      <div className="fixed bottom-3 inset-x-0 z-30 flex justify-center px-4 pointer-events-none select-none md:hidden">
         <div className="pointer-events-auto">
           <MagnifyingDock
             items={dockItems}

@@ -174,11 +174,6 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
                   ? 'Record Project Purchase'
                   : 'Record General Purchase'}
               </h2>
-              <p className="text-xs text-[#6B6B6B]">
-                {isProjectPurchase
-                  ? 'Purchase associated with a project'
-                  : 'General purchase not tied to any project'}
-              </p>
             </div>
           </div>
           <button

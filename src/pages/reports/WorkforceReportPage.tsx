@@ -80,7 +80,6 @@ export function WorkforceReportPage() {
       {/* Screen Interactive Header */}
       <ReportHeader
         title="Workforce Operational Report"
-        subtitle="Labor site muster, shift compensation accrued, disbursements settled, and isolated advance registers."
         badgeText="Workforce & Payroll Audit"
         badgeIcon={<Users2 className="w-3.5 h-3.5 text-[#C99A2E]" />}
         dateRangeText={periodFormatted}

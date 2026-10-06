@@ -151,9 +151,6 @@ export const PurchaseEditorPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-[#242424] font-heading mt-1">
             New Purchase Invoice & Delivery
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
-            Log vendor material delivery, bill of quantities, project assignment, and initial payments
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

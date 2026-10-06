@@ -138,6 +138,35 @@
 
 .gdock-tip[data-on="true"] { opacity: 1; transform: translate(-50%, 0); }
 
+/* Tooltip positioned below the dock (when used in top header) */
+.gdock--tip-bottom .gdock-tip {
+  bottom: auto;
+  top: calc(100% + 8px);
+  transform: translate(-50%, -4px);
+}
+.gdock--tip-bottom .gdock-tip[data-on="true"] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Header embedded dock (seamlessly fits inside floating glass header) */
+.gdock.gdock--header {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 4px !important;
+  gap: 18px !important;
+}
+.gdock.gdock--header::before {
+  display: none !important;
+}
+.gdock.gdock--header .gdock-item {
+  width: 44px;
+  height: 44px;
+}
+
 /* Special central action plus button */
 .gdock-item--action {
   opacity: 1;

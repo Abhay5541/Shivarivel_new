@@ -46,7 +46,6 @@ export function ProjectReportPage() {
       {/* Screen Interactive Header */}
       <ReportHeader
         title="Project Operational Report"
-        subtitle="Cross-project milestone progress, customer receivable balances, and recorded site costs."
         badgeText="Multi-Project Audit"
         badgeIcon={<Building2 className="w-3.5 h-3.5 text-[#C99A2E]" />}
         onRefresh={() => refetch()}

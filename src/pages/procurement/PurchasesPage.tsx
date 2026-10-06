@@ -21,6 +21,8 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { RecordPaymentModal } from '@/components/business/RecordPaymentModal';
+import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
+import { SplitText } from '@/components/ui/SplitText';
 import type { Purchase } from '@/types/procurement';
 
 type ProcurementTab = 'project' | 'general' | 'suppliers';
@@ -143,6 +145,33 @@ export const PurchasesPage: React.FC = () => {
     return Math.max(0, projectProcurementTotal - projectPaidTotal);
   }, [projectProcurementTotal, projectPaidTotal]);
 
+  // Segment options for project purchases with live counts
+  const projectFilterOptions = useMemo<SegmentOption<'all' | 'pending' | 'paid'>[]>(
+    () => [
+      {
+        id: 'all',
+        label: 'All',
+        count: filteredProjectPurchases.length,
+        activeColorClass: 'text-[#242424]',
+      },
+      {
+        id: 'pending',
+        label: 'Pending Payment',
+        count: projectPendingPurchases.length,
+        dotColor: '#C99A2E',
+        activeColorClass: 'text-[#991B1B]',
+      },
+      {
+        id: 'paid',
+        label: 'Fully Paid',
+        count: projectPaidPurchases.length,
+        dotColor: '#166534',
+        activeColorClass: 'text-[#166534]',
+      },
+    ],
+    [filteredProjectPurchases.length, projectPendingPurchases.length, projectPaidPurchases.length]
+  );
+
   // 2. GENERAL PURCHASES DATA & TOTALS
   const generalPurchases = useMemo(() => {
     return purchases.filter((p) => !p.project_id);
@@ -196,6 +225,33 @@ export const PurchasesPage: React.FC = () => {
     return Math.max(0, generalTotalPurchased - generalTotalPaid);
   }, [generalTotalPurchased, generalTotalPaid]);
 
+  // Segment options for general purchases with live counts
+  const generalFilterOptions = useMemo<SegmentOption<'all' | 'pending' | 'paid'>[]>(
+    () => [
+      {
+        id: 'all',
+        label: 'All',
+        count: filteredGeneralPurchases.length,
+        activeColorClass: 'text-[#242424]',
+      },
+      {
+        id: 'pending',
+        label: 'Pending Payment',
+        count: generalPendingPurchases.length,
+        dotColor: '#C99A2E',
+        activeColorClass: 'text-[#991B1B]',
+      },
+      {
+        id: 'paid',
+        label: 'Fully Paid',
+        count: generalPaidPurchases.length,
+        dotColor: '#166534',
+        activeColorClass: 'text-[#166534]',
+      },
+    ],
+    [filteredGeneralPurchases.length, generalPendingPurchases.length, generalPaidPurchases.length]
+  );
+
   // 3. SUPPLIER SUMMARY DERIVED AGGREGATION
   const allSupplierSummaries = useMemo(() => {
     return computeSupplierSummary(purchases);
@@ -206,6 +262,34 @@ export const PurchasesPage: React.FC = () => {
     const q = search.toLowerCase();
     return allSupplierSummaries.filter((s) => s.supplier_name.toLowerCase().includes(q));
   }, [allSupplierSummaries, search]);
+
+  // Segment options for main Procurement tabs (Project, General, Suppliers)
+  const procurementTabOptions = useMemo<SegmentOption<ProcurementTab>[]>(
+    () => [
+      {
+        id: 'project',
+        label: 'Project Purchases',
+        icon: <Building2 className="w-4 h-4 text-[#C99A2E]" />,
+        count: allProjectPurchases.length,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+      {
+        id: 'general',
+        label: 'General Purchases',
+        icon: <Package className="w-4 h-4 text-[#C99A2E]" />,
+        count: generalPurchases.length,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+      {
+        id: 'suppliers',
+        label: 'Supplier Summary',
+        icon: <Truck className="w-4 h-4 text-[#C99A2E]" />,
+        count: allSupplierSummaries.length,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+    ],
+    [allProjectPurchases.length, generalPurchases.length, allSupplierSummaries.length]
+  );
 
   // Reusable purchase card rendering with clear payment badge & action
   const renderPurchaseCard = (p: Purchase, isProject: boolean) => {
@@ -331,17 +415,18 @@ export const PurchasesPage: React.FC = () => {
       {/* Top Page Header */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">
-              Procurement
-            </h1>
-            <span className="text-xs bg-[#4A0E0E]/10 text-[#4A0E0E] px-2.5 py-0.5 rounded-full font-bold">
-              {purchases.length}
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-[#6B6B6B]">
-            Material purchases, site deliveries, and supplier balances
-          </p>
+          <SplitText
+            text="Procurement"
+            tag="h1"
+            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
+            delay={40}
+            duration={0.6}
+            ease="power3.out"
+            splitType="chars"
+            from={{ opacity: 0, y: 18 }}
+            to={{ opacity: 1, y: 0 }}
+            textAlign="left"
+          />
         </div>
 
         {/* Search & Action Button side-by-side */}
@@ -375,55 +460,14 @@ export const PurchasesPage: React.FC = () => {
       </div>
 
       {/* Tabs Switcher: [ Project Purchases ] [ General Purchases ] [ Supplier Summary ] */}
-      <div className="flex border-b border-[#E2DDD5] mb-5 overflow-x-auto no-scrollbar">
-        <button
-          type="button"
-          onClick={() => setActiveTab('project')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'project'
-              ? 'border-[#4A0E0E] text-[#4A0E0E]'
-              : 'border-transparent text-[#6B6B6B] hover:text-[#242424]'
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          <span>Project Purchases</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('general')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'general'
-              ? 'border-[#4A0E0E] text-[#4A0E0E]'
-              : 'border-transparent text-[#6B6B6B] hover:text-[#242424]'
-          }`}
-        >
-          <Package className="w-4 h-4" />
-          <span>General Purchases</span>
-          {generalPurchases.length > 0 && (
-            <span className="text-[10px] bg-[#E2DDD5] text-[#242424] px-1.5 py-0.2 rounded-full">
-              {generalPurchases.length}
-            </span>
-          )}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('suppliers')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'suppliers'
-              ? 'border-[#4A0E0E] text-[#4A0E0E]'
-              : 'border-transparent text-[#6B6B6B] hover:text-[#242424]'
-          }`}
-        >
-          <Truck className="w-4 h-4" />
-          <span>Supplier Summary</span>
-          {allSupplierSummaries.length > 0 && (
-            <span className="text-[10px] bg-[#E2DDD5] text-[#242424] px-1.5 py-0.2 rounded-full">
-              {allSupplierSummaries.length}
-            </span>
-          )}
-        </button>
+      <div className="mb-6 overflow-x-auto no-scrollbar">
+        <SlidingSegmentedControl
+          options={procurementTabOptions}
+          value={activeTab}
+          onChange={setActiveTab}
+          size="md"
+          ariaLabel="Procurement sections"
+        />
       </div>
 
       {isLoading ? (
@@ -440,7 +484,7 @@ export const PurchasesPage: React.FC = () => {
           {/* TAB 1: PROJECT PURCHASES */}
           {/* ========================================================= */}
           {activeTab === 'project' && (
-            <div className="space-y-5">
+            <div key={activeTab} className="space-y-5 animate-filter-slide">
               {/* Project Totals Cards (Rule 10: Cost, Paid, Balance) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
@@ -478,50 +522,17 @@ export const PurchasesPage: React.FC = () => {
               </div>
 
               {/* Payment Filter Segmented Control */}
-              <div className="flex items-center gap-1.5 p-1 bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl w-fit">
-                <button
-                  type="button"
-                  onClick={() => setProjectPaymentFilter('all')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    projectPaymentFilter === 'all'
-                      ? 'bg-white text-[#242424] shadow-xs'
-                      : 'text-[#6B6B6B] hover:text-[#242424]'
-                  }`}
-                >
-                  All ({filteredProjectPurchases.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setProjectPaymentFilter('pending')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    projectPaymentFilter === 'pending'
-                      ? 'bg-white text-[#991B1B] shadow-xs'
-                      : 'text-[#6B6B6B] hover:text-[#991B1B]'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C99A2E]" />
-                  <span>Pending Payment ({projectPendingPurchases.length})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setProjectPaymentFilter('paid')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    projectPaymentFilter === 'paid'
-                      ? 'bg-white text-[#166534] shadow-xs'
-                      : 'text-[#6B6B6B] hover:text-[#166534]'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#166534]" />
-                  <span>Fully Paid ({projectPaidPurchases.length})</span>
-                </button>
-              </div>
+              <SlidingSegmentedControl
+                options={projectFilterOptions}
+                value={projectPaymentFilter}
+                onChange={setProjectPaymentFilter}
+              />
 
               {/* Project Purchases List */}
               {allProjectPurchases.length === 0 ? (
                 <EmptyState
                   icon={<ShoppingCart className="w-8 h-8 text-[#6B6B6B]" />}
                   title="No project purchases yet."
-                  description="Start logging materials and services purchased for your projects."
                   actionLabel="Add Purchase"
                   onAction={() => handleOpenAddPurchase('project')}
                 />
@@ -530,7 +541,7 @@ export const PurchasesPage: React.FC = () => {
                   No project purchases match &ldquo;{search}&rdquo;.
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div key={projectPaymentFilter} className="space-y-6 animate-filter-slide">
                   {/* 1. Pending Payment Section */}
                   {(projectPaymentFilter === 'all' || projectPaymentFilter === 'pending') && (
                     <div className="space-y-3">
@@ -603,7 +614,7 @@ export const PurchasesPage: React.FC = () => {
           {/* TAB 2: GENERAL PURCHASES */}
           {/* ========================================================= */}
           {activeTab === 'general' && (
-            <div className="space-y-5">
+            <div key={activeTab} className="space-y-5 animate-filter-slide">
               {/* General Purchases Summary Cards (Rule 11: Purchased, Paid, Outstanding) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
@@ -641,50 +652,17 @@ export const PurchasesPage: React.FC = () => {
               </div>
 
               {/* Payment Filter Segmented Control */}
-              <div className="flex items-center gap-1.5 p-1 bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl w-fit">
-                <button
-                  type="button"
-                  onClick={() => setGeneralPaymentFilter('all')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                    generalPaymentFilter === 'all'
-                      ? 'bg-white text-[#242424] shadow-xs'
-                      : 'text-[#6B6B6B] hover:text-[#242424]'
-                  }`}
-                >
-                  All ({filteredGeneralPurchases.length})
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGeneralPaymentFilter('pending')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    generalPaymentFilter === 'pending'
-                      ? 'bg-white text-[#991B1B] shadow-xs'
-                      : 'text-[#6B6B6B] hover:text-[#991B1B]'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C99A2E]" />
-                  <span>Pending Payment ({generalPendingPurchases.length})</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGeneralPaymentFilter('paid')}
-                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    generalPaymentFilter === 'paid'
-                      ? 'bg-white text-[#166534] shadow-xs'
-                      : 'text-[#6B6B6B] hover:text-[#166534]'
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#166534]" />
-                  <span>Fully Paid ({generalPaidPurchases.length})</span>
-                </button>
-              </div>
+              <SlidingSegmentedControl
+                options={generalFilterOptions}
+                value={generalPaymentFilter}
+                onChange={setGeneralPaymentFilter}
+              />
 
               {/* General Purchases List */}
               {generalPurchases.length === 0 ? (
                 <EmptyState
                   icon={<Package className="w-8 h-8 text-[#6B6B6B]" />}
                   title="No general purchases yet."
-                  description="Record non-project purchases like yard materials, workshop stock, or office supplies."
                   actionLabel="Add Purchase"
                   onAction={() => handleOpenAddPurchase('general')}
                 />
@@ -693,7 +671,7 @@ export const PurchasesPage: React.FC = () => {
                   No general purchases match &ldquo;{search}&rdquo;.
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div key={generalPaymentFilter} className="space-y-6 animate-filter-slide">
                   {/* 1. Pending Payment Section */}
                   {(generalPaymentFilter === 'all' || generalPaymentFilter === 'pending') && (
                     <div className="space-y-3">
@@ -766,13 +744,10 @@ export const PurchasesPage: React.FC = () => {
           {/* TAB 3: SUPPLIER SUMMARY */}
           {/* ========================================================= */}
           {activeTab === 'suppliers' && (
-            <div className="space-y-5">
+            <div key={activeTab} className="space-y-5 animate-filter-slide">
               {/* Header Info & Search */}
               {/* Header Info */}
-              <div className="flex items-center justify-between pb-1">
-                <div className="text-xs text-[#6B6B6B]">
-                  Derived from {purchases.length} total purchase records across all sites
-                </div>
+              <div className="flex items-center justify-end pb-1">
                 <span className="text-xs text-[#6B6B6B]">
                   {filteredSupplierSummaries.length} suppliers
                 </span>
@@ -783,7 +758,6 @@ export const PurchasesPage: React.FC = () => {
                 <EmptyState
                   icon={<Truck className="w-8 h-8 text-[#6B6B6B]" />}
                   title="No supplier purchases yet."
-                  description="Supplier totals and balances will be calculated automatically when purchases are recorded."
                   actionLabel="Add Purchase"
                   onAction={() => handleOpenAddPurchase('project')}
                 />

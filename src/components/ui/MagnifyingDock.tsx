@@ -41,6 +41,7 @@ export function MagnifyingDock({
   activeKey,
   onSelect,
   className = "",
+  tipPosition = "top",
 }: {
   magnify?: number;
   spread?: number;
@@ -50,6 +51,7 @@ export function MagnifyingDock({
   activeKey?: string;
   onSelect?: (key: string, item: DockItem) => void;
   className?: string;
+  tipPosition?: "top" | "bottom";
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const [internalActive, setInternalActive] = useState(items[0]?.key || "home");
@@ -120,7 +122,7 @@ export function MagnifyingDock({
 
   return (
     <nav
-      className={`gdock ${className}`.trim()}
+      className={`gdock ${tipPosition === 'bottom' ? 'gdock--tip-bottom' : ''} ${className}`.trim()}
       aria-label="Dock"
       ref={bar}
       /* ── CAPTURE PHASE, and no pointer capture ───────────

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './Header.css';
 import {
@@ -13,26 +13,17 @@ import {
   Settings,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 
 interface HeaderProps {
   onOpenQuickAdd: () => void;
 }
-
-/* ── route → nav key mapping ──────────────────────────── */
-const navItems = [
-  { key: '/customers', label: 'Customers', icon: Users },
-  { key: '/projects', label: 'Projects', icon: Building2 },
-  { key: '/wages', label: 'Wages', icon: Calendar },
-  { key: '/procurement', label: 'Procurement', icon: ShoppingCart },
-  { key: '/settings', label: 'Settings', icon: Settings },
-];
 
 function resolveActiveKey(pathname: string) {
   if (pathname.startsWith('/customers')) return '/customers';
   if (pathname.startsWith('/projects') || pathname.startsWith('/sites')) return '/projects';
   if (pathname.startsWith('/wages') || pathname.startsWith('/employees') || pathname.startsWith('/attendance')) return '/wages';
   if (pathname.startsWith('/procurement') || pathname.startsWith('/purchases') || pathname.startsWith('/suppliers')) return '/procurement';
-  if (pathname.startsWith('/settings') || pathname.startsWith('/service-types')) return '/settings';
   return '';
 }
 
@@ -44,6 +35,37 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const activeKey = resolveActiveKey(location.pathname);
+
+  // Desktop Center Nav Items for the Magnifying Dock
+  const desktopDockItems: DockItem[] = useMemo(
+    () => [
+      {
+        key: '/customers',
+        label: 'Customers',
+        Icon: Users,
+        onClick: () => navigate('/customers'),
+      },
+      {
+        key: '/projects',
+        label: 'Projects',
+        Icon: Building2,
+        onClick: () => navigate('/projects'),
+      },
+      {
+        key: '/wages',
+        label: 'Wages',
+        Icon: Calendar,
+        onClick: () => navigate('/wages'),
+      },
+      {
+        key: '/procurement',
+        label: 'Procurement',
+        Icon: ShoppingCart,
+        onClick: () => navigate('/procurement'),
+      },
+    ],
+    [navigate]
+  );
 
   // Close menu on outside click
   useEffect(() => {
@@ -66,7 +88,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
     <header className="glass-header-wrapper">
       <div className="glass-header">
         <div className="glass-header-inner">
-          {/* ── Brand Mark ──────────────────────────── */}
+          {/* ── Brand Mark (Left Zone) ──────────────────────────── */}
           <button
             type="button"
             onClick={() => navigate('/')}
@@ -74,34 +96,35 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
             aria-label="Go to dashboard"
           >
             <div className="glass-brand-mark">SC</div>
+            <span className="font-bold text-sm text-[#242424] font-heading hidden sm:inline tracking-tight">
+              Shivarivel
+            </span>
           </button>
 
-          {/* ── Desktop Nav Links ───────────────────── */}
-          <nav className="glass-nav" aria-label="Main navigation">
-            {navItems.map((item, i) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => navigate(item.key)}
-                className={`glass-nav-link ${activeKey === item.key ? 'active' : ''}`}
-                style={{ transitionDelay: `${i * 40}ms` }}
-              >
-                <span className="glass-nav-label">{item.label}</span>
-                <div className="glass-nav-underline" />
-              </button>
-            ))}
-          </nav>
+          {/* ── Desktop Center Nav: The Magnifying Dock ───── */}
+          <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center pointer-events-auto">
+            <MagnifyingDock
+              items={desktopDockItems}
+              activeKey={activeKey}
+              magnify={1.38}
+              spread={2}
+              lift={6}
+              labels={true}
+              tipPosition="bottom"
+              className="gdock--header"
+            />
+          </div>
 
-          {/* ── Right Actions ──────────────────────── */}
+          {/* ── Right Utility Suite (Quick Add, Bell, Profile) ────────────────── */}
           <div className="glass-header-actions">
-            {/* Quick Add */}
+            {/* Quick Add CTA — shown on PC/desktop only (mobile has bottom center +) */}
             <button
               type="button"
               onClick={onOpenQuickAdd}
-              className="glass-action-btn glass-quick-add"
+              className="glass-action-btn glass-quick-add hidden md:inline-flex cursor-pointer"
               aria-label="Open Quick Add Menu (Hotkey: Q)"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 text-[#4A0E0E]" />
               <span className="glass-action-label">Quick Add</span>
               <kbd className="glass-kbd">Q</kbd>
             </button>
@@ -116,7 +139,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               <span className="glass-notif-dot" />
             </button>
 
-            {/* User Menu */}
+            {/* User Profile Menu with Settings & Log Out */}
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
@@ -139,6 +162,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                   aria-orientation="vertical"
                   className="glass-user-dropdown"
                 >
+                  {/* User Profile Details */}
                   <div className="px-4 py-2.5 border-b border-[#E2DDD5]/60">
                     <p className="text-xs font-bold text-[#242424]">{userName}</p>
                     <p className="text-[11px] text-[#6B6B6B] truncate">
@@ -149,6 +173,23 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                     </span>
                   </div>
 
+                  {/* Settings & Master Data */}
+                  <div className="py-1 border-b border-[#E2DDD5]/60">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        navigate('/settings');
+                      }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-[#242424] hover:bg-[#F7F5F0] hover:text-[#4A0E0E] transition-colors text-left cursor-pointer font-medium"
+                    >
+                      <Settings className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                      <span>Settings & Master Data</span>
+                    </button>
+                  </div>
+
+                  {/* Log Out */}
                   <div className="pt-1">
                     <button
                       type="button"
@@ -157,7 +198,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                         setIsUserMenuOpen(false);
                         signOut();
                       }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-xs text-[#9E2A2B] hover:bg-[#FCEEEE] transition-colors text-left cursor-pointer font-medium"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-[#9E2A2B] hover:bg-[#FCEEEE] transition-colors text-left cursor-pointer font-medium"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       <span>Log Out</span>

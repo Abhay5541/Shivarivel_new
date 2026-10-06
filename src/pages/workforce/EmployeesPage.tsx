@@ -54,7 +54,6 @@ export function EmployeesPage() {
       {/* Header */}
       <PageHeader
         title="Employees"
-        subtitle="Manage employee directory and default daily wage rates"
         badge={
           <Badge variant="primary" className="gap-1">
             <Users2 className="w-3.5 h-3.5 text-[#C99A2E]" />
@@ -88,7 +87,7 @@ export function EmployeesPage() {
           description={
             searchTerm
               ? 'Try searching with a different name or phone number.'
-              : 'Add your first employee to start recording daily site wages.'
+              : undefined
           }
           actionLabel="+ Add Employee"
           onAction={() => setIsAddModalOpen(true)}

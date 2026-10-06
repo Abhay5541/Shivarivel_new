@@ -122,7 +122,6 @@ export const SimpleSupplierPaymentModal: React.FC<SimpleSupplierPaymentModalProp
               <h2 className="text-lg font-bold text-[#242424] font-heading">
                 Record Payment
               </h2>
-              <p className="text-xs text-[#6B6B6B]">Record money paid to supplier</p>
             </div>
           </div>
           <button

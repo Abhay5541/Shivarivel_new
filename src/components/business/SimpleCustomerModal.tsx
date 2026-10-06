@@ -119,9 +119,6 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
               >
                 {isEditing ? 'Edit Customer' : 'Add New Customer'}
               </h2>
-              <p className="text-xs text-[#6B6B6B] leading-tight mt-0.5">
-                Client contact information
-              </p>
             </div>
           </div>
 

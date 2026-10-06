@@ -87,7 +87,6 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <h2 className="text-base font-bold text-[#242424] font-heading">
                 Record Payment
               </h2>
-              <p className="text-xs text-[#6B6B6B]">Add payment towards purchase balance</p>
             </div>
           </div>
           <button

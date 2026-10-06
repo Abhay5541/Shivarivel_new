@@ -85,9 +85,6 @@ export function SiteVisitsPage() {
           <h1 className="text-2xl font-bold text-[#242424] font-heading tracking-tight">
             Site Visits
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-1">
-            Plot measurements, boundary surveys, structural checks, and client consultations
-          </p>
         </div>
 
         <Button
@@ -147,7 +144,7 @@ export function SiteVisitsPage() {
           description={
             filterTab !== 'all'
               ? 'There are no visits recorded under this tab. Switch tabs or schedule a new visit.'
-              : 'Schedule plot surveys and on-site client consultations to keep field teams coordinated.'
+              : undefined
           }
           actionLabel="Schedule Site Visit"
           onAction={handleCreateNew}

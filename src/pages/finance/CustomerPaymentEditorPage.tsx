@@ -119,7 +119,6 @@ export function CustomerPaymentEditorPage() {
     <PageContainer>
       <PageHeader
         title="Record Customer Payment"
-        subtitle="Capture incoming client stage milestone receipts against agreed construction contract"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EAF5EE] text-[#1E6B37] border border-[#1E6B37]/20">
             <CreditCard className="w-3.5 h-3.5" />
