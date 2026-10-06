@@ -65,7 +65,6 @@ export function AdvancesPage() {
       {/* Header */}
       <PageHeader
         title="Employee Advances Register"
-        subtitle="Independent tracking of recoverable field worker loan advances and settlement repayments"
         badge={
           <Badge variant="primary" className="gap-1">
             <HandCoins className="w-3.5 h-3.5 text-[#C99A2E]" />
@@ -196,7 +195,6 @@ export function AdvancesPage() {
         <EmptyState
           icon={<HandCoins className="w-8 h-8 text-[#C99A2E]" />}
           title="No employee advances recorded"
-          description="Record emergency festival loans or tool purchase advances provided to site personnel."
           actionLabel="Record Advance"
           onAction={() => navigate('/advances/new')}
         />

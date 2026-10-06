@@ -49,7 +49,6 @@ export function CustomerPaymentsPage() {
     <PageContainer>
       <PageHeader
         title="Customer Payments"
-        subtitle="Record milestone receipts, track contract inflows, and verify customer receivable balances"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EAF5EE] text-[#1E6B37] border border-[#1E6B37]/20">
             <ArrowDownLeft className="w-3.5 h-3.5" />

@@ -5,6 +5,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useMaterials } from '@/hooks/useProcurement';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { useSearchParams } from 'react-router-dom';
@@ -13,15 +14,18 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleMaterialModal } from '@/components/business/SimpleMaterialModal';
 
 export const MaterialsPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [isAddMaterialOpen, setIsAddMaterialOpen] = useState(false);
 
   React.useEffect(() => {
     if (searchParams.get('new') === '1' || searchParams.get('new') === 'true') {
       setIsAddMaterialOpen(true);
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('new');
+      setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   const { data: materials = [], isLoading, isError, error, refetch } = useMaterials(search);
 
@@ -33,19 +37,13 @@ export const MaterialsPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-[#242424] font-heading uppercase tracking-tight">
             Materials
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
-            Manage reusable construction and interior materials
-          </p>
         </div>
 
-        <Button
-          type="button"
+        <ActionButton
+          icon={<Plus className="w-4 h-4" />}
+          label="Add Material"
           onClick={() => setIsAddMaterialOpen(true)}
-          className="h-11 px-5 text-sm font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ Add Material</span>
-        </Button>
+        />
       </div>
 
       {/* Search Bar */}
@@ -76,9 +74,9 @@ export const MaterialsPage: React.FC = () => {
           description={
             search
               ? 'Try searching with a different term.'
-              : 'Add your common construction materials like Cement, Sand, Tiles, or Paint.'
+              : undefined
           }
-          actionLabel="+ Add Material"
+          actionLabel="Add Material"
           onAction={() => setIsAddMaterialOpen(true)}
         />
       ) : (

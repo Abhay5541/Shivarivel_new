@@ -119,9 +119,6 @@ export const CustomerDetailPage: React.FC = () => {
             <h2 className="text-lg font-bold text-[#242424] font-heading">
               Projects
             </h2>
-            <p className="text-xs text-[#6B6B6B]">
-              Projects registered for {customer.name}
-            </p>
           </div>
 
           <Button
@@ -131,7 +128,7 @@ export const CustomerDetailPage: React.FC = () => {
             className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Add Project</span>
+            <span>Add Project</span>
           </Button>
         </div>
 
@@ -139,7 +136,6 @@ export const CustomerDetailPage: React.FC = () => {
           <EmptyState
             icon={<Building2 className="w-6 h-6" />}
             title="No projects yet."
-            description={`Add a project for ${customer.name} to get started.`}
             actionLabel="+ Add Project"
             onAction={() => setIsAddSiteOpen(true)}
           />

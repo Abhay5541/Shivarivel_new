@@ -231,9 +231,6 @@ export const EstimateEditorPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-[#242424] font-heading">
             {isEditing ? `Edit Estimate (${existingEstimate?.estimate_number || 'Draft'})` : 'New Estimate'}
           </h1>
-          <p className="text-sm text-[#6B6B6B]">
-            Draft itemized bill of quantities (BOQ) with trade line items & deterministic totals
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

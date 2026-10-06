@@ -76,7 +76,6 @@ export function EmployeePaymentsPage() {
       {/* Header */}
       <PageHeader
         title="Employee Payments &amp; Wage Settlements"
-        subtitle="Disburse verified field labor wages and record advance recovery settlements"
         badge={
           <Badge variant="primary" className="gap-1">
             <Wallet className="w-3.5 h-3.5 text-[#C99A2E]" />
@@ -207,7 +206,6 @@ export function EmployeePaymentsPage() {
         <EmptyState
           icon={<Wallet className="w-8 h-8 text-[#C99A2E]" />}
           title="No employee payments recorded"
-          description="Disburse weekly or fortnightly labor wages to settle recorded muster shifts."
           actionLabel="Record Payment"
           onAction={() => navigate('/employee-payments/new')}
         />

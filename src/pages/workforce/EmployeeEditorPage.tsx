@@ -132,7 +132,6 @@ export function EmployeeEditorPage() {
       {/* Header */}
       <PageHeader
         title={isEdit ? `Edit Employee (${existingEmployee?.employee_code || ''})` : 'Register New Employee'}
-        subtitle="Record field worker personal identity, trade specialty, master wage rate, and emergency contacts"
         badge={
           <Badge variant="primary" className="gap-1">
             <User className="w-3.5 h-3.5 text-[#C99A2E]" />

@@ -103,18 +103,18 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="site-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs modal-backdrop-spring"
         onClick={() => {
           if (!isSaving) onClose();
         }}
       />
 
       {/* Modal Surface */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#E2DDD5] z-10 overflow-hidden flex flex-col animate-in zoom-in-95 duration-150">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-[#E2DDD5] z-10 overflow-hidden flex flex-col modal-spring">
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#E2DDD5] flex items-center justify-between bg-[#F7F5F0]/50">
           <div className="flex items-center gap-2.5">
@@ -128,9 +128,6 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
               >
                 {isEditing ? 'Edit Project' : 'Add New Project'}
               </h2>
-              <p className="text-xs text-[#6B6B6B] leading-tight mt-0.5">
-                Project details and work location
-              </p>
             </div>
           </div>
 

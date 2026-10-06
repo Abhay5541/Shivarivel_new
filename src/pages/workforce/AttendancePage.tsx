@@ -195,7 +195,6 @@ export function AttendancePage() {
       {/* Header */}
       <PageHeader
         title="Site Attendance Muster"
-        subtitle="Rapid one-touch daily labor shift attendance logging and daily wage calculation"
         badge={
           <Badge variant="primary" className="gap-1">
             <Users2 className="w-3.5 h-3.5 text-[#C99A2E]" />

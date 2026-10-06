@@ -1,0 +1,407 @@
+/* ═══════════════════════════════════════════════════════════
+   LoginPage.css — Premium Architectural Login Surface
+   Scoped to login page only. Does NOT affect other modules.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Page Background ─── */
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background-color: #F5F2EC;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Subtle radial light behind login area */
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 700px;
+  height: 700px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(252, 250, 246, 0.7) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Very subtle architectural grid */
+.login-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(74, 14, 14, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 14, 14, 0.012) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle vignette */
+.login-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(74, 14, 14, 0.03) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Content Container ─── */
+.login-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Brand Area ─── */
+.login-brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-brand-name {
+  margin-top: 0;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #4A0E0E;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+
+.login-brand-sub {
+  margin-top: 0.375rem;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #6B625A;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+}
+
+/* ─── Login Card — Tactile Premium Panel ─── */
+.login-card {
+  width: 100%;
+  background: #FCFAF6;
+  border: 1px solid #E8E3DA;
+  border-radius: 1rem;
+  padding: 2rem 1.75rem;
+  position: relative;
+
+  /* Layered shadow system for tactile depth */
+  box-shadow:
+    0 1px 2px rgba(74, 14, 14, 0.04),
+    0 4px 8px rgba(74, 14, 14, 0.04),
+    0 8px 20px rgba(74, 14, 14, 0.05),
+    0 16px 40px rgba(74, 14, 14, 0.03),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ─── Watcher Eye inside Top of Sign-in Box ─── */
+.login-card-watcher {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+/* Subtle depth layer under the card */
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(1rem + 1px);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(232, 227, 218, 0.3) 100%
+  );
+  z-index: -1;
+}
+
+/* Subtle cursor-reactive highlight */
+.login-card-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    300px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+    rgba(201, 154, 46, 0.04) 0%,
+    transparent 100%
+  );
+}
+
+.login-card:hover .login-card-glow {
+  opacity: 1;
+}
+
+/* ─── Form Elements ─── */
+.login-form {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Error alert */
+.login-error {
+  padding: 0.75rem 0.875rem;
+  background-color: #FBF0F0;
+  border: 1px solid rgba(158, 42, 43, 0.15);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #9E2A2B;
+  line-height: 1.5;
+}
+
+/* ─── Field Group ─── */
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.login-field-label {
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #242424;
+}
+
+.login-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Recessed input surface */
+.login-input {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 0.875rem 0 2.625rem;
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-size: 0.875rem;
+  color: #242424;
+  background-color: #F5F2EC;
+  border: 1px solid #E2DDD5;
+  border-radius: 0.625rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  outline: none;
+  box-shadow: inset 0 1px 3px rgba(74, 14, 14, 0.04);
+}
+
+.login-input::placeholder {
+  color: rgba(107, 98, 90, 0.5);
+}
+
+.login-input:hover {
+  border-color: #D4CDC3;
+  background-color: #F3F0E9;
+}
+
+.login-input:focus {
+  border-color: #4A0E0E;
+  background-color: #FEFDFB;
+  box-shadow:
+    inset 0 1px 2px rgba(74, 14, 14, 0.03),
+    0 0 0 3px rgba(74, 14, 14, 0.06);
+}
+
+/* Field icons */
+.login-field-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9A9189;
+  transition: color 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.login-input:focus ~ .login-field-icon,
+.login-field-wrapper:focus-within .login-field-icon {
+  color: #4A0E0E;
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* ─── Sign In Button — Raised Tactile ─── */
+.login-submit {
+  position: relative;
+  width: 100%;
+  height: 2.875rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  background-color: #4A0E0E;
+  border: none;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+  /* Tactile raised appearance */
+  box-shadow:
+    0 2px 4px rgba(74, 14, 14, 0.2),
+    0 4px 12px rgba(74, 14, 14, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.login-submit:hover:not(:disabled) {
+  background-color: #5A1414;
+  transform: translateY(-1px);
+  box-shadow:
+    0 3px 6px rgba(74, 14, 14, 0.25),
+    0 6px 16px rgba(74, 14, 14, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.login-submit:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 2px rgba(74, 14, 14, 0.2),
+    0 2px 6px rgba(74, 14, 14, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.login-submit:focus-visible {
+  outline: 2px solid #4A0E0E;
+  outline-offset: 2px;
+}
+
+.login-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.login-submit-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #FFFFFF;
+  border-radius: 50%;
+  animation: login-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes login-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Page Entry Choreography ─── */
+@keyframes loginFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-anim-brand {
+  animation: loginFadeUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.login-anim-card {
+  animation: loginFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 1.5rem 0;
+    justify-content: center;
+  }
+
+  .login-content {
+    max-width: calc(100% - 32px);
+  }
+
+  .login-card {
+    padding: 1.5rem 1.25rem;
+    border-radius: 0.875rem;
+  }
+
+  .login-brand-name {
+    font-size: 1.25rem;
+    letter-spacing: 0.14em;
+  }
+
+  .login-brand-sub {
+    font-size: 0.5625rem;
+    letter-spacing: 0.25em;
+  }
+
+  .login-submit {
+    height: 2.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .login-content {
+    max-width: calc(100% - 24px);
+  }
+
+  .login-card {
+    padding: 1.25rem 1rem;
+  }
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  .login-anim-brand,
+  .login-anim-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .login-card-glow {
+    display: none;
+  }
+
+  .login-field-icon {
+    transition: none;
+  }
+
+  .login-input {
+    transition: none;
+  }
+
+  .login-submit {
+    transition: none;
+  }
+
+  .login-submit-spinner {
+    animation-duration: 1.5s;
+  }
+}

@@ -80,7 +80,6 @@ export function PurchaseReportPage() {
       {/* Screen Interactive Header */}
       <ReportHeader
         title="Purchase Operational Report"
-        subtitle="Historical procurement register: vendor invoice orders, disbursed settlements, and outstanding liabilities."
         badgeText="Procurement Audit"
         badgeIcon={<ShoppingCart className="w-3.5 h-3.5 text-[#C99A2E]" />}
         dateRangeText={periodFormatted}

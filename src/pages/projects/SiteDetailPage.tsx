@@ -136,9 +136,6 @@ export const SiteDetailPage: React.FC = () => {
           <h2 className="text-base font-bold text-[#242424] font-heading uppercase">
             Project Purchases
           </h2>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
-            Material purchases and supplier records for this project
-          </p>
         </div>
 
         <Button
@@ -164,9 +161,6 @@ export const SiteDetailPage: React.FC = () => {
                 {siteWages.length}
               </span>
             </div>
-            <p className="text-xs text-[#6B6B6B] mt-0.5">
-              Daily labor wages recorded for this project (Read-Only)
-            </p>
           </div>
 
           <Link
@@ -195,9 +189,6 @@ export const SiteDetailPage: React.FC = () => {
           <div className="p-8 text-center bg-[#F7F5F0] rounded-xl border border-dashed border-[#E2DDD5] space-y-2">
             <Users2 className="w-8 h-8 text-[#6B6B6B] mx-auto opacity-50" />
             <p className="text-sm font-semibold text-[#242424]">No daily wages recorded yet for this project.</p>
-            <p className="text-xs text-[#6B6B6B]">
-              Wages are recorded and edited exclusively in the Wages module.
-            </p>
           </div>
         ) : (
           <div className="divide-y divide-[#E2DDD5] border border-[#E2DDD5] rounded-xl overflow-hidden">

@@ -95,7 +95,6 @@ export function EmployeePaymentEditorPage() {
       {/* Header */}
       <PageHeader
         title="Record Employee Payment"
-        subtitle="Disburse verified site wages or log advance loan recovery repayment"
         badge={
           <Badge variant="primary" className="gap-1">
             <Wallet className="w-3.5 h-3.5 text-[#C99A2E]" />

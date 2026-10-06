@@ -61,7 +61,6 @@ export function WeeklyReportPage() {
       {/* Screen Interactive Header */}
       <ReportHeader
         title="Weekly Operational Report"
-        subtitle="Consolidated owner review: active site progress, material intake, daily labor, cash movements, and site issues."
         badgeText="Week at a Glance"
         badgeIcon={<Calendar className="w-3.5 h-3.5 text-[#C99A2E]" />}
         dateRangeText={periodFormatted}

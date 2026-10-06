@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
+import logoImg from '@/Asserts/shivarivel_svc_logo.png';
 
 interface NavItem {
   label: string;
@@ -47,8 +48,8 @@ export function Sidebar({ className }: { className?: string }) {
     >
       {/* Brand Header */}
       <div className="h-16 px-5 border-b border-[#E2DDD5] flex items-center gap-3 shrink-0 bg-white">
-        <div className="w-9 h-9 rounded-lg bg-[#4A0E0E] flex items-center justify-center text-white font-bold text-sm shadow-xs border border-[#C99A2E]/40 tracking-wider">
-          SC
+        <div className="w-9 h-9 rounded-lg bg-black overflow-hidden flex items-center justify-center shadow-xs border border-[#C99A2E]/40 shrink-0">
+          <img src={logoImg} alt="Shivarivel" className="w-full h-full object-cover scale-[1.15]" />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="text-sm font-bold tracking-tight text-[#242424] font-heading truncate">

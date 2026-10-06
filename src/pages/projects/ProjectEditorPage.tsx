@@ -203,11 +203,6 @@ export const ProjectEditorPage: React.FC = () => {
         <h1 className="text-2xl font-bold text-[#242424] font-heading">
           {isEditing ? `Edit Project: ${existingProject?.project_code || ''}` : 'New Construction Project'}
         </h1>
-        <p className="text-sm text-[#6B6B6B] mt-0.5">
-          {isEditing
-            ? 'Update project scope, execution timeline, supervisor allocation, and site coordinates'
-            : 'Initialize operational job site, client contract, and execution parameters'}
-        </p>
       </div>
 
       {/* Error Alert */}

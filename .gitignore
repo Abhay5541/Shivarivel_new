@@ -35,6 +35,6 @@ dist-ssr
 .agent/
 .gemini/
 scratch/
-
-/projectP/
-
+*.png
+!src/Asserts/**
+!public/**

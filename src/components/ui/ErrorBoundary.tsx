@@ -40,9 +40,17 @@ export class ErrorBoundary extends Component<Props, State> {
             <h2 className="text-lg font-bold text-[#242424] font-heading mb-2">
               Something went wrong.
             </h2>
-            <p className="text-xs text-[#6B6B6B] mb-6 leading-relaxed">
+            <p className="text-xs text-[#6B6B6B] mb-4 leading-relaxed">
               An unexpected error occurred while loading this view. Your existing data remains completely secure. Please try reloading the page.
             </p>
+            {this.state.error && (
+              <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-left overflow-auto max-h-48 text-[11px] text-red-700 font-mono">
+                <div className="font-bold">{this.state.error.message}</div>
+                {this.state.error.stack && (
+                  <pre className="mt-1 text-[10px] text-red-600 whitespace-pre-wrap">{this.state.error.stack}</pre>
+                )}
+              </div>
+            )}
             <div className="flex items-center justify-center gap-3">
               <Button
                 variant="primary"

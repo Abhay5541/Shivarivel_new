@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -190,7 +191,6 @@ export function ServiceTypesPage() {
 
       <PageHeader
         title="Service Types"
-        subtitle="Manage master trade offerings, architectural services, and scope classifications"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F9F3E5] text-[#8F6A18] border border-[#C99A2E]/30">
             <Briefcase className="w-3.5 h-3.5 text-[#C99A2E]" />
@@ -198,13 +198,11 @@ export function ServiceTypesPage() {
           </span>
         }
         actions={
-          <Button
+          <ActionButton
+            icon={<Plus className="w-4 h-4" />}
+            label="Add Service Type"
             onClick={handleOpenCreate}
-            className="gap-2 bg-[#4A0E0E] hover:bg-[#380B0B] text-white shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add Service Type</span>
-          </Button>
+          />
         }
       />
 
@@ -441,8 +439,8 @@ export function ServiceTypesPage() {
 
       {/* Create / Edit Service Type Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#E2DDD5] shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 space-y-5">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 modal-backdrop-spring">
+          <div className="bg-white rounded-2xl border border-[#E2DDD5] shadow-xl max-w-md w-full p-6 modal-spring space-y-5">
             <div>
               <h3 className="text-base font-bold text-[#242424] font-heading">
                 {editingService ? 'Edit Service Type' : 'Add New Service Type'}

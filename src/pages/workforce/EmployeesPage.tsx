@@ -3,14 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Users2,
   Plus,
-  Search,
   Phone,
   ArrowRight,
   UserCheck,
 } from 'lucide-react';
+import { Search } from '@/components/ui/Search';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useEmployees } from '@/hooks/useWorkforce';
@@ -54,7 +54,6 @@ export function EmployeesPage() {
       {/* Header */}
       <PageHeader
         title="Employees"
-        subtitle="Manage employee directory and default daily wage rates"
         badge={
           <Badge variant="primary" className="gap-1">
             <Users2 className="w-3.5 h-3.5 text-[#C99A2E]" />
@@ -62,31 +61,21 @@ export function EmployeesPage() {
           </Badge>
         }
         actions={
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsAddModalOpen(true)}
-            className="gap-1.5 h-10 font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-xs cursor-pointer"
-          >
-            <Plus className="w-4 h-4 text-[#C99A2E]" />
-            <span>+ Add Employee</span>
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <Search
+              size="sm"
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Search employees..."
+            />
+            <ActionButton
+              icon={<Plus className="w-4 h-4" />}
+              label="Add Employee"
+              onClick={() => setIsAddModalOpen(true)}
+            />
+          </div>
         }
       />
-
-      {/* Search Bar */}
-      <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 shadow-xs">
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search employee by name or phone..."
-            className="w-full h-10 pl-9 pr-3.5 bg-[#F7F5F0]/70 border border-[#E2DDD5] rounded-lg text-sm text-[#242424] placeholder:text-[#6B6B6B] focus:outline-hidden focus:border-[#4A0E0E] focus:bg-white transition-all"
-          />
-        </div>
-      </div>
 
       {/* Employee List */}
       {isLoading ? (
@@ -98,7 +87,7 @@ export function EmployeesPage() {
           description={
             searchTerm
               ? 'Try searching with a different name or phone number.'
-              : 'Add your first employee to start recording daily site wages.'
+              : undefined
           }
           actionLabel="+ Add Employee"
           onAction={() => setIsAddModalOpen(true)}

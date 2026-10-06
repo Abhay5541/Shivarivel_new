@@ -157,9 +157,6 @@ export const SupplierDetailPage: React.FC = () => {
             <h2 className="text-lg font-bold text-[#242424] font-heading">
               Purchase History
             </h2>
-            <p className="text-xs text-[#6B6B6B]">
-              Materials purchased from {supplier.name}
-            </p>
           </div>
 
           <Button
@@ -168,7 +165,7 @@ export const SupplierDetailPage: React.FC = () => {
             className="h-10 px-4 text-xs font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Record Purchase</span>
+            <span>Record Purchase</span>
           </Button>
         </div>
 
@@ -176,9 +173,6 @@ export const SupplierDetailPage: React.FC = () => {
           <div className="p-8 text-center bg-[#F7F5F0] rounded-xl border border-dashed border-[#E2DDD5]">
             <ShoppingCart className="w-8 h-8 text-[#6B6B6B] mx-auto mb-2 opacity-50" />
             <p className="text-sm font-semibold text-[#242424]">No purchases recorded yet</p>
-            <p className="text-xs text-[#6B6B6B] mt-0.5">
-              Click &quot;Record Purchase&quot; above to log materials received from this vendor.
-            </p>
           </div>
         ) : (
           <div className="divide-y divide-[#E2DDD5] border border-[#E2DDD5] rounded-xl overflow-hidden">

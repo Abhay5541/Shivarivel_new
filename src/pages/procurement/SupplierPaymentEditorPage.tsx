@@ -156,9 +156,6 @@ export const SupplierPaymentEditorPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-[#242424] font-heading mt-1">
             Record Supplier Payment & Allocation
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
-            Disburse vendor payments, allocate against pending purchase bills, or record advances
-          </p>
         </div>
 
         <div className="flex items-center gap-2">

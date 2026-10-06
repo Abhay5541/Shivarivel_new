@@ -84,7 +84,6 @@ export function ExpenseEditorPage() {
     <PageContainer>
       <PageHeader
         title="Add Expense"
-        subtitle="Log operational site costs, machinery hire, transport fuel, tools, and office overhead"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F7EFEF] text-[#4A0E0E] border border-[#4A0E0E]/20">
             <Receipt className="w-3.5 h-3.5 text-[#C99A2E]" />

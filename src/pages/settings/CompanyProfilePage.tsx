@@ -149,7 +149,6 @@ export function CompanyProfilePage() {
 
       <PageHeader
         title="Company Profile"
-        subtitle="Canonical business identity, registered address, GSTIN, and official contact details"
         badge={
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#4A0E0E]/10 text-[#4A0E0E] border border-[#4A0E0E]/20">
             <Building className="w-3.5 h-3.5" />

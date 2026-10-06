@@ -92,7 +92,6 @@ export function AdvanceEditorPage() {
       {/* Header */}
       <PageHeader
         title="Record Employee Advance"
-        subtitle="Disburse emergency cash, tool purchase loan, or festival advance to site worker"
         badge={
           <Badge variant="primary" className="gap-1">
             <HandCoins className="w-3.5 h-3.5 text-[#C99A2E]" />

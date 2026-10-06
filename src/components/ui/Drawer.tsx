@@ -58,23 +58,23 @@ export function Drawer({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity modal-backdrop-spring"
         onClick={onClose}
       />
 
       {/* Slide-over Container */}
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
         <div
           ref={drawerRef}
           tabIndex={-1}
           className={cn(
-            'w-screen bg-white shadow-2xl border-l border-[#E2DDD5] flex flex-col animate-in slide-in-from-right duration-200 focus:outline-none',
+            'w-screen bg-white shadow-2xl border-l border-[#E2DDD5] flex flex-col drawer-spring focus:outline-none',
             widths[width],
             className
           )}
         >
           {/* Header */}
-          <div className="h-16 px-6 border-b border-[#E2DDD5] flex items-center justify-between gap-4 shrink-0 bg-[#F7F5F0]/30">
+          <div className="h-16 px-5 sm:px-6 border-b border-[#E2DDD5] flex items-center justify-between gap-4 shrink-0 bg-[#F7F5F0]/30">
             <div>
               <h2 id="drawer-title" className="text-base font-bold text-[#242424] font-heading leading-tight">
                 {title}
@@ -96,7 +96,7 @@ export function Drawer({
           </div>
 
           {/* Scrollable Body */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             {children}
           </div>
         </div>

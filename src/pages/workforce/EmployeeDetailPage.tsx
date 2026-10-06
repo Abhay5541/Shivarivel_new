@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useEmployee, useWages } from '@/hooks/useWorkforce';
@@ -79,7 +80,6 @@ export function EmployeeDetailPage() {
       {/* Top Header */}
       <PageHeader
         title={employee.name}
-        subtitle="Employee details and recent site work records"
         actions={
           <div className="flex items-center gap-2 flex-wrap">
             <Link to="/employees">
@@ -97,15 +97,11 @@ export function EmployeeDetailPage() {
               <Edit3 className="w-4 h-4" />
               <span>Edit</span>
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
+            <ActionButton
+              icon={<Plus className="w-4 h-4" />}
+              label="Add Daily Wage"
               onClick={() => setIsAddWageModalOpen(true)}
-              className="gap-1.5 h-10 font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-xs cursor-pointer"
-            >
-              <Plus className="w-4 h-4 text-[#C99A2E]" />
-              <span>+ Add Daily Wage</span>
-            </Button>
+            />
           </div>
         }
       />
@@ -148,7 +144,6 @@ export function EmployeeDetailPage() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-[#242424] font-heading">Recent Work</h3>
-            <p className="text-xs text-[#6B6B6B]">Daily wages recorded for this employee</p>
           </div>
           <Button
             variant="outline"
@@ -165,7 +160,7 @@ export function EmployeeDetailPage() {
           <EmptyState
             icon={<Calendar className="w-6 h-6" />}
             title="No work recorded yet"
-            description={`No daily wage records found for ${employee.name}. Click below to add one.`}
+            description={`No daily wage records found for ${employee.name}.`}
             actionLabel="+ Add Daily Wage"
             onAction={() => setIsAddWageModalOpen(true)}
           />

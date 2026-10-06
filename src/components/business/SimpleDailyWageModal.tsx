@@ -166,8 +166,8 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
   const isSaving = recordWageMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E2DDD5] overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
         {/* Modal Header */}
         <div className="px-5 py-4 bg-[#F7F5F0] border-b border-[#E2DDD5] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -178,7 +178,6 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
               <h2 className="text-base font-bold text-[#242424] font-display">
                 {activeWageRecord ? 'Edit Wage Entry' : 'Add Wage Entry'}
               </h2>
-              <p className="text-xs text-[#6B6B6B]">Record daily site attendance and cash paid</p>
             </div>
           </div>
           <button
@@ -341,11 +340,10 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
 
           {/* Amount Paid Field */}
           <div>
-            <div className="flex items-center justify-between mb-1">
+            <div className="mb-1">
               <label className="block text-xs font-semibold text-[#242424]">
                 Amount Paid <span className="text-[#991B1B]">*</span>
               </label>
-              <span className="text-[11px] text-[#6B6B6B]">Amount entered = already paid</span>
             </div>
             <div className="relative">
               <span className="absolute left-3 top-2.5 text-sm font-bold text-[#6B6B6B]">₹</span>

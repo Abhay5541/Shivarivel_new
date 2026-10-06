@@ -76,7 +76,6 @@ export function PaymentReportPage() {
       {/* Screen Interactive Header */}
       <ReportHeader
         title="Payment Activity Report"
-        subtitle="Historical consolidated ledger: client milestone receipts, supplier settlements, labor wages disbursed, and direct expenses."
         badgeText="Payment Audit"
         badgeIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-[#C99A2E]" />}
         dateRangeText={periodFormatted}

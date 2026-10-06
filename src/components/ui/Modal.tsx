@@ -60,7 +60,7 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity modal-backdrop-spring"
         onClick={onClose}
       />
 
@@ -69,7 +69,7 @@ export function Modal({
         ref={modalRef}
         tabIndex={-1}
         className={cn(
-          'relative w-full bg-white rounded-2xl shadow-xl border border-[#E2DDD5] z-10 overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 focus:outline-none',
+          'relative w-full bg-white rounded-2xl shadow-xl border border-[#E2DDD5] z-10 overflow-hidden flex flex-col modal-spring focus:outline-none',
           maxWidths[maxWidth],
           className
         )}
