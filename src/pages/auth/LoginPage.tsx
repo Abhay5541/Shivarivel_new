@@ -360,6 +360,7 @@ export function LoginPage() {
               Understand &amp; Close
             </button>
           </div>
+
         </div>
       )}
     </div>
