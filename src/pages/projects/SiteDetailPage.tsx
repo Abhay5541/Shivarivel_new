@@ -178,7 +178,7 @@ export const SiteDetailPage: React.FC = () => {
             Total Daily Wages
           </span>
           <span className="text-xl sm:text-2xl font-bold text-[#1E6B37] font-heading">
-            ₹{formatINR(siteWageBreakdown.totalSiteWages)}
+            {formatINR(siteWageBreakdown.totalSiteWages)}
           </span>
         </div>
 
@@ -207,7 +207,7 @@ export const SiteDetailPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <span className="text-base font-bold text-[#1E6B37] font-heading">
-                    ₹{formatINR(item.total)}
+                    {formatINR(item.total)}
                   </span>
                 </div>
               </div>

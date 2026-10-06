@@ -206,7 +206,7 @@ export function EnquiryFormDrawer({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
             <label htmlFor="enquiry-estimated-value" className="block text-xs font-semibold text-[#242424] mb-1.5">
-              Expected Budget / Value (₹)
+              Expected Budget / Value
             </label>
             <div className="relative">
               <span className="absolute left-3 top-2.5 text-xs font-semibold text-[#6B6B6B]">

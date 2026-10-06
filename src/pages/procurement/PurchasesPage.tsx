@@ -15,7 +15,6 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { usePurchases, computeSupplierSummary } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -350,7 +349,7 @@ export const PurchasesPage: React.FC = () => {
                 Total
               </span>
               <span className="text-sm sm:text-base font-bold text-[#242424]">
-                ₹{formatINR(totalVal)}
+                {formatINR(totalVal)}
               </span>
             </div>
             <div>
@@ -358,7 +357,7 @@ export const PurchasesPage: React.FC = () => {
                 Paid
               </span>
               <span className="text-sm sm:text-base font-bold text-[#166534]">
-                ₹{formatINR(paidAmt)}
+                {formatINR(paidAmt)}
               </span>
             </div>
             <div>
@@ -370,7 +369,7 @@ export const PurchasesPage: React.FC = () => {
                   bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
                 }`}
               >
-                ₹{formatINR(bal)}
+                {formatINR(bal)}
               </span>
             </div>
           </div>
@@ -498,7 +497,7 @@ export const PurchasesPage: React.FC = () => {
                     Total Procurement Cost
                   </span>
                   <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
-                    ₹{formatINR(projectProcurementTotal)}
+                    {formatINR(projectProcurementTotal)}
                   </span>
                 </div>
 
@@ -507,7 +506,7 @@ export const PurchasesPage: React.FC = () => {
                     Total Paid
                   </span>
                   <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
-                    ₹{formatINR(projectPaidTotal)}
+                    {formatINR(projectPaidTotal)}
                   </span>
                 </div>
 
@@ -522,7 +521,7 @@ export const PurchasesPage: React.FC = () => {
                     Total Balance
                   </span>
                   <span className="text-xl sm:text-2xl font-bold font-heading">
-                    ₹{formatINR(projectBalanceTotal)}
+                    {formatINR(projectBalanceTotal)}
                   </span>
                 </div>
               </div>
@@ -563,7 +562,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                         {projectPendingBalance > 0 && (
                           <span className="text-xs font-bold text-[#991B1B]">
-                            ₹{formatINR(projectPendingBalance)} pending
+                            {formatINR(projectPendingBalance)} pending
                           </span>
                         )}
                       </div>
@@ -595,7 +594,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                         {projectPaidSettled > 0 && (
                           <span className="text-xs font-bold text-[#166534]">
-                            ₹{formatINR(projectPaidSettled)} settled
+                            {formatINR(projectPaidSettled)} settled
                           </span>
                         )}
                       </div>
@@ -628,7 +627,7 @@ export const PurchasesPage: React.FC = () => {
                     TOTAL PURCHASED
                   </span>
                   <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
-                    ₹{formatINR(generalTotalPurchased)}
+                    {formatINR(generalTotalPurchased)}
                   </span>
                 </div>
 
@@ -637,7 +636,7 @@ export const PurchasesPage: React.FC = () => {
                     TOTAL PAID
                   </span>
                   <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
-                    ₹{formatINR(generalTotalPaid)}
+                    {formatINR(generalTotalPaid)}
                   </span>
                 </div>
 
@@ -652,7 +651,7 @@ export const PurchasesPage: React.FC = () => {
                     TOTAL OUTSTANDING
                   </span>
                   <span className="text-xl sm:text-2xl font-bold font-heading">
-                    ₹{formatINR(generalTotalOutstanding)}
+                    {formatINR(generalTotalOutstanding)}
                   </span>
                 </div>
               </div>
@@ -693,7 +692,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                         {generalPendingBalance > 0 && (
                           <span className="text-xs font-bold text-[#991B1B]">
-                            ₹{formatINR(generalPendingBalance)} pending
+                            {formatINR(generalPendingBalance)} pending
                           </span>
                         )}
                       </div>
@@ -725,7 +724,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                         {generalPaidSettled > 0 && (
                           <span className="text-xs font-bold text-[#166534]">
-                            ₹{formatINR(generalPaidSettled)} settled
+                            {formatINR(generalPaidSettled)} settled
                           </span>
                         )}
                       </div>
@@ -795,7 +794,7 @@ export const PurchasesPage: React.FC = () => {
                             Purchased
                           </span>
                           <span className="text-sm sm:text-base font-bold text-[#242424]">
-                            ₹{formatINR(s.total_purchased)}
+                            {formatINR(s.total_purchased)}
                           </span>
                         </div>
 
@@ -804,7 +803,7 @@ export const PurchasesPage: React.FC = () => {
                             Paid
                           </span>
                           <span className="text-sm sm:text-base font-bold text-[#166534]">
-                            ₹{formatINR(s.total_paid)}
+                            {formatINR(s.total_paid)}
                           </span>
                         </div>
 
@@ -817,7 +816,7 @@ export const PurchasesPage: React.FC = () => {
                               s.total_outstanding > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
                             }`}
                           >
-                            ₹{formatINR(s.total_outstanding)}
+                            {formatINR(s.total_outstanding)}
                           </span>
                         </div>
                       </div>

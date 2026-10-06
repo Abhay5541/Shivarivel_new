@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { useMaterials } from '@/hooks/useProcurement';
 import { ActionButton } from '@/components/ui/ActionButton';
-import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { useSearchParams } from 'react-router-dom';
 import { EmptyState } from '@/components/ui/EmptyState';

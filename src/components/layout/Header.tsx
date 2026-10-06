@@ -103,9 +103,14 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                 className="w-full h-full object-cover scale-[1.15]"
               />
             </div>
-            <span className="font-bold text-sm text-[#242424] font-heading hidden sm:inline tracking-tight">
-              Shivarivel
-            </span>
+            <div className="hidden sm:flex flex-col text-left leading-none">
+              <span className="font-cinzel font-bold text-[13px] tracking-[0.14em] text-[#242424] uppercase">
+                SHIVARIVEL
+              </span>
+              <span className="font-inter text-[8.5px] font-bold tracking-[0.22em] text-[#C9A24A] uppercase mt-0.5">
+                Construction &amp; Interiors
+              </span>
+            </div>
           </button>
 
           {/* ── Desktop Center Nav: The Magnifying Dock ───── */}

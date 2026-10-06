@@ -65,7 +65,7 @@ export const SimpleSupplierPaymentModal: React.FC<SimpleSupplierPaymentModalProp
     // Financial invariant: Never allow Paid > Purchased / Outstanding
     if (payAmount > outstanding) {
       setErrorMsg(
-        `Payment amount (₹${formatINR(payAmount)}) cannot exceed the pending balance of ₹${formatINR(outstanding)}.`
+        `Payment amount (${formatINR(payAmount)}) cannot exceed the pending balance of ${formatINR(outstanding)}.`
       );
       return;
     }
@@ -166,15 +166,15 @@ export const SimpleSupplierPaymentModal: React.FC<SimpleSupplierPaymentModalProp
             <div className="p-3 bg-[#F7F5F0] rounded-xl text-xs space-y-1.5 border border-[#E2DDD5]/60">
               <div className="flex items-center justify-between text-[#6B6B6B]">
                 <span>Total Purchased:</span>
-                <span className="font-semibold text-[#242424]">₹{formatINR(purchased)}</span>
+                <span className="font-semibold text-[#242424]">{formatINR(purchased)}</span>
               </div>
               <div className="flex items-center justify-between text-[#6B6B6B]">
                 <span>Already Paid:</span>
-                <span className="font-semibold text-[#166534]">₹{formatINR(paid)}</span>
+                <span className="font-semibold text-[#166534]">{formatINR(paid)}</span>
               </div>
               <div className="flex items-center justify-between font-bold pt-1 border-t border-[#E2DDD5]">
                 <span className="text-[#242424]">Pending Balance:</span>
-                <span className="text-[#991B1B]">₹{formatINR(outstanding)}</span>
+                <span className="text-[#991B1B]">{formatINR(outstanding)}</span>
               </div>
             </div>
           )}
@@ -201,7 +201,7 @@ export const SimpleSupplierPaymentModal: React.FC<SimpleSupplierPaymentModalProp
                 onClick={() => setAmount(String(outstanding))}
                 className="mt-1.5 text-[11px] font-bold text-[#4A0E0E] hover:underline cursor-pointer"
               >
-                Pay full pending amount (₹{formatINR(outstanding)})
+                Pay full pending amount ({formatINR(outstanding)})
               </button>
             )}
           </div>

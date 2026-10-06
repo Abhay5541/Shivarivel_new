@@ -1039,6 +1039,32 @@ export function useUpdateEmployee(id: string) {
   });
 }
 
+export function useDeleteEmployee() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      try {
+        const { error } = await (supabase as any).from('employees').delete().eq('id', id);
+        if (error) {
+          await (supabase as any).from('employees').update({ status: 'inactive' }).eq('id', id);
+        }
+      } catch {
+        // Local fallback
+      }
+      memoryEmployees = memoryEmployees.filter((e) => e.id !== id);
+      return id;
+    },
+    onSuccess: (id) => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+      queryClient.invalidateQueries({ queryKey: ['employee', id] });
+      queryClient.invalidateQueries({ queryKey: ['wages'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+
+
 // ==========================================
 // 2. ATTENDANCE HOOKS (FAST MUSTER)
 // ==========================================

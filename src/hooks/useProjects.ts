@@ -777,3 +777,30 @@ export function useConvertEstimateToProject() {
     },
   });
 }
+
+export function useDeleteProject() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      try {
+        const { error } = await supabase.from('projects').delete().eq('id', id);
+        if (error) {
+          console.warn('Supabase project delete notice:', error.message);
+        }
+      } catch (err) {
+        console.warn('Supabase project delete error:', err);
+      }
+      memoryProjects = memoryProjects.filter((p) => p.id !== id);
+      return id;
+    },
+    onSuccess: (id) => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project', id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-balances'] });
+    },
+  });
+}
+

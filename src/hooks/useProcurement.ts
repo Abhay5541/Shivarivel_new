@@ -770,6 +770,31 @@ export function useUpdateSupplier() {
   });
 }
 
+export function useDeleteSupplier() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      try {
+        const { error } = await (supabase as any).from('suppliers').delete().eq('id', id);
+        if (error) {
+          console.warn('Supabase supplier delete notice:', error.message);
+        }
+      } catch (err) {
+        console.warn('Supabase supplier delete error:', err);
+      }
+      memorySuppliers = memorySuppliers.filter((s) => s.id !== id);
+      return id;
+    },
+    onSuccess: (id) => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier', id] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-balance', id] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-balances'] });
+    },
+  });
+}
+
 // ==========================================
 // 2. MATERIALS HOOKS
 // ==========================================
@@ -2043,6 +2068,33 @@ export function useUpdateSimplePurchase() {
       queryClient.invalidateQueries({ queryKey: ['purchase'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier-balance'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-payments'] });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+
+export function useDeleteSimplePurchase() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      try {
+        await (supabase as any).from('purchase_items').delete().eq('purchase_id', id);
+        await (supabase as any).from('purchases').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Purchase delete error:', err);
+      }
+      memoryPurchases = memoryPurchases.filter((p) => p.id !== id);
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['purchase'] });
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-balance'] });
+      queryClient.invalidateQueries({ queryKey: ['supplier-balances'] });
       queryClient.invalidateQueries({ queryKey: ['supplier-payments'] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

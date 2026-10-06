@@ -9,8 +9,9 @@ import {
   Edit2,
   Calendar,
   Building2,
+  Trash2,
 } from 'lucide-react';
-import { useSupplier, usePurchases, useSupplierBalance } from '@/hooks/useProcurement';
+import { useSupplier, usePurchases, useSupplierBalance, useDeleteSupplier } from '@/hooks/useProcurement';
 import { formatINR } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
@@ -27,7 +28,16 @@ export const SupplierDetailPage: React.FC = () => {
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
 
+  const deleteSupplierMutation = useDeleteSupplier();
   const { data: supplier, isLoading: isLoadingSupplier, isError, error, refetch } = useSupplier(id);
+
+  const handleDeleteSupplier = async () => {
+    if (!supplier) return;
+    if (window.confirm(`Are you sure you want to delete supplier "${supplier.name}"? This action cannot be undone.`)) {
+      await deleteSupplierMutation.mutateAsync(supplier.id);
+      navigate('/suppliers');
+    }
+  };
   const { data: balance, isLoading: isLoadingBalance } = useSupplierBalance(id);
   const { data: purchases = [], isLoading: isLoadingPurchases } = usePurchases({ supplier_id: id });
 
@@ -102,12 +112,12 @@ export const SupplierDetailPage: React.FC = () => {
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <div className="bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl px-4 py-2.5 text-center min-w-[120px]">
               <span className="text-[11px] text-[#6B6B6B] block">Purchased</span>
-              <span className="text-base font-bold text-[#242424]">₹{formatINR(purchased)}</span>
+              <span className="text-base font-bold text-[#242424]">{formatINR(purchased)}</span>
             </div>
 
             <div className="bg-[#DCFCE7]/40 border border-[#166534]/20 rounded-xl px-4 py-2.5 text-center min-w-[120px]">
               <span className="text-[11px] text-[#166534] block">Paid</span>
-              <span className="text-base font-bold text-[#166534]">₹{formatINR(paid)}</span>
+              <span className="text-base font-bold text-[#166534]">{formatINR(paid)}</span>
             </div>
 
             <div
@@ -121,7 +131,7 @@ export const SupplierDetailPage: React.FC = () => {
                 Pending
               </span>
               <span className={`text-base font-bold ${pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
-                ₹{formatINR(pending)}
+                {formatINR(pending)}
               </span>
             </div>
           </div>
@@ -137,6 +147,17 @@ export const SupplierDetailPage: React.FC = () => {
           >
             <Edit2 className="w-3.5 h-3.5" />
             <span>Edit</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleDeleteSupplier}
+            disabled={deleteSupplierMutation.isPending}
+            className="h-10 px-3.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete</span>
           </Button>
 
           <Button
@@ -209,7 +230,7 @@ export const SupplierDetailPage: React.FC = () => {
 
                   <div className="text-right sm:self-center">
                     <div className="text-sm font-bold text-[#242424]">
-                      ₹{formatINR(purchase.total_amount)}
+                      {formatINR(purchase.total_amount)}
                     </div>
                     <span
                       className={`inline-block mt-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full ${

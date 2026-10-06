@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus } from 'lucide-react';
-import { useCreateCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
+import { X, UserPlus, Trash2 } from 'lucide-react';
+import { useCreateCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 import { indianPhoneRegex, type Customer } from '@/types/business';
 import { Button } from '@/components/ui/Button';
 
@@ -21,6 +21,7 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
   const isEditing = Boolean(customer);
   const createCustomerMutation = useCreateCustomer();
   const updateCustomerMutation = useUpdateCustomer();
+  const deleteCustomerMutation = useDeleteCustomer();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -87,7 +88,23 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
     }
   };
 
-  const isSaving = createCustomerMutation.isPending || updateCustomerMutation.isPending;
+  const handleDelete = async () => {
+    if (!customer) return;
+    if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
+      try {
+        await deleteCustomerMutation.mutateAsync(customer.id);
+        onClose();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unable to delete customer.';
+        setErrorMsg(msg);
+      }
+    }
+  };
+
+  const isSaving =
+    createCustomerMutation.isPending ||
+    updateCustomerMutation.isPending ||
+    deleteCustomerMutation.isPending;
 
   return (
     <div
@@ -198,24 +215,41 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center justify-end gap-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={onClose}
-                  disabled={isSaving}
-                  className="h-11 px-5 text-sm font-semibold"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={isSaving}
-                  className="h-11 px-6 text-sm font-bold min-w-[120px]"
-                >
-                  {isSaving ? 'Saving...' : isEditing ? 'Update Customer' : 'Save Customer'}
-                </Button>
+              <div className="pt-2 flex items-center justify-between gap-3">
+                {isEditing && customer ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleDelete}
+                    disabled={isSaving}
+                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span>Delete</span>
+                  </Button>
+                ) : (
+                  <div />
+                )}
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={onClose}
+                    disabled={isSaving}
+                    className="h-11 px-5 text-sm font-semibold"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSaving}
+                    className="h-11 px-6 text-sm font-bold min-w-[120px]"
+                  >
+                    {isSaving ? 'Saving...' : isEditing ? 'Update Customer' : 'Save Customer'}
+                  </Button>
+                </div>
               </div>
             </form>
       </div>

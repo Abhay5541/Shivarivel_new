@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingCart, AlertCircle } from 'lucide-react';
+import { X, ShoppingCart, AlertCircle, Trash2 } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
-import { useCreateSimplePurchase, useUpdateSimplePurchase } from '@/hooks/useProcurement';
+import { useCreateSimplePurchase, useUpdateSimplePurchase, useDeleteSimplePurchase } from '@/hooks/useProcurement';
 import type { Purchase } from '@/types/procurement';
 import { formatINR } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -27,6 +27,7 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
   const { data: projects = [] } = useProjects();
   const createPurchaseMutation = useCreateSimplePurchase();
   const updatePurchaseMutation = useUpdateSimplePurchase();
+  const deletePurchaseMutation = useDeleteSimplePurchase();
 
   const [projectId, setProjectId] = useState('');
   const [productName, setProductName] = useState('');
@@ -155,7 +156,24 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
     }
   };
 
-  const isSaving = createPurchaseMutation.isPending || updatePurchaseMutation.isPending;
+  const handleDelete = async () => {
+    if (!editPurchase) return;
+    if (window.confirm(`Are you sure you want to delete purchase "${editPurchase.purchase_number || productName}"? This action cannot be undone.`)) {
+      try {
+        await deletePurchaseMutation.mutateAsync(editPurchase.id);
+        if (onSuccess) onSuccess();
+        onClose();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unable to delete purchase.';
+        setErrorMsg(msg);
+      }
+    }
+  };
+
+  const isSaving =
+    createPurchaseMutation.isPending ||
+    updatePurchaseMutation.isPending ||
+    deletePurchaseMutation.isPending;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
@@ -322,38 +340,55 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
           <div className="p-3 bg-[#F7F5F0] rounded-xl border border-[#E2DDD5] flex items-center justify-between text-xs">
             <div>
               <span className="text-[#6B6B6B] block">Total Value:</span>
-              <span className="font-bold text-[#242424]">₹{formatINR(numTotal)}</span>
+              <span className="font-bold text-[#242424]">{formatINR(numTotal)}</span>
             </div>
             <div>
               <span className="text-[#6B6B6B] block">Paid:</span>
-              <span className="font-bold text-[#166534]">₹{formatINR(numPaid)}</span>
+              <span className="font-bold text-[#166534]">{formatINR(numPaid)}</span>
             </div>
             <div className="text-right">
               <span className="text-[#6B6B6B] block">Balance to Pay:</span>
               <span className={`font-bold text-sm ${balance > 0 ? 'text-[#991B1B]' : 'text-[#166534]'}`}>
-                ₹{formatINR(balance)}
+                {formatINR(balance)}
               </span>
             </div>
           </div>
 
           {/* Submit Actions */}
-          <div className="pt-2 flex items-center justify-end gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              disabled={isSaving}
-              className="h-11 px-5 text-xs font-bold cursor-pointer"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="h-11 px-6 text-xs font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white rounded-xl shadow-xs cursor-pointer"
-            >
-              {isSaving ? 'Saving...' : isEdit ? 'Update Purchase' : 'Save Purchase'}
-            </Button>
+          <div className="pt-2 flex items-center justify-between gap-3">
+            {isEdit && editPurchase ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleDelete}
+                disabled={isSaving}
+                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onClose}
+                disabled={isSaving}
+                className="h-11 px-5 text-xs font-bold cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="h-11 px-6 text-xs font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white rounded-xl shadow-xs cursor-pointer"
+              >
+                {isSaving ? 'Saving...' : isEdit ? 'Update Purchase' : 'Save Purchase'}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

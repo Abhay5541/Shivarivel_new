@@ -22,13 +22,14 @@
 .glass-header {
   pointer-events: auto;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(201, 162, 74, 0.28);
+  background: rgba(255, 255, 255, 0.78);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
   box-shadow:
     0 1px 3px rgba(74, 14, 14, 0.04),
-    0 6px 24px rgba(74, 14, 14, 0.06);
+    0 8px 30px rgba(10, 24, 19, 0.06),
+    0 0 0 1px rgba(201, 162, 74, 0.12);
   transition: all 500ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
@@ -74,8 +75,8 @@
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  border: 1px solid rgba(201, 154, 46, 0.4);
-  box-shadow: 0 2px 8px rgba(74, 14, 14, 0.18);
+  border: 1px solid rgba(201, 162, 74, 0.55);
+  box-shadow: 0 2px 10px rgba(201, 162, 74, 0.25);
 }
 
 /* ── nav links ─────────────────────────────────────────── */
@@ -254,7 +255,8 @@
   width: 6px;
   height: 6px;
   border-radius: 9999px;
-  background: #C99A2E;
+  background: #C9A24A;
+  box-shadow: 0 0 6px rgba(201, 162, 74, 0.6);
 }
 
 /* ── user button ───────────────────────────────────────── */
@@ -264,13 +266,14 @@
   gap: 6px;
   padding: 4px 8px 4px 4px;
   border-radius: 9999px;
-  border: 1px solid rgba(226, 221, 213, 0.5);
-  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(201, 162, 74, 0.35);
+  background: rgba(255, 255, 255, 0.55);
   cursor: pointer;
   transition: all 250ms ease;
 }
 .glass-user-btn:hover {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(201, 162, 74, 0.6);
 }
 .glass-user-btn:active {
   transform: scale(0.97);
@@ -288,6 +291,8 @@
   font-size: 12px;
   font-weight: 700;
   font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  border: 1.5px solid #C9A24A;
+  box-shadow: 0 0 8px rgba(201, 162, 74, 0.35);
 }
 
 /* ── user dropdown ─────────────────────────────────────── */

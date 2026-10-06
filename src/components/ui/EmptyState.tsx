@@ -5,7 +5,7 @@ import { Button } from './Button';
 export interface EmptyStateProps {
   icon?: React.ReactNode;
   title: string;
-  description: string;
+  description?: string;
   actionLabel?: string;
   onAction?: () => void;
   className?: string;
@@ -34,9 +34,11 @@ export function EmptyState({
       <h3 className="text-base font-bold text-[#242424] font-heading mb-1.5">
         {title}
       </h3>
-      <p className="text-xs text-[#6B6B6B] max-w-sm mb-5 leading-relaxed">
-        {description}
-      </p>
+      {description && (
+        <p className="text-xs text-[#6B6B6B] max-w-sm mb-5 leading-relaxed">
+          {description}
+        </p>
+      )}
       {actionLabel && onAction && (
         <Button variant="primary" size="sm" onClick={onAction}>
           {actionLabel}

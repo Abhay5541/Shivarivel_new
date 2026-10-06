@@ -108,15 +108,15 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[#E2DDD5]/70 text-center">
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">Total</span>
-                <span className="text-xs font-bold text-[#242424]">₹{formatINR(currentTotal)}</span>
+                <span className="text-xs font-bold text-[#242424]">{formatINR(currentTotal)}</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">Paid</span>
-                <span className="text-xs font-bold text-[#166534]">₹{formatINR(currentPaid)}</span>
+                <span className="text-xs font-bold text-[#166534]">{formatINR(currentPaid)}</span>
               </div>
               <div>
                 <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">Balance</span>
-                <span className="text-xs font-bold text-[#991B1B]">₹{formatINR(currentBalance)}</span>
+                <span className="text-xs font-bold text-[#991B1B]">{formatINR(currentBalance)}</span>
               </div>
             </div>
           </div>
@@ -170,11 +170,11 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <div className="p-3 bg-[#DCFCE7]/30 border border-[#166534]/20 rounded-xl text-xs flex items-center justify-between">
                 <div>
                   <span className="text-[#6B6B6B] block">New Paid Amount:</span>
-                  <span className="font-bold text-[#166534]">₹{formatINR(projectedPaid)}</span>
+                  <span className="font-bold text-[#166534]">{formatINR(projectedPaid)}</span>
                 </div>
                 <div className="text-right">
                   <span className="text-[#6B6B6B] block">Remaining Balance:</span>
-                  <span className="font-bold text-[#991B1B]">₹{formatINR(projectedBalance)}</span>
+                  <span className="font-bold text-[#991B1B]">{formatINR(projectedBalance)}</span>
                 </div>
               </div>
             )}

@@ -3,8 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Drawer } from '@/components/ui/Drawer';
 import { Button } from '@/components/ui/Button';
+import { Trash2 } from 'lucide-react';
 import { customerSchema, type CustomerFormData, type Customer } from '@/types/business';
-import { useCreateCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
+import { useCreateCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 
 interface CustomerFormDrawerProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function CustomerFormDrawer({
   const isEditing = Boolean(customer);
   const createMutation = useCreateCustomer();
   const updateMutation = useUpdateCustomer();
+  const deleteMutation = useDeleteCustomer();
 
   const {
     register,
@@ -80,8 +82,23 @@ export function CustomerFormDrawer({
     }
   };
 
-  const isSaving = isSubmitting || createMutation.isPending || updateMutation.isPending;
-  const errorMsg = createMutation.error?.message || updateMutation.error?.message;
+  const handleDelete = async () => {
+    if (!customer) return;
+    if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
+      await deleteMutation.mutateAsync(customer.id);
+      onClose();
+    }
+  };
+
+  const isSaving =
+    isSubmitting ||
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
+  const errorMsg =
+    createMutation.error?.message ||
+    updateMutation.error?.message ||
+    deleteMutation.error?.message;
 
   return (
     <Drawer
@@ -211,13 +228,30 @@ export function CustomerFormDrawer({
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-4 border-t border-[#E2DDD5] flex items-center justify-end gap-3">
-          <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="primary" size="sm" disabled={isSaving}>
-            {isSaving ? 'Saving...' : isEditing ? 'Save Changes' : 'Register Customer'}
-          </Button>
+        <div className="pt-4 border-t border-[#E2DDD5] flex items-center justify-between gap-3">
+          {isEditing && customer ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDelete}
+              disabled={isSaving}
+              className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 flex items-center gap-1.5 cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
+            </Button>
+          ) : (
+            <div />
+          )}
+          <div className="flex items-center gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" size="sm" disabled={isSaving}>
+              {isSaving ? 'Saving...' : isEditing ? 'Save Changes' : 'Register Customer'}
+            </Button>
+          </div>
         </div>
       </form>
     </Drawer>

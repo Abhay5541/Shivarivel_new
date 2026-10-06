@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, User, Building2, AlertCircle, CheckCircle2, Clock, Ban } from 'lucide-react';
-import { useEmployees, useRecordDailyWage, useWages } from '@/hooks/useWorkforce';
+import { X, Calendar, User, Building2, AlertCircle, CheckCircle2, Clock, Ban, Trash2 } from 'lucide-react';
+import { useEmployees, useRecordDailyWage, useWages, useDeleteDailyWage } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/Button';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
@@ -36,6 +36,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
   const { data: projects = [] } = useProjects();
   const { data: allWages = [] } = useWages();
   const recordWageMutation = useRecordDailyWage();
+  const deleteWageMutation = useDeleteDailyWage();
 
   const [activeWageRecord, setActiveWageRecord] = useState<DailyWage | null>(existingWage || null);
   const [date, setDate] = useState(getTodayStr);
@@ -163,7 +164,24 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
     }
   };
 
-  const isSaving = recordWageMutation.isPending;
+  const handleDelete = async () => {
+    if (!activeWageRecord) return;
+    if (window.confirm('Are you sure you want to delete this wage entry? This action cannot be undone.')) {
+      try {
+        await deleteWageMutation.mutateAsync({
+          wageId: activeWageRecord.id,
+          attendanceId: activeWageRecord.attendance_id || undefined,
+        });
+        if (onSuccess) onSuccess();
+        onClose();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unable to delete wage entry.';
+        setErrorMsg(msg);
+      }
+    }
+  };
+
+  const isSaving = recordWageMutation.isPending || deleteWageMutation.isPending;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
@@ -363,26 +381,44 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
           </div>
 
           {/* Modal Footer Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-[#E2DDD5]">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-              disabled={isSaving}
-              className="h-9 px-4 border-[#E2DDD5] text-xs font-medium cursor-pointer"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              size="sm"
-              disabled={isSaving}
-              className="h-9 px-5 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg cursor-pointer"
-            >
-              {isSaving ? 'Saving...' : activeWageRecord ? 'Update Wage' : 'Save Entry'}
-            </Button>
+          <div className="flex items-center justify-between gap-2.5 pt-3 border-t border-[#E2DDD5]">
+            {activeWageRecord ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                disabled={isSaving}
+                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-9 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Entry</span>
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                disabled={isSaving}
+                className="h-9 px-4 border-[#E2DDD5] text-xs font-medium cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                disabled={isSaving}
+                className="h-9 px-5 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg cursor-pointer"
+              >
+                {isSaving ? 'Saving...' : activeWageRecord ? 'Update Wage' : 'Save Entry'}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

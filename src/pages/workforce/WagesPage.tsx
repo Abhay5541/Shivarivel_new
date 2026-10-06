@@ -11,13 +11,14 @@ import {
   Clock,
   Ban,
   Edit2,
+  Trash2,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
-import { useWages, useEmployees } from '@/hooks/useWorkforce';
+import { useWages, useEmployees, useDeleteDailyWage } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
@@ -92,6 +93,24 @@ export function WagesPage() {
   const { data: allWages = [], isLoading: isWagesLoading } = useWages();
   const { data: employees = [] } = useEmployees();
   const { data: projects = [] } = useProjects();
+  const deleteWageMutation = useDeleteDailyWage();
+
+  const handleDeleteWage = (wage: DailyWage, laborerName: string) => {
+    if (
+      window.confirm(
+        `Are you sure you want to delete this wage entry of ${formatINR(wage.amount || 0)} for ${laborerName}?`
+      )
+    ) {
+      deleteWageMutation.mutate(
+        { wageId: wage.id, attendanceId: wage.attendance_id || undefined },
+        {
+          onSuccess: () => {
+            setToastMessage(`Wage entry for ${laborerName} deleted successfully.`);
+          },
+        }
+      );
+    }
+  };
 
   // ==========================================
   // DATE NAVIGATION LOGIC (DAILY)
@@ -605,7 +624,7 @@ export function WagesPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-center">
-                            <div className="flex items-center justify-center">
+                            <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(wage)}
@@ -614,6 +633,16 @@ export function WagesPage() {
                                 aria-label={`Edit wage for ${laborerName}`}
                               >
                                 <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteWage(wage, laborerName)}
+                                disabled={deleteWageMutation.isPending}
+                                className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                                title="Delete wage entry"
+                                aria-label={`Delete wage for ${laborerName}`}
+                              >
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
@@ -652,7 +681,7 @@ export function WagesPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-1">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(wage)}
@@ -660,6 +689,15 @@ export function WagesPage() {
                             aria-label={`Edit ${laborerName}`}
                           >
                             <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteWage(wage, laborerName)}
+                            disabled={deleteWageMutation.isPending}
+                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                            aria-label={`Delete wage for ${laborerName}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>

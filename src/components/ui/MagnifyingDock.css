@@ -64,7 +64,8 @@
   touch-action: pan-y;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, var(--g-spec, 0.5)),
-    0 10px 40px rgba(var(--shadow-rgb), var(--g-lift, 0.12));
+    0 0 0 1px rgba(201, 162, 74, 0.16),
+    0 10px 40px rgba(10, 24, 19, 0.12);
 }
 
 /* no tile behind the icon: scaling a translucent rectangle over
@@ -106,10 +107,11 @@
      20px in a 44px box, so anything hung off the bottom edge
      lands 17px from the mark it belongs to. */
   left: 50%; bottom: 3px;
-  width: 3px; height: 3px;
-  margin-left: -1.5px;
+  width: 4px; height: 4px;
+  margin-left: -2px;
   border-radius: 50%;
-  background: #4A0E0E;
+  background: #C9A24A;
+  box-shadow: 0 0 6px rgba(201, 162, 74, 0.8);
   opacity: 0;
   transform: scale(0.4);
   transition: opacity 240ms ease, transform 360ms cubic-bezier(0.28, 1.4, 0.36, 1);}
@@ -176,18 +178,19 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: #C99A2E;
+  background: linear-gradient(135deg, #DFB95E 0%, #C9A24A 50%, #B88E35 100%);
   color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(201, 154, 46, 0.4);
+  box-shadow: 0 4px 16px rgba(201, 162, 74, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.6);
   border: 2px solid #FFFFFF;
-  transition: background-color 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .gdock-action-btn:hover {
-  background-color: #B38722;
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(201, 162, 74, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.8);
 }
 
 /* ── flat panes ────────────────────────────────────────────

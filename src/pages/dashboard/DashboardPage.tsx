@@ -76,7 +76,14 @@ export function DashboardPage() {
     <PageContainer>
       {/* 10-Second Operations Briefing Header */}
       <PageHeader
-        title={`${greeting}, ${userName}`}
+        title={
+          <span className="flex items-baseline gap-2.5 flex-wrap">
+            <span>{greeting}, {userName}</span>
+            <span className="font-cursive text-xl sm:text-2xl text-[#C9A24A] font-normal tracking-wide hidden sm:inline select-none drop-shadow-2xs">
+              Your Vision, Our Expertise
+            </span>
+          </span>
+        }
         subtitle={`Today's Operations Briefing · ${todayFormatted}`}
         badge={
           isOwner ? (

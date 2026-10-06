@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, UserCheck, Plus, Edit2, Phone, Tag, Check, AlertCircle } from 'lucide-react';
-import { useEmployees, useCreateEmployee, useUpdateEmployee } from '@/hooks/useWorkforce';
+import { X, UserCheck, Plus, Edit2, Phone, Tag, Check, AlertCircle, Trash2 } from 'lucide-react';
+import { useEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmployee } from '@/hooks/useWorkforce';
 import { indianPhoneRegex } from '@/types/business';
 import type { Employee } from '@/types/workforce';
 import { Button } from '@/components/ui/Button';
@@ -28,6 +28,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const updateEmployeeMutation = useUpdateEmployee(editingLaborer?.id || '');
+  const deleteEmployeeMutation = useDeleteEmployee();
 
   if (!isOpen) return null;
 
@@ -55,6 +56,21 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
     setName('');
     setPhone('');
     setErrorMsg(null);
+  };
+
+  const handleDeleteLaborer = async (laborer: Employee) => {
+    if (window.confirm(`Are you sure you want to delete laborer "${laborer.name}"? This action cannot be undone.`)) {
+      try {
+        await deleteEmployeeMutation.mutateAsync(laborer.id);
+        setSuccessMsg(`Deleted ${laborer.name}`);
+        if (editingLaborer?.id === laborer.id) {
+          setIsAddingOrEditing(false);
+          setEditingLaborer(null);
+        }
+      } catch {
+        setErrorMsg('Failed to delete laborer.');
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -218,25 +234,42 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                   </p>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancelForm}
-                    className="h-9 px-3.5 border-[#E2DDD5] text-xs font-medium cursor-pointer"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                    disabled={isSaving}
-                    className="h-9 px-4 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg cursor-pointer"
-                  >
-                    {isSaving ? 'Saving...' : editingLaborer ? 'Save Changes' : 'Save Laborer'}
-                  </Button>
+                <div className="flex items-center justify-between gap-2 pt-2">
+                  {editingLaborer ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteLaborer(editingLaborer)}
+                      disabled={isSaving}
+                      className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-9 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
+                    </Button>
+                  ) : (
+                    <div />
+                  )}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelForm}
+                      className="h-9 px-3.5 border-[#E2DDD5] text-xs font-medium cursor-pointer"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      disabled={isSaving}
+                      className="h-9 px-4 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg cursor-pointer"
+                    >
+                      {isSaving ? 'Saving...' : editingLaborer ? 'Save Changes' : 'Save Laborer'}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </div>
@@ -288,6 +321,16 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                       aria-label={`Edit ${emp.name}`}
                     >
                       <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteLaborer(emp)}
+                      disabled={deleteEmployeeMutation.isPending}
+                      className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                      title="Delete Laborer"
+                      aria-label={`Delete ${emp.name}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>

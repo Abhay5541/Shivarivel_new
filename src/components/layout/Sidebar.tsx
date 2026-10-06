@@ -48,14 +48,14 @@ export function Sidebar({ className }: { className?: string }) {
     >
       {/* Brand Header */}
       <div className="h-16 px-5 border-b border-[#E2DDD5] flex items-center gap-3 shrink-0 bg-white">
-        <div className="w-9 h-9 rounded-lg bg-black overflow-hidden flex items-center justify-center shadow-xs border border-[#C99A2E]/40 shrink-0">
+        <div className="w-9 h-9 rounded-lg bg-black overflow-hidden flex items-center justify-center shadow-xs border border-[#C9A24A]/60 shrink-0">
           <img src={logoImg} alt="Shivarivel" className="w-full h-full object-cover scale-[1.15]" />
         </div>
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-bold tracking-tight text-[#242424] font-heading truncate">
+          <span className="text-[13px] font-bold tracking-[0.14em] text-[#242424] font-cinzel truncate uppercase">
             SHIVARIVEL
           </span>
-          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium truncate">
+          <span className="text-[8.5px] uppercase tracking-[0.22em] text-[#C9A24A] font-bold truncate">
             Construction &amp; Interiors
           </span>
         </div>

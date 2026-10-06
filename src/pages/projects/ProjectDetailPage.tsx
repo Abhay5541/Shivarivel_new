@@ -17,12 +17,14 @@ import {
   FolderOpen,
   ArrowRight,
   Plus,
+  Trash2,
 } from 'lucide-react';
 import {
   useProject,
   useProjectWorkProgress,
   useProjectFinancials,
   useProjectDocuments,
+  useDeleteProject,
 } from '@/hooks/useProjects';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useProjectWorkforce } from '@/hooks/useWorkforce';
@@ -69,6 +71,15 @@ export const ProjectDetailPage: React.FC = () => {
   const { data: documents = [] } = useProjectDocuments(id);
   const { data: projectPurchases = [] } = usePurchases({ project_id: id });
   const { data: workforceData } = useProjectWorkforce(id);
+  const deleteProjectMutation = useDeleteProject();
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    if (window.confirm(`Are you sure you want to delete project "${project.name}"? This action cannot be undone.`)) {
+      await deleteProjectMutation.mutateAsync(project.id);
+      navigate('/projects');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -164,10 +175,20 @@ export const ProjectDetailPage: React.FC = () => {
           <Button
             variant="primary"
             onClick={() => navigate(`/projects/${project.id}/edit`)}
-            className="bg-[#4A0E0E] text-white hover:bg-[#380B0B] text-xs font-semibold min-h-[40px] px-4"
+            className="bg-[#4A0E0E] text-white hover:bg-[#380B0B] text-xs font-semibold min-h-[40px] px-4 cursor-pointer"
           >
             <Edit2 className="w-4 h-4 mr-1.5" />
             Edit Project
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={handleDeleteProject}
+            disabled={deleteProjectMutation.isPending}
+            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 text-xs font-semibold min-h-[40px] px-3.5 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+            Delete
           </Button>
         </div>
       </div>

@@ -383,7 +383,7 @@ export const ProjectEditorPage: React.FC = () => {
 
             <div>
               <label className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider block mb-1.5">
-                Contract Value (₹ INR)
+                Contract Value (₹)
               </label>
               <input
                 type="number"

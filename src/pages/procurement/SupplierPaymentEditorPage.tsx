@@ -98,7 +98,7 @@ export const SupplierPaymentEditorPage: React.FC = () => {
 
     if (isOverAllocated) {
       setFormError(
-        `Total allocated (₹${totalAllocatedNum}) cannot exceed total payment amount (₹${totalAmountNum}).`
+        `Total allocated (${formatINR(totalAllocatedNum)}) cannot exceed total payment amount (${formatINR(totalAmountNum)}).`
       );
       return;
     }

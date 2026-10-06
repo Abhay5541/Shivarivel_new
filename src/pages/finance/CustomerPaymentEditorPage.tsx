@@ -221,7 +221,7 @@ export function CustomerPaymentEditorPage() {
                 {/* Amount */}
                 <div>
                   <label className="block text-xs font-semibold text-[#242424] mb-1.5">
-                    Receipt Amount (₹) *
+                    Receipt Amount *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-[#242424] text-sm">

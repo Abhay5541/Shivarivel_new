@@ -182,7 +182,7 @@ export function EmployeePaymentEditorPage() {
             {/* Amount */}
             <div>
               <label className="block text-xs font-bold text-[#242424] mb-1">
-                Disbursement Amount (₹) <span className="text-[#9E2A2B]">*</span>
+                Disbursement Amount <span className="text-[#9E2A2B]">*</span>
               </label>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B6B]" />

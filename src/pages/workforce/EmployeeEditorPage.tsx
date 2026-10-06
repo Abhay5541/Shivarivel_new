@@ -228,7 +228,7 @@ export function EmployeeEditorPage() {
 
             <div>
               <label className="block text-xs font-bold text-[#242424] mb-1">
-                Daily Wage Rate (₹ / Day)
+                Daily Wage Rate (Per Day)
               </label>
               <div className="relative">
                 <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B6B]" />

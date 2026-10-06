@@ -8,6 +8,7 @@ import {
   Building2,
   Plus,
   ArrowRight,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -15,7 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
-import { useCustomer } from '@/hooks/useCustomers';
+import { useCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import type { Project } from '@/types/projects';
 
@@ -26,8 +27,17 @@ export const CustomerDetailPage: React.FC = () => {
   const [isEditCustomerOpen, setIsEditCustomerOpen] = useState(false);
   const [isAddSiteOpen, setIsAddSiteOpen] = useState(false);
 
+  const deleteCustomerMutation = useDeleteCustomer();
   const { data: customer, isLoading, isError, error, refetch } = useCustomer(id);
   const { data: allProjects = [] } = useProjects({ customerId: id });
+
+  const handleDeleteCustomer = async () => {
+    if (!customer) return;
+    if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
+      await deleteCustomerMutation.mutateAsync(customer.id);
+      navigate('/customers');
+    }
+  };
 
   // Filter projects for this customer
   const customerSites = allProjects.filter((p) => p.customer_id === id);
@@ -101,15 +111,28 @@ export const CustomerDetailPage: React.FC = () => {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => setIsEditCustomerOpen(true)}
-          className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
-        >
-          <Edit2 className="w-3.5 h-3.5" />
-          <span>Edit Customer</span>
-        </Button>
+        <div className="flex items-center gap-2 self-start md:self-auto">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setIsEditCustomerOpen(true)}
+            className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+            <span>Edit Customer</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleDeleteCustomer}
+            disabled={deleteCustomerMutation.isPending}
+            className="h-10 px-3.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Delete</span>
+          </Button>
+        </div>
       </div>
 
       {/* Projects Section */}

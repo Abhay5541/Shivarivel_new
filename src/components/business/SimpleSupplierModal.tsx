@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Truck } from 'lucide-react';
-import { useCreateSupplier, useUpdateSupplier } from '@/hooks/useProcurement';
+import { X, Truck, Trash2 } from 'lucide-react';
+import { useCreateSupplier, useUpdateSupplier, useDeleteSupplier } from '@/hooks/useProcurement';
 import { indianPhoneRegex } from '@/types/business';
 import type { Supplier } from '@/types/procurement';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +21,7 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
   const isEditing = Boolean(supplier);
   const createSupplierMutation = useCreateSupplier();
   const updateSupplierMutation = useUpdateSupplier();
+  const deleteSupplierMutation = useDeleteSupplier();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -83,7 +84,23 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
     }
   };
 
-  const isSaving = createSupplierMutation.isPending || updateSupplierMutation.isPending;
+  const handleDelete = async () => {
+    if (!supplier) return;
+    if (window.confirm(`Are you sure you want to delete supplier "${supplier.name}"? This action cannot be undone.`)) {
+      try {
+        await deleteSupplierMutation.mutateAsync(supplier.id);
+        onClose();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unable to delete supplier.';
+        setErrorMsg(msg);
+      }
+    }
+  };
+
+  const isSaving =
+    createSupplierMutation.isPending ||
+    updateSupplierMutation.isPending ||
+    deleteSupplierMutation.isPending;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
@@ -150,23 +167,40 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
           </div>
 
           {/* Submit Actions */}
-          <div className="pt-3 flex items-center justify-end gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              disabled={isSaving}
-              className="h-11 px-5 text-sm font-bold cursor-pointer"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="h-11 px-6 text-sm font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-sm cursor-pointer"
-            >
-              {isSaving ? 'Saving...' : isEditing ? 'Update Supplier' : 'Save Supplier'}
-            </Button>
+          <div className="pt-3 flex items-center justify-between gap-3">
+            {isEditing && supplier ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleDelete}
+                disabled={isSaving}
+                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onClose}
+                disabled={isSaving}
+                className="h-11 px-5 text-sm font-bold cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="h-11 px-6 text-sm font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-sm cursor-pointer"
+              >
+                {isSaving ? 'Saving...' : isEditing ? 'Update Supplier' : 'Save Supplier'}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

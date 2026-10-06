@@ -11,7 +11,6 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { useSuppliers, usePurchases } from '@/hooks/useProcurement';
 import { formatINR } from '@/lib/utils';
 import { ActionButton } from '@/components/ui/ActionButton';
-import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -144,18 +143,18 @@ export const SuppliersPage: React.FC = () => {
                 <div className="mt-3 pt-3 border-t border-[#E2DDD5] grid grid-cols-3 gap-2 text-center text-xs">
                   <div className="bg-[#F7F5F0] rounded-xl p-2">
                     <span className="text-[11px] text-[#6B6B6B] block">Total Purchased</span>
-                    <span className="font-bold text-[#242424]">₹{formatINR(bal.purchased)}</span>
+                    <span className="font-bold text-[#242424]">{formatINR(bal.purchased)}</span>
                   </div>
                   <div className="bg-[#DCFCE7]/40 rounded-xl p-2">
                     <span className="text-[11px] text-[#166534] block">Paid</span>
-                    <span className="font-bold text-[#166534]">₹{formatINR(bal.paid)}</span>
+                    <span className="font-bold text-[#166534]">{formatINR(bal.paid)}</span>
                   </div>
                   <div className={`rounded-xl p-2 ${bal.pending > 0 ? 'bg-[#FEE2E2]/50' : 'bg-[#F7F5F0]'}`}>
                     <span className={`text-[11px] block ${bal.pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
                       Pending
                     </span>
                     <span className={`font-bold ${bal.pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
-                      ₹{formatINR(bal.pending)}
+                      {formatINR(bal.pending)}
                     </span>
                   </div>
                 </div>

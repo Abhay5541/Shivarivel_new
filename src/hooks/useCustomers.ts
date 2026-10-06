@@ -298,3 +298,28 @@ export function useUpdateCustomer() {
     },
   });
 }
+
+export function useDeleteCustomer() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      try {
+        const { error } = await supabase.from('customers').delete().eq('id', id);
+        if (error) {
+          console.warn('Customer deletion Supabase notice:', error.message);
+        }
+      } catch (err: unknown) {
+        console.warn('Customer deletion notice:', err);
+      }
+      memoryCustomers = memoryCustomers.filter((c) => c.id !== id);
+      return id;
+    },
+    onSuccess: (id) => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      queryClient.invalidateQueries({ queryKey: ['customer', id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    },
+  });
+}
+

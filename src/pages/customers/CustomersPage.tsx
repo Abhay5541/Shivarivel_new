@@ -6,6 +6,7 @@ import {
   MapPin,
   Building2,
   ArrowRight,
+  Trash2,
 } from 'lucide-react';
 import { Search } from '@/components/ui/Search';
 import { ActionButton } from '@/components/ui/ActionButton';
@@ -15,7 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
-import { useCustomers } from '@/hooks/useCustomers';
+import { useCustomers, useDeleteCustomer } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import type { Customer } from '@/types/business';
 import type { Project } from '@/types/projects';
@@ -24,6 +25,7 @@ import { SplitText } from '@/components/ui/SplitText';
 export const CustomersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const deleteCustomerMutation = useDeleteCustomer();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false);
@@ -77,6 +79,12 @@ export const CustomersPage: React.FC = () => {
   const handleOpenAddCustomer = () => {
     setEditingCustomer(null);
     setIsCustomerModalOpen(true);
+  };
+
+  const handleDeleteCustomer = (c: Customer) => {
+    if (window.confirm(`Are you sure you want to delete customer "${c.name}"? This action cannot be undone.`)) {
+      deleteCustomerMutation.mutate(c.id);
+    }
   };
 
   const handleRequestCreateSite = (newlySavedCust: Customer) => {
@@ -202,17 +210,32 @@ export const CustomersPage: React.FC = () => {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-[#E2DDD5]/60 flex items-center justify-between text-xs">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setEditingCustomer(c);
-                      setIsCustomerModalOpen(true);
-                    }}
-                    className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] px-2 py-1 -ml-2 rounded-md hover:bg-[#F7F5F0] transition-colors cursor-pointer"
-                  >
-                    Edit Customer
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingCustomer(c);
+                        setIsCustomerModalOpen(true);
+                      }}
+                      className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] px-2 py-1 -ml-2 rounded-md hover:bg-[#F7F5F0] transition-colors cursor-pointer"
+                    >
+                      Edit Customer
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCustomer(c);
+                      }}
+                      disabled={deleteCustomerMutation.isPending}
+                      className="font-medium text-rose-600 hover:text-rose-700 px-2 py-1 rounded-md hover:bg-rose-50 transition-colors cursor-pointer flex items-center gap-1"
+                      title="Delete Customer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
                   <span className="font-bold text-[#4A0E0E] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                     View Customer
                     <ArrowRight className="w-3.5 h-3.5" />

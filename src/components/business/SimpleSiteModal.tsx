@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X, Building2 } from 'lucide-react';
+import { X, Building2, Trash2 } from 'lucide-react';
 import { useCustomers } from '@/hooks/useCustomers';
-import { useCreateProject, useUpdateProject } from '@/hooks/useProjects';
+import { useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/useProjects';
 import type { Project } from '@/types/projects';
 import type { Customer } from '@/types/business';
 import { Button } from '@/components/ui/Button';
@@ -29,6 +29,7 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
   const { data: customers = [] } = useCustomers();
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
+  const deleteProjectMutation = useDeleteProject();
 
   const [customerId, setCustomerId] = useState('');
   const [siteName, setSiteName] = useState('');
@@ -96,7 +97,23 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
     }
   };
 
-  const isSaving = createProjectMutation.isPending || updateProjectMutation.isPending;
+  const handleDeleteSite = async () => {
+    if (!site) return;
+    if (window.confirm(`Are you sure you want to delete project/site "${site.name}"? This action cannot be undone.`)) {
+      try {
+        await deleteProjectMutation.mutateAsync(site.id);
+        onClose();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : 'Unable to delete site.';
+        setErrorMsg(msg);
+      }
+    }
+  };
+
+  const isSaving =
+    createProjectMutation.isPending ||
+    updateProjectMutation.isPending ||
+    deleteProjectMutation.isPending;
 
   return (
     <div
@@ -213,24 +230,41 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-2 flex items-center justify-end gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              disabled={isSaving}
-              className="h-11 px-5 text-sm font-semibold"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isSaving}
-              className="h-11 px-6 text-sm font-bold min-w-[120px]"
-            >
-              {isSaving ? 'Saving...' : isEditing ? 'Update Project' : 'Save Project'}
-            </Button>
+          <div className="pt-2 flex items-center justify-between gap-3">
+            {isEditing && site ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleDeleteSite}
+                disabled={isSaving}
+                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
+              </Button>
+            ) : (
+              <div />
+            )}
+
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={onClose}
+                disabled={isSaving}
+                className="h-11 px-5 text-sm font-semibold"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={isSaving}
+                className="h-11 px-6 text-sm font-bold min-w-[120px]"
+              >
+                {isSaving ? 'Saving...' : isEditing ? 'Update Project' : 'Save Project'}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

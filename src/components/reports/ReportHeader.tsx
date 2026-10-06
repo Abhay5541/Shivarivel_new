@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/Button';
 
 interface ReportHeaderProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   badgeText?: string;
   badgeIcon?: React.ReactNode;
   dateRangeText?: string;
@@ -58,7 +58,7 @@ export function ReportHeader({
               </span>
             )}
           </div>
-          <p className="text-xs text-[#6B6B6B] mt-1 max-w-2xl">{subtitle}</p>
+          {subtitle && <p className="text-xs text-[#6B6B6B] mt-1 max-w-2xl">{subtitle}</p>}
 
           {dateRangeText && (
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#4A0E0E] bg-[#F7F5F0] border border-[#E2DDD5] px-2.5 py-1 rounded-md mt-2.5">

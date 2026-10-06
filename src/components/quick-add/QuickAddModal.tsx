@@ -149,7 +149,7 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-[#E2DDD5] flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#C99A2E] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#DFB95E] to-[#C9A24A] text-white flex items-center justify-center font-bold text-sm shadow-[0_2px_8px_rgba(201,162,74,0.35)]">
               +
             </div>
             <div>
