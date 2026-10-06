@@ -475,7 +475,9 @@ export const PurchasesPage: React.FC = () => {
                     ₹{formatINR(projectBalanceTotal)}
                   </span>
                 </div>
-                    {/* Payment Filter Segmented Control */}
+              </div>
+
+              {/* Payment Filter Segmented Control */}
               <div className="flex items-center gap-1.5 p-1 bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl w-fit">
                 <button
                   type="button"
