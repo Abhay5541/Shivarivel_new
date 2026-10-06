@@ -13,8 +13,24 @@
   --color-border-subtle: #E2DDD5;
   --color-surface-subtle: #EFECE6;
 
-  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Cinzel', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', 'Trajan Pro', Georgia, serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-cursive {
+  font-family: 'Great Vibes', 'Alex Brush', cursive;
+}
+
+.font-inter {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 :root {
