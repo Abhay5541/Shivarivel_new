@@ -61,7 +61,7 @@ export function EmployeesPage() {
           </Badge>
         }
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <Search
               size="sm"
               value={searchTerm}

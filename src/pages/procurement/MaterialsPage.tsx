@@ -14,15 +14,18 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleMaterialModal } from '@/components/business/SimpleMaterialModal';
 
 export const MaterialsPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [isAddMaterialOpen, setIsAddMaterialOpen] = useState(false);
 
   React.useEffect(() => {
     if (searchParams.get('new') === '1' || searchParams.get('new') === 'true') {
       setIsAddMaterialOpen(true);
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('new');
+      setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   const { data: materials = [], isLoading, isError, error, refetch } = useMaterials(search);
 

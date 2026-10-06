@@ -35,6 +35,8 @@ export const PurchasesPage: React.FC = () => {
   const setActiveTab = (tab: ProcurementTab) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', tab);
+    newParams.delete('new');
+    newParams.delete('mode');
     setSearchParams(newParams);
   };
 
@@ -64,8 +66,12 @@ export const PurchasesPage: React.FC = () => {
       setPurchaseModalMode(mode);
       setEditingPurchase(null);
       setIsPurchaseModalOpen(true);
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('new');
+      nextParams.delete('mode');
+      setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams]);
+  }, [searchParams, setSearchParams]);
 
   // Handle open create purchase
   const handleOpenAddPurchase = (mode: 'project' | 'general') => {
@@ -430,7 +436,7 @@ export const PurchasesPage: React.FC = () => {
         </div>
 
         {/* Search & Action Button side-by-side */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <Search
             size="sm"
             value={search}
@@ -827,7 +833,15 @@ export const PurchasesPage: React.FC = () => {
       {/* Record / Edit Purchase Modal */}
       <SimplePurchaseModal
         isOpen={isPurchaseModalOpen}
-        onClose={() => setIsPurchaseModalOpen(false)}
+        onClose={() => {
+          setIsPurchaseModalOpen(false);
+          if (searchParams.has('new') || searchParams.has('mode')) {
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.delete('new');
+            nextParams.delete('mode');
+            setSearchParams(nextParams, { replace: true });
+          }
+        }}
         mode={purchaseModalMode}
         editPurchase={editingPurchase}
         preselectedProjectId={null}

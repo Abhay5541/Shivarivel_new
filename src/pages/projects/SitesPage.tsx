@@ -248,7 +248,7 @@ export const SitesPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <Search
             size="sm"
             value={searchTerm}

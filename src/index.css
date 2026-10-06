@@ -19,6 +19,22 @@
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+.font-cinzel {
+  font-family: 'Cinzel', 'Trajan Pro', Georgia, serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-cursive {
+  font-family: 'Great Vibes', 'Alex Brush', cursive;
+}
+
+.font-inter {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
 :root {
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -217,8 +233,100 @@ input, textarea, select {
     margin: 0 !important;
   }
 
-  .print-avoid-break {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+}
+
+/* ══ Mobile Responsive Hardening (Strict Non-Destructive Reflow) ═══════════════
+   These rules apply ONLY on smaller viewports via media queries.
+   The desktop experience remains 100% identical. */
+
+/* Universal Fluid Media & Canvas */
+img,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+img,
+video {
+  height: auto;
+}
+
+/* Base HTML & Body horizontal scroll guard */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Tablet & Mobile Screens (<= 768px) */
+@media (max-width: 768px) {
+  /* Prevent modal dialogs and sheets from clipping off-screen */
+  .modal-spring {
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow-y: auto !important;
+  }
+
+  /* Drawer panels should utilize available screen space without forcing horizontal overflow */
+  .drawer-spring {
+    max-width: 100vw !important;
+    width: 100% !important;
+  }
+
+  /* Prevent code/pre/tables without wrapper from blowing out page width */
+  pre,
+  code {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+
+  /* Touch ergonomics */
+  button,
+  input,
+  select,
+  textarea,
+  a {
+    touch-action: manipulation;
+  }
+
+  /* Ensure inputs and selects do not exceed container width */
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+  }
+}
+
+/* Small Handheld Mobile Screens (<= 480px) */
+@media (max-width: 480px) {
+  /* Header padding refinement for narrow phones */
+  .glass-header-wrapper {
+    padding: 6px 8px 0;
+  }
+
+  .glass-header-inner {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .glass-header-brand {
+    padding: 2px 8px 2px 4px;
+    gap: 6px;
+  }
+
+  /* Dock refinement for ultra-compact viewports (320px–380px) */
+  .gdock {
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .gdock-item {
+    width: 38px;
+    height: 38px;
+  }
+
+  .gdock-action-btn {
+    width: 40px;
+    height: 40px;
   }
 }

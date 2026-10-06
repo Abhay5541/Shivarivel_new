@@ -68,16 +68,13 @@
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: #4A0E0E;
-  color: #FFFFFF;
+  background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 12px;
-  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
-  letter-spacing: 0.02em;
-  border: 1px solid rgba(201, 154, 46, 0.35);
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(201, 154, 46, 0.4);
   box-shadow: 0 2px 8px rgba(74, 14, 14, 0.18);
 }
 

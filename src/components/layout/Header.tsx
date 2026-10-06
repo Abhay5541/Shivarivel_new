@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
+import logoImg from '@/Asserts/shivarivel_svc_logo.png';
 
 interface HeaderProps {
   onOpenQuickAdd: () => void;
@@ -95,7 +96,13 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
             className="glass-header-brand"
             aria-label="Go to dashboard"
           >
-            <div className="glass-brand-mark">SC</div>
+            <div className="glass-brand-mark">
+              <img
+                src={logoImg}
+                alt="Shivarivel Official Logo"
+                className="w-full h-full object-cover scale-[1.15]"
+              />
+            </div>
             <span className="font-bold text-sm text-[#242424] font-heading hidden sm:inline tracking-tight">
               Shivarivel
             </span>

@@ -181,30 +181,12 @@ export function Watcher({
 
     rafId = requestAnimationFrame(step);
 
-    // Target boundary container
-    const container =
-      el.closest(
-        '.login-content, .login-page, .bench-card, .dtl-block, .board, .sf-thumb'
-      ) ?? el;
-
     const handlePointerMove = (e: PointerEvent) => {
-      const rect = container.getBoundingClientRect();
-      if (
-        e.clientX < rect.left ||
-        e.clientX > rect.right ||
-        e.clientY < rect.top ||
-        e.clientY > rect.bottom
-      ) {
-        state.tx = 0;
-        state.ty = 0;
-        return;
-      }
-
       const elRect = el.getBoundingClientRect();
       const dx = e.clientX - (elRect.left + elRect.width / 2);
       const dy = e.clientY - (elRect.top + elRect.height / 2);
       const dist = Math.hypot(dx, dy) || 1;
-      const reach = Math.max(60, Math.min(rect.width, rect.height) * 0.28);
+      const reach = Math.max(80, Math.min(window.innerWidth, window.innerHeight) * 0.35);
       const intensity = Math.min(
         0.85,
         Math.tanh(dist / reach) * (clamp(metaRef.current.follow, 0, 100) / 100) * 1.5

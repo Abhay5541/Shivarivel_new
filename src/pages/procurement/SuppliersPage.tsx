@@ -22,19 +22,28 @@ import { SimpleSupplierPaymentModal } from '@/components/business/SimpleSupplier
 
 export const SuppliersPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [isAddSupplierOpen, setIsAddSupplierOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   useEffect(() => {
+    let changed = false;
+    const nextParams = new URLSearchParams(searchParams);
     if (searchParams.get('new') === '1' || searchParams.get('new') === 'true') {
       setIsAddSupplierOpen(true);
+      nextParams.delete('new');
+      changed = true;
     }
     if (searchParams.get('pay') === '1' || searchParams.get('pay') === 'true') {
       setIsPaymentModalOpen(true);
+      nextParams.delete('pay');
+      changed = true;
     }
-  }, [searchParams]);
+    if (changed) {
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const { data: suppliers = [], isLoading: isLoadingSuppliers, isError, error, refetch } = useSuppliers(search);
   const { data: purchases = [], isLoading: isLoadingPurchases } = usePurchases();
@@ -64,7 +73,7 @@ export const SuppliersPage: React.FC = () => {
           </h1>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           <Search
             size="sm"
             value={search}

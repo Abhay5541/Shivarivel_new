@@ -365,7 +365,7 @@ export function WagesPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
           {/* Laborers Directory Trigger */}
           <ActionButton
             variant="outline"

@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import logoImg from '@/Asserts/shivarivel_svc_logo.png';
 
 export function MobileHeader() {
   const location = useLocation();
@@ -22,8 +23,8 @@ export function MobileHeader() {
   return (
     <header className="h-14 px-4 bg-white border-b border-[#E2DDD5] flex items-center justify-between shrink-0 lg:hidden sticky top-0 z-30 select-none">
       <div className="flex items-center gap-2.5 min-w-0">
-        <div className="w-7 h-7 rounded-md bg-[#4A0E0E] flex items-center justify-center text-white font-bold text-xs shrink-0 border border-[#C99A2E]/40">
-          SC
+        <div className="w-7 h-7 rounded-md bg-black overflow-hidden flex items-center justify-center shrink-0 border border-[#C99A2E]/40">
+          <img src={logoImg} alt="Shivarivel" className="w-full h-full object-cover scale-[1.15]" />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="text-xs font-bold text-[#242424] font-heading truncate">
