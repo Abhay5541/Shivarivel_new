@@ -452,8 +452,8 @@ export function UsersRolesPage() {
 
       {/* Role Change Confirmation Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#E2DDD5] shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-150 space-y-5">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 modal-backdrop-spring">
+          <div className="bg-white rounded-2xl border border-[#E2DDD5] shadow-xl max-w-md w-full p-6 modal-spring space-y-5">
             <div>
               <h3 className="text-base font-bold text-[#242424] font-heading">
                 Change Role: {editingUser.full_name}
@@ -518,8 +518,8 @@ export function UsersRolesPage() {
 
       {/* User Status Toggle Confirmation Modal */}
       {statusToggleUser && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#E2DDD5] shadow-xl max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 modal-backdrop-spring">
+          <div className="bg-white rounded-2xl border border-[#E2DDD5] shadow-xl max-w-sm w-full p-6 modal-spring space-y-4">
             <h3 className="text-base font-bold text-[#242424] font-heading">
               {statusToggleUser.is_active ? 'Deactivate User?' : 'Activate User?'}
             </h3>

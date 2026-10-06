@@ -15,6 +15,7 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { useWages, useEmployees } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
@@ -337,32 +338,23 @@ export function WagesPage() {
 
         <div className="flex items-center gap-2.5">
           {/* Laborers Directory Trigger */}
-          <Button
-            type="button"
+          <ActionButton
             variant="outline"
-            size="sm"
+            icon={<Users className="w-4 h-4 text-[#4A0E0E]" />}
+            label="Laborers Directory"
             onClick={() => setIsLaborersDrawerOpen(true)}
-            className="h-10 px-3.5 bg-white border-[#E2DDD5] hover:border-[#C99A2E] text-[#242424] text-xs font-semibold rounded-lg shadow-xs cursor-pointer gap-2"
-          >
-            <Users className="w-4 h-4 text-[#4A0E0E]" />
-            <span>Laborers Directory</span>
-          </Button>
+          />
 
           {/* Primary Action Button */}
           {activeTab === 'daily' && (
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
+            <ActionButton
+              icon={<Plus className="w-4 h-4" />}
+              label="Add Wage Entry"
               onClick={() => {
                 setEditingWage(null);
                 setIsAddWageModalOpen(true);
               }}
-              className="h-10 px-4 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer gap-1.5"
-            >
-              <Plus className="w-4 h-4 text-[#C99A2E]" />
-              <span>+ Add Wage Entry</span>
-            </Button>
+            />
           )}
         </div>
       </div>
@@ -542,7 +534,7 @@ export function WagesPage() {
                   className="h-10 px-5 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer gap-1.5"
                 >
                   <Plus className="w-4 h-4 text-[#C99A2E]" />
-                  <span>+ Add Wage Entry</span>
+                  <span>Add Wage Entry</span>
                 </Button>
               </div>
             </div>

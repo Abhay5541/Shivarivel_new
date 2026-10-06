@@ -137,12 +137,12 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-150"
+        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity modal-backdrop-spring"
         onClick={onClose}
       />
 
       {/* Modal / Bottom Sheet Container */}
-      <div className="relative w-full lg:max-w-3xl bg-white rounded-t-2xl lg:rounded-2xl shadow-2xl border border-[#E2DDD5] z-10 max-h-[90vh] flex flex-col animate-in slide-in-from-bottom lg:zoom-in-95 duration-200">
+      <div className="relative w-full lg:max-w-3xl bg-white rounded-t-2xl lg:rounded-2xl shadow-2xl border border-[#E2DDD5] z-10 max-h-[90vh] flex flex-col modal-spring">
         {/* Mobile Drag Indicator */}
         <div className="w-12 h-1.5 bg-[#E2DDD5] rounded-full mx-auto mt-3 mb-1 lg:hidden" />
 

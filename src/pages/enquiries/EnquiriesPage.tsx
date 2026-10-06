@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Briefcase,
-  Search,
   Plus,
   Phone,
   Compass,
@@ -12,6 +11,7 @@ import {
   TrendingUp,
   Calculator,
 } from 'lucide-react';
+import { Search } from '@/components/ui/Search';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -199,20 +199,9 @@ export function EnquiriesPage() {
       </div>
 
       {/* Search & Status Filter Strip */}
-      <div className="flex flex-col gap-3 p-3 bg-white border border-[#E2DDD5] rounded-xl">
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3 top-3" />
-          <input
-            type="text"
-            placeholder="Search by client, requirement scope, or service type..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-10 pl-9 pr-3 text-sm bg-[#F7F5F0]/60 border border-[#E2DDD5] rounded-lg focus:outline-none focus:border-[#4A0E0E] focus:bg-white transition-colors"
-          />
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-[#E2DDD5] rounded-xl">
         {/* Status Filter Badges */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs">
           <button
             type="button"
             onClick={() => setSelectedStatus('all')}
@@ -243,6 +232,15 @@ export function EnquiriesPage() {
               </button>
             );
           })}
+        </div>
+
+        <div className="self-start sm:self-auto shrink-0">
+          <Search
+            size="sm"
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search enquiries..."
+          />
         </div>
       </div>
 

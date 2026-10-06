@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useEmployee, useWages } from '@/hooks/useWorkforce';
@@ -97,15 +98,11 @@ export function EmployeeDetailPage() {
               <Edit3 className="w-4 h-4" />
               <span>Edit</span>
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
+            <ActionButton
+              icon={<Plus className="w-4 h-4" />}
+              label="Add Daily Wage"
               onClick={() => setIsAddWageModalOpen(true)}
-              className="gap-1.5 h-10 font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-xs cursor-pointer"
-            >
-              <Plus className="w-4 h-4 text-[#C99A2E]" />
-              <span>+ Add Daily Wage</span>
-            </Button>
+            />
           </div>
         }
       />

@@ -109,9 +109,9 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
   const isSaving = createEmployeeMutation.isPending || updateEmployeeMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end modal-backdrop-spring">
       {/* Drawer Container */}
-      <div className="bg-[#FFFFFF] w-full max-w-md h-full shadow-2xl flex flex-col border-l border-[#E2DDD5] animate-in slide-in-from-right duration-200">
+      <div className="bg-[#FFFFFF] w-full max-w-md h-full shadow-2xl flex flex-col border-l border-[#E2DDD5] drawer-spring">
         {/* Drawer Header */}
         <div className="px-5 py-4 border-b border-[#E2DDD5] flex items-center justify-between bg-[#F7F5F0]">
           <div className="flex items-center gap-2.5">
@@ -146,7 +146,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
               className="gap-1.5 h-8.5 px-3 bg-[#4A0E0E] hover:bg-[#380A0A] text-white font-medium text-xs rounded-lg cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-[#C99A2E]" />
-              <span>+ Add Laborer</span>
+              <span>Add Laborer</span>
             </Button>
           )}
         </div>
@@ -162,7 +162,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {/* Add / Edit Form Panel */}
           {isAddingOrEditing && (
-            <div className="bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl p-4 space-y-3.5 shadow-xs">
+            <div className="bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl p-4 space-y-3.5 shadow-xs modal-spring">
               <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
                   {editingLaborer ? `Edit Laborer (${editingLaborer.employee_code})` : 'New Laborer Registration'}

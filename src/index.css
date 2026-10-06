@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "./components/ui/Search.css";
+@import "./components/ui/ActionButton.css";
 
 @theme {
   --color-maroon: #4A0E0E;
@@ -87,6 +89,87 @@ input, textarea, select {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #C99A2E;
+}
+
+/* ══ Modal Spring Entrance ═════════════════════════════════
+   The same spring-physics feel as the Search pill's expansion
+   and the ActionButton's press-bounce, applied to modal panels.
+
+   A CSS spring cannot overshoot by physics, but it can be
+   SHAPED to look like one: fast initial move, overshoot the
+   target, settle back with one visible ring. The curve is
+   hand-matched to the useSpring(100, 60) output.
+
+   The backdrop fades independently — its job is just to dim,
+   and dimming with a spring looks like flickering. */
+
+/* Spring scale: 0.88 → overshoot 1.035 → settle 1.0 */
+@keyframes modal-spring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.88) translateY(12px);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.035) translateY(-2px);
+  }
+  65% {
+    transform: scale(0.99) translateY(0);
+  }
+  80% {
+    transform: scale(1.01) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Backdrop: simple fade, no spring */
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Drawer Spring: slides in from right with an organic spring settle */
+@keyframes drawer-spring-in {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-12px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+  90% {
+    transform: translateX(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* The class to apply on modal panels */
+.modal-spring {
+  animation: modal-spring-in 420ms cubic-bezier(0.22, 0.9, 0.36, 1) both;
+}
+
+/* The class to apply on drawer panels */
+.drawer-spring {
+  animation: drawer-spring-in 440ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* The class to apply on backdrops */
+.modal-backdrop-spring {
+  animation: modal-backdrop-in 220ms ease-out both;
 }
 
 /* Accessibility: Respect Reduced Motion */

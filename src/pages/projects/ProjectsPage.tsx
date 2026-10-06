@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Briefcase,
-  Search,
   Plus,
   Eye,
   Edit2,
@@ -13,6 +12,8 @@ import {
   TrendingUp,
   User,
 } from 'lucide-react';
+import { Search } from '@/components/ui/Search';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { useProjects } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge, type StatusVariant } from '@/components/ui/StatusBadge';
@@ -78,26 +79,29 @@ export const ProjectsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <PageContainer className="pb-24">
+      {/* Top Page Header */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#242424] font-heading">
+          <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">
             Projects
           </h1>
-          <p className="text-sm text-[#6B6B6B] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
             Construction command workspace, site contracts, execution tracking & operations
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          onClick={() => navigate('/projects/new')}
-          className="bg-[#4A0E0E] text-white hover:bg-[#380B0B] min-h-[48px] px-5 self-start sm:self-auto font-medium shadow-xs"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Project
-        </Button>
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => navigate('/projects/new')}
+            className="h-10 px-4 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer gap-1.5 flex items-center justify-center shrink-0"
+          >
+            <Plus className="w-4 h-4 text-[#C99A2E]" />
+            <span>New Project</span>
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -151,37 +155,36 @@ export const ProjectsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6B6B6B]" />
-        <input
-          type="text"
-          placeholder="Search by project code (PRJ-0001), name, customer, or site address..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2DDD5] rounded-xl text-sm focus:border-[#4A0E0E] focus:outline-hidden text-[#242424] placeholder-[#6B6B6B]/60 shadow-xs min-h-[44px]"
-        />
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 sm:pb-0 scrollbar-none">
+          {statusFilters.map((filter) => {
+            const isActive = selectedStatus === filter.id;
+            return (
+              <button
+                key={filter.id}
+                onClick={() => setSelectedStatus(filter.id)}
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors min-h-[40px] flex items-center cursor-pointer ${
+                  isActive
+                    ? 'bg-[#4A0E0E] text-white shadow-xs'
+                    : 'bg-white text-[#6B6B6B] hover:text-[#242424] hover:bg-[#F7F5F0] border border-[#E2DDD5]'
+                }`}
+              >
+                {filter.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="self-start sm:self-auto shrink-0">
+          <Search
+            size="sm"
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search projects, client, site..."
+          />
+        </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none">
-        {statusFilters.map((filter) => {
-          const isActive = selectedStatus === filter.id;
-          return (
-            <button
-              key={filter.id}
-              onClick={() => setSelectedStatus(filter.id)}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg whitespace-nowrap transition-colors min-h-[40px] flex items-center ${
-                isActive
-                  ? 'bg-[#4A0E0E] text-white shadow-xs'
-                  : 'bg-white text-[#6B6B6B] hover:text-[#242424] hover:bg-[#F7F5F0] border border-[#E2DDD5]'
-              }`}
-            >
-              {filter.label}
-            </button>
-          );
-        })}
-      </div>
 
       {/* Content States */}
       {isLoading ? (
@@ -376,6 +379,6 @@ export const ProjectsPage: React.FC = () => {
           </div>
         </>
       )}
-    </div>
+    </PageContainer>
   );
 };

@@ -1,0 +1,175 @@
+/* ══ ActionButton ══════════════════════════════════════════
+   The same spring-physics material as Search, applied to
+   primary action buttons. The scale is driven by useSpring
+   on every animation frame — NOT by CSS transition — so the
+   overshoot and the settle are physically accurate.
+
+   CSS handles the LEAN (magnetic translate) with a smooth
+   transition. JS handles the SCALE with a spring. The two
+   are composed on one transform so they never fight. */
+
+/* ── the frame ─────────────────────────────────────────── */
+.act-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ── the skin ──────────────────────────────────────────── */
+.act-btn-skin {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: #4A0E0E;
+  color: #FFFFFF;
+  font-family: var(--font-heading, 'Plus Jakarta Sans', system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+
+  /* The lean is CSS-transitioned; the scale is JS-driven.
+     Both land on the same transform property so they compose
+     naturally. The transition only affects the translate
+     portion — the scale changes on every rAF frame so it
+     does not need (and must not have) a CSS transition
+     competing with the spring. */
+  transform: translate(var(--lx, 0), var(--ly, 0)) scale(var(--sk, 1));
+  /* transition on translate only — the lean's smoothing */
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 260ms cubic-bezier(0.22, 0.9, 0.28, 1);
+  /* NOTE: no transition on transform — the spring owns it */
+
+  /* resting shadow */
+  box-shadow:
+    0 2px 8px rgba(74, 14, 14, 0.22),
+    0 1px 3px rgba(74, 14, 14, 0.12);
+}
+
+/* ── hover: lift + brighten ────────────────────────────── */
+.act-btn-skin:hover {
+  background: #380A0A;
+  box-shadow:
+    0 6px 20px rgba(74, 14, 14, 0.30),
+    0 2px 6px rgba(74, 14, 14, 0.16);
+}
+
+/* ── Outline variant ───────────────────────────────────── */
+.act-btn[data-variant="outline"] .act-btn-skin,
+.act-btn[data-variant="secondary"] .act-btn-skin {
+  background: #FFFFFF;
+  color: #242424;
+  border-color: #E2DDD5;
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.act-btn[data-variant="outline"] .act-btn-skin:hover,
+.act-btn[data-variant="secondary"] .act-btn-skin:hover {
+  background: #F7F5F0;
+  border-color: #C99A2E;
+  color: #242424;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.act-btn[data-variant="outline"] .act-btn-icon,
+.act-btn[data-variant="secondary"] .act-btn-icon {
+  color: #4A0E0E;
+}
+
+.act-btn[data-variant="outline"] .act-btn-skin:focus-visible,
+.act-btn[data-variant="secondary"] .act-btn-skin:focus-visible {
+  box-shadow:
+    0 0 0 2px #FFFFFF,
+    0 0 0 4px #C99A2E;
+}
+
+/* ── press: tighten shadow (scale is handled by spring) ── */
+.act-btn[data-press="true"] .act-btn-skin {
+  box-shadow:
+    0 1px 4px rgba(74, 14, 14, 0.18),
+    0 0 2px rgba(74, 14, 14, 0.10);
+}
+
+/* ── disabled ──────────────────────────────────────────── */
+.act-btn[data-disabled] .act-btn-skin {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* ── the icon ──────────────────────────────────────────── */
+.act-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #C99A2E;
+  flex-shrink: 0;
+}
+.act-btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── the label ─────────────────────────────────────────── */
+.act-btn-label {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── focus ring ────────────────────────────────────────── */
+.act-btn-skin:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px #F7F5F0,
+    0 0 0 4px #4A0E0E,
+    0 4px 14px rgba(74, 14, 14, 0.22);
+}
+
+/* ── shimmer on hover (subtle) ─────────────────────────── */
+.act-btn-skin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(201, 154, 46, 0.08) 50%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+.act-btn-skin:hover::after {
+  opacity: 1;
+}
+
+/* ── reduced motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .act-btn-skin {
+    transition: none;
+  }
+  .act-btn-skin::after {
+    display: none;
+  }
+}

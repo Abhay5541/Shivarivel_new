@@ -2,13 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   UserPlus,
-  Search,
   Phone,
   MapPin,
   Building2,
   ArrowRight,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Search } from '@/components/ui/Search';
+import { ActionButton } from '@/components/ui/ActionButton';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
@@ -97,59 +98,42 @@ export const CustomersPage: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="max-w-5xl mx-auto py-8">
+      <PageContainer className="py-8">
         <ErrorState
           title="Could not load customers"
           description={error?.message || 'Unable to retrieve customer records.'}
           onRetry={refetch}
         />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <PageContainer className="pb-24">
+      {/* Top Page Header */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#242424] font-heading tracking-tight">
+          <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">
             Customers
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
             Client directory and their construction/interior work sites
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="primary"
-          onClick={handleOpenAddCustomer}
-          className="h-11 px-5 text-sm font-bold flex items-center justify-center gap-2 self-start sm:self-auto cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>+ Add Customer</span>
-        </Button>
-      </div>
-
-      {/* Simple Search Bar (by Name or Phone) */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-3.5 w-4 h-4 text-[#6B6B6B]" />
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search by customer name or phone..."
-          className="w-full h-11 pl-10 pr-4 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all text-[#242424] placeholder:text-[#6B6B6B]"
-        />
-        {searchTerm && (
-          <button
-            type="button"
-            onClick={() => setSearchTerm('')}
-            className="absolute right-3 top-3 text-xs font-semibold text-[#6B6B6B] hover:text-[#242424]"
-          >
-            Clear
-          </button>
-        )}
+        <div className="flex items-center gap-2.5">
+          <Search
+            size="sm"
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search by name or phone..."
+          />
+          <ActionButton
+            icon={<UserPlus className="w-4 h-4" />}
+            label="Add Customer"
+            onClick={handleOpenAddCustomer}
+          />
+        </div>
       </div>
 
       {/* Customer List */}
@@ -251,6 +235,6 @@ export const CustomersPage: React.FC = () => {
         preselectedCustomer={targetCustomerForSite}
         onSuccess={handleSiteCreated}
       />
-    </div>
+    </PageContainer>
   );
 };

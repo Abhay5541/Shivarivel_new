@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import {
   Truck,
   Plus,
-  Search,
   Phone,
   ChevronRight,
 } from 'lucide-react';
+import { Search } from '@/components/ui/Search';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { useSuppliers, usePurchases } from '@/hooks/useProcurement';
 import { formatINR } from '@/lib/utils';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -53,38 +55,31 @@ export const SuppliersPage: React.FC = () => {
   const isLoading = isLoadingSuppliers || isLoadingPurchases;
 
   return (
-    <div className="space-y-6 pb-20 select-none">
+    <PageContainer className="pb-24 select-none">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#242424] font-heading uppercase tracking-tight">
+          <h1 className="text-2xl font-bold font-display text-[#242424] tracking-tight">
             Suppliers
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#6B6B6B] mt-0.5">
             Manage material suppliers, purchases, and payments
           </p>
         </div>
 
-        <Button
-          type="button"
-          onClick={() => setIsAddSupplierOpen(true)}
-          className="h-11 px-5 text-sm font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ Add Supplier</span>
-        </Button>
-      </div>
-
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by supplier name or phone..."
-          className="w-full h-11 pl-10 pr-4 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all shadow-2xs"
-        />
+        <div className="flex items-center gap-2.5">
+          <Search
+            size="sm"
+            value={search}
+            onChange={setSearch}
+            placeholder="Search suppliers..."
+          />
+          <ActionButton
+            icon={<Plus className="w-4 h-4" />}
+            label="Add Supplier"
+            onClick={() => setIsAddSupplierOpen(true)}
+          />
+        </div>
       </div>
 
       {/* Content */}
@@ -105,7 +100,7 @@ export const SuppliersPage: React.FC = () => {
               ? 'Try searching with a different name or phone number.'
               : 'Add your material suppliers to begin tracking purchases and payments.'
           }
-          actionLabel="+ Add Supplier"
+          actionLabel="Add Supplier"
           onAction={() => setIsAddSupplierOpen(true)}
         />
       ) : (
@@ -175,6 +170,6 @@ export const SuppliersPage: React.FC = () => {
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}
       />
-    </div>
+    </PageContainer>
   );
 };

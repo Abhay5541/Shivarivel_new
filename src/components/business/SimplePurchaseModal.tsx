@@ -56,7 +56,7 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
         );
         setNotes(editPurchase.notes || '');
       } else {
-        const defaultPrj = preselectedProjectId || (projects.length > 0 ? projects[0].id : '');
+        const defaultPrj = preselectedProjectId || '';
         setProjectId(isProjectPurchase ? defaultPrj : '');
         setProductName('');
         setSupplierName('');
@@ -158,8 +158,8 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
   const isSaving = createPurchaseMutation.isPending || updatePurchaseMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E2DDD5] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
+      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2DDD5] bg-[#F7F5F0]">
           <div className="flex items-center gap-3">
@@ -211,7 +211,7 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
                 required={isProjectPurchase}
                 className="w-full h-11 px-3 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all cursor-pointer"
               >
-                <option value="" disabled>
+                <option value="">
                   Select Project...
                 </option>
                 {projects.map((p) => (

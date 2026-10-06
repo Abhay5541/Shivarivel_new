@@ -166,8 +166,8 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
   const isSaving = recordWageMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E2DDD5] overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
+      <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
         {/* Modal Header */}
         <div className="px-5 py-4 bg-[#F7F5F0] border-b border-[#E2DDD5] flex items-center justify-between">
           <div className="flex items-center gap-2.5">

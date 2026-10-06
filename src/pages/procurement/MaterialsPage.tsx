@@ -5,6 +5,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useMaterials } from '@/hooks/useProcurement';
+import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { useSearchParams } from 'react-router-dom';
@@ -38,14 +39,11 @@ export const MaterialsPage: React.FC = () => {
           </p>
         </div>
 
-        <Button
-          type="button"
+        <ActionButton
+          icon={<Plus className="w-4 h-4" />}
+          label="Add Material"
           onClick={() => setIsAddMaterialOpen(true)}
-          className="h-11 px-5 text-sm font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white rounded-xl shadow-xs flex items-center justify-center gap-2 cursor-pointer shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ Add Material</span>
-        </Button>
+        />
       </div>
 
       {/* Search Bar */}
@@ -78,7 +76,7 @@ export const MaterialsPage: React.FC = () => {
               ? 'Try searching with a different term.'
               : 'Add your common construction materials like Cement, Sand, Tiles, or Paint.'
           }
-          actionLabel="+ Add Material"
+          actionLabel="Add Material"
           onAction={() => setIsAddMaterialOpen(true)}
         />
       ) : (

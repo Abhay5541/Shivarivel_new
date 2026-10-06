@@ -58,7 +58,7 @@ export function Drawer({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity modal-backdrop-spring"
         onClick={onClose}
       />
 
@@ -68,7 +68,7 @@ export function Drawer({
           ref={drawerRef}
           tabIndex={-1}
           className={cn(
-            'w-screen bg-white shadow-2xl border-l border-[#E2DDD5] flex flex-col animate-in slide-in-from-right duration-200 focus:outline-none',
+            'w-screen bg-white shadow-2xl border-l border-[#E2DDD5] flex flex-col drawer-spring focus:outline-none',
             widths[width],
             className
           )}

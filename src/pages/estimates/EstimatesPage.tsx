@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Calculator,
-  Search,
   Plus,
   Eye,
   Edit2,
@@ -11,6 +10,7 @@ import {
   FileText,
   Phone,
 } from 'lucide-react';
+import { Search } from '@/components/ui/Search';
 import { useEstimates } from '@/hooks/useEstimates';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge, type StatusVariant } from '@/components/ui/StatusBadge';
@@ -133,18 +133,7 @@ export const EstimatesPage: React.FC = () => {
       </div>
 
       {/* Search & Filter Strip */}
-      <div className="space-y-3">
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8C8880]" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by estimate number (EST-0001), client name, or title..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#E2DDD5] rounded-xl text-xs sm:text-sm text-[#242424] placeholder-[#8C8880] focus:border-[#4A0E0E] focus:outline-hidden transition-colors"
-          />
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
           {statusFilters.map((tab) => (
@@ -162,6 +151,14 @@ export const EstimatesPage: React.FC = () => {
               {tab.label}
             </button>
           ))}
+        </div>
+        <div className="self-start sm:self-auto shrink-0">
+          <Search
+            size="sm"
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search estimate #, client..."
+          />
         </div>
       </div>
 

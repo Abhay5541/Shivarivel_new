@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Receipt,
   Plus,
-  Search,
   Building2,
   AlertCircle,
   Eye,
   Briefcase,
   Layers,
 } from 'lucide-react';
+import { Search } from '@/components/ui/Search';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
@@ -126,14 +126,12 @@ export function ExpensesPage() {
 
       {/* Search and Filters Bar */}
       <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search by expense #, description, paid by, or reference..."
+        <div className="flex items-center justify-start">
+          <Search
+            size="sm"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg text-xs sm:text-sm text-[#242424] placeholder-[#8C8880] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E]"
+            onChange={setSearchTerm}
+            placeholder="Search by expense #, description, paid by..."
           />
         </div>
 

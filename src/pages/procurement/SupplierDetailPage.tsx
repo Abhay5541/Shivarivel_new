@@ -168,7 +168,7 @@ export const SupplierDetailPage: React.FC = () => {
             className="h-10 px-4 text-xs font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Record Purchase</span>
+            <span>Record Purchase</span>
           </Button>
         </div>
 

@@ -131,7 +131,7 @@ export const CustomerDetailPage: React.FC = () => {
             className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>+ Add Project</span>
+            <span>Add Project</span>
           </Button>
         </div>
 
