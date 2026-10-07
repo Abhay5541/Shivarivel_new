@@ -96,7 +96,7 @@ export const devEvalCustomers: Customer[] = [
 ];
 
 // In-memory store for evaluation mode so new creates and updates reflect immediately
-let memoryCustomers: Customer[] = [...devEvalCustomers];
+let memoryCustomers: Customer[] = [];
 
 interface UseCustomersOptions {
   search?: string;
@@ -108,18 +108,6 @@ export function useCustomers(options: UseCustomersOptions = {}) {
 
   return useQuery<Customer[], Error>({
     queryKey: ['customers', { search, status }],
-    initialData: () => {
-      return memoryCustomers.filter((c) => {
-        const matchesStatus = status === 'all' || c.status === status;
-        const term = search.toLowerCase().trim();
-        const matchesSearch =
-          !term ||
-          c.name.toLowerCase().includes(term) ||
-          (c.phone && c.phone.includes(term)) ||
-          (c.address && c.address.toLowerCase().includes(term));
-        return matchesStatus && matchesSearch;
-      });
-    },
     queryFn: async () => {
       try {
         let query = supabase.from('customers').select('*').order('created_at', { ascending: false });
@@ -135,33 +123,15 @@ export function useCustomers(options: UseCustomersOptions = {}) {
 
         const { data, error } = await query;
 
-        if (error || !data || data.length === 0) {
-          // Dev fallback filtering memoryCustomers
-          return memoryCustomers.filter((c) => {
-            const matchesStatus = status === 'all' || c.status === status;
-            const term = search.toLowerCase().trim();
-            const matchesSearch =
-              !term ||
-              c.name.toLowerCase().includes(term) ||
-              (c.phone && c.phone.includes(term)) ||
-              (c.address && c.address.toLowerCase().includes(term));
-            return matchesStatus && matchesSearch;
-          });
+        if (error) {
+          console.warn('Customers query notice:', error.message);
+          return memoryCustomers;
         }
 
-        return data as Customer[];
+        return (data || []) as Customer[];
       } catch (err) {
         console.warn('Customers query notice:', err);
-        return memoryCustomers.filter((c) => {
-          const matchesStatus = status === 'all' || c.status === status;
-          const term = search.toLowerCase().trim();
-          const matchesSearch =
-            !term ||
-            c.name.toLowerCase().includes(term) ||
-            (c.phone && c.phone.includes(term)) ||
-            (c.address && c.address.toLowerCase().includes(term));
-          return matchesStatus && matchesSearch;
-        });
+        return memoryCustomers;
       }
     },
     staleTime: 30 * 1000,
@@ -171,7 +141,6 @@ export function useCustomers(options: UseCustomersOptions = {}) {
 export function useCustomer(id: string | undefined) {
   return useQuery<Customer | null, Error>({
     queryKey: ['customer', id],
-    initialData: () => (id ? memoryCustomers.find((c) => c.id === id) || null : null),
     queryFn: async () => {
       if (!id) return null;
       try {

@@ -195,19 +195,45 @@ export function useMyDay(dateStr?: string) {
           p_date: effectiveDate,
         });
 
+        const emptySchedule: MyDayData = {
+          date: effectiveDate,
+          overdue: [],
+          today: [],
+          upcoming: [],
+          counts: {
+            overdue_tasks: 0,
+            today_tasks: 0,
+            overdue_follow_ups: 0,
+            today_follow_ups: 0,
+            today_site_visits: 0,
+          },
+        };
+
         if (error) {
           console.warn('My Day RPC notice:', error.message);
-          return { ...devEvalMyDayData, date: effectiveDate };
+          return emptySchedule;
         }
 
         if (!data || typeof data !== 'object') {
-          return { ...devEvalMyDayData, date: effectiveDate };
+          return emptySchedule;
         }
 
         return data as unknown as MyDayData;
       } catch (err) {
         console.warn('My Day fallback notice:', err);
-        return { ...devEvalMyDayData, date: effectiveDate };
+        return {
+          date: effectiveDate,
+          overdue: [],
+          today: [],
+          upcoming: [],
+          counts: {
+            overdue_tasks: 0,
+            today_tasks: 0,
+            overdue_follow_ups: 0,
+            today_follow_ups: 0,
+            today_site_visits: 0,
+          },
+        };
       }
     },
     staleTime: 60 * 1000,

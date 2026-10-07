@@ -29,11 +29,11 @@ export const PurchaseDetailPage: React.FC = () => {
     return (
       <div className="space-y-6 pb-20">
         <button
-          onClick={() => navigate('/purchases')}
-          className="flex items-center text-xs font-semibold text-[#6B6B6B] hover:text-[#242424] transition-colors py-2"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/purchases'))}
+          className="flex items-center text-xs font-semibold text-[#6B6B6B] hover:text-[#242424] transition-colors py-2 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-1.5" />
-          Back to Purchases
+          Back
         </button>
         <ErrorState
           title="Purchase record not found"
@@ -75,11 +75,11 @@ export const PurchaseDetailPage: React.FC = () => {
       {/* Top Navigation Strip */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <button
-          onClick={() => navigate('/purchases')}
-          className="flex items-center text-xs font-semibold text-[#6B6B6B] hover:text-[#242424] transition-colors py-1"
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/purchases'))}
+          className="flex items-center text-xs font-semibold text-[#6B6B6B] hover:text-[#242424] transition-colors py-1 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4 mr-1.5" />
-          Back to Purchases
+          Back
         </button>
 
         <div className="flex items-center gap-2">

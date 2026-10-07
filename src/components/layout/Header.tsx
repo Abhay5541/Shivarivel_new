@@ -197,7 +197,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                       className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-[#242424] hover:bg-[#F7F5F0] hover:text-[#4A0E0E] transition-colors text-left cursor-pointer font-medium"
                     >
                       <Settings className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                      <span>Settings & Master Data</span>
+                      <span>Settings & Administration</span>
                     </button>
                   </div>
 

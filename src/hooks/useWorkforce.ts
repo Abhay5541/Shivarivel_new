@@ -18,7 +18,7 @@ import type {
 // (Realistic Tamil Nadu Civil & Interior Crew)
 // ==========================================
 
-export let memoryEmployees: Employee[] = [
+export const devEvalEmployees: Employee[] = [
   {
     id: 'emp-01',
     company_id: 'comp-shivarivel-001',
@@ -229,6 +229,8 @@ export let memoryEmployees: Employee[] = [
   },
 ];
 
+export let memoryEmployees: Employee[] = [...devEvalEmployees];
+
 // Helper to get today's date string YYYY-MM-DD in local time
 export function getTodayDateString(): string {
   const d = new Date();
@@ -240,7 +242,7 @@ export function getTodayDateString(): string {
 
 const todayStr = getTodayDateString();
 
-export let memoryAttendance: AttendanceRecord[] = [
+export const devEvalAttendance: AttendanceRecord[] = [
   {
     id: 'att-01',
     company_id: 'comp-shivarivel-001',
@@ -411,7 +413,9 @@ export let memoryAttendance: AttendanceRecord[] = [
   },
 ];
 
-export let memoryDailyWages: DailyWage[] = [
+export let memoryAttendance: AttendanceRecord[] = [...devEvalAttendance];
+
+export const devEvalDailyWages: DailyWage[] = [
   {
     id: 'dw-01',
     company_id: 'comp-shivarivel-001',
@@ -579,7 +583,9 @@ export let memoryDailyWages: DailyWage[] = [
   },
 ];
 
-export let memoryAdvances: EmployeeAdvance[] = [
+export let memoryDailyWages: DailyWage[] = [...devEvalDailyWages];
+
+export const devEvalAdvances: EmployeeAdvance[] = [
   {
     id: 'adv-01',
     company_id: 'comp-shivarivel-001',
@@ -686,7 +692,9 @@ export let memoryAdvances: EmployeeAdvance[] = [
   },
 ];
 
-export let memoryEmployeePayments: EmployeePayment[] = [
+export let memoryAdvances: EmployeeAdvance[] = [...devEvalAdvances];
+
+export const devEvalEmployeePayments: EmployeePayment[] = [
   {
     id: 'ep-01',
     company_id: 'comp-shivarivel-001',
@@ -799,6 +807,8 @@ export let memoryEmployeePayments: EmployeePayment[] = [
   },
 ];
 
+export let memoryEmployeePayments: EmployeePayment[] = [...devEvalEmployeePayments];
+
 // ==========================================
 // 1. EMPLOYEES HOOKS
 // ==========================================
@@ -811,26 +821,6 @@ export function useEmployees(filters?: {
 }) {
   return useQuery({
     queryKey: ['employees', filters],
-    initialData: () => {
-      let list = [...memoryEmployees];
-      if (filters?.status && filters.status !== 'all') {
-        list = list.filter((e) => e.status === filters.status);
-      }
-      if (filters?.role && filters.role !== 'all') {
-        list = list.filter((e) => e.worker_type?.toLowerCase().includes(filters.role!.toLowerCase()));
-      }
-      if (filters?.search && filters.search.trim()) {
-        const term = filters.search.toLowerCase().trim();
-        list = list.filter(
-          (e) =>
-            e.name.toLowerCase().includes(term) ||
-            e.employee_code.toLowerCase().includes(term) ||
-            (e.phone && e.phone.includes(term)) ||
-            (e.worker_type && e.worker_type.toLowerCase().includes(term))
-        );
-      }
-      return list;
-    },
     queryFn: async (): Promise<Employee[]> => {
       try {
         let query = supabase.from('employees').select('*').order('created_at', { ascending: false });
@@ -840,45 +830,29 @@ export function useEmployees(filters?: {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          // Fall back to memory mock
-          let list = [...memoryEmployees];
-          if (filters?.status && filters.status !== 'all') {
-            list = list.filter((e) => e.status === filters.status);
-          }
-          if (filters?.role && filters.role !== 'all') {
-            list = list.filter((e) => e.worker_type?.toLowerCase().includes(filters.role!.toLowerCase()));
-          }
-          if (filters?.search && filters.search.trim()) {
-            const term = filters.search.toLowerCase().trim();
-            list = list.filter(
-              (e) =>
-                e.name.toLowerCase().includes(term) ||
-                e.employee_code.toLowerCase().includes(term) ||
-                (e.phone && e.phone.includes(term)) ||
-                (e.worker_type && e.worker_type.toLowerCase().includes(term))
-            );
-          }
-          return list;
+        if (error) {
+          console.warn('Employees query error:', error.message);
+          return [];
         }
 
-        // Map database records
-        return (data as Employee[]).map((emp) => {
-          const match = memoryEmployees.find((m) => m.id === emp.id || m.employee_code === emp.employee_code);
-          return {
-            ...emp,
-            assigned_project_name: match?.assigned_project_name || null,
-            total_present_days: match?.total_present_days || 0,
-            total_wages_earned: match?.total_wages_earned || 0,
-            total_wages_paid: match?.total_wages_paid || 0,
-            wage_payable: match?.wage_payable || 0,
-            total_advances_given: match?.total_advances_given || 0,
-            total_advances_recovered: match?.total_advances_recovered || 0,
-            advance_outstanding: match?.advance_outstanding || 0,
-          };
-        });
-      } catch {
-        return memoryEmployees;
+        let result = (data as Employee[]) || [];
+        if (filters?.role && filters.role !== 'all') {
+          result = result.filter((e) => e.worker_type?.toLowerCase().includes(filters.role!.toLowerCase()));
+        }
+        if (filters?.search && filters.search.trim()) {
+          const term = filters.search.toLowerCase().trim();
+          result = result.filter(
+            (e) =>
+              e.name.toLowerCase().includes(term) ||
+              e.employee_code.toLowerCase().includes(term) ||
+              (e.phone && e.phone.includes(term)) ||
+              (e.worker_type && e.worker_type.toLowerCase().includes(term))
+          );
+        }
+        return result;
+      } catch (err) {
+        console.warn('Employees query notice:', err);
+        return [];
       }
     },
   });
@@ -888,29 +862,16 @@ export function useEmployee(id: string | undefined) {
   return useQuery({
     queryKey: ['employee', id],
     enabled: Boolean(id),
-    initialData: () => (id ? memoryEmployees.find((e) => e.id === id) || null : null),
     queryFn: async (): Promise<Employee | null> => {
       if (!id) return null;
       try {
         const { data, error } = await (supabase as any).from('employees').select('*').eq('id', id).single();
         if (error || !data) {
-          const found = memoryEmployees.find((e) => e.id === id);
-          return found || null;
+          return null;
         }
-        const match = memoryEmployees.find((m) => m.id === id || m.employee_code === (data as any).employee_code);
-        return {
-          ...(data as Employee),
-          assigned_project_name: match?.assigned_project_name || null,
-          total_present_days: match?.total_present_days || 0,
-          total_wages_earned: match?.total_wages_earned || 0,
-          total_wages_paid: match?.total_wages_paid || 0,
-          wage_payable: match?.wage_payable || 0,
-          total_advances_given: match?.total_advances_given || 0,
-          total_advances_recovered: match?.total_advances_recovered || 0,
-          advance_outstanding: match?.advance_outstanding || 0,
-        };
+        return data as Employee;
       } catch {
-        return memoryEmployees.find((e) => e.id === id) || null;
+        return null;
       }
     },
   });
@@ -1072,13 +1033,6 @@ export function useDeleteEmployee() {
 export function useAttendanceForDate(date: string, projectId?: string) {
   return useQuery({
     queryKey: ['attendance', date, projectId],
-    initialData: () => {
-      let list = memoryAttendance.filter((a) => a.attendance_date === date);
-      if (projectId && projectId !== 'all') {
-        list = list.filter((a) => a.project_id === projectId);
-      }
-      return list;
-    },
     queryFn: async (): Promise<AttendanceRecord[]> => {
       try {
         let query = supabase
@@ -1091,16 +1045,14 @@ export function useAttendanceForDate(date: string, projectId?: string) {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          let list = memoryAttendance.filter((a) => a.attendance_date === date);
-          if (projectId && projectId !== 'all') {
-            list = list.filter((a) => a.project_id === projectId);
-          }
-          return list;
+        if (error) {
+          console.warn('Attendance query error:', error.message);
+          return [];
         }
-        return data as AttendanceRecord[];
-      } catch {
-        return memoryAttendance.filter((a) => a.attendance_date === date);
+        return (data as AttendanceRecord[]) || [];
+      } catch (err) {
+        console.warn('Attendance query notice:', err);
+        return [];
       }
     },
   });
@@ -1287,19 +1239,6 @@ export function useWages(filters?: {
 }) {
   return useQuery({
     queryKey: ['wages', filters],
-    initialData: () => {
-      let list = [...memoryDailyWages];
-      if (filters?.employeeId && filters.employeeId !== 'all') {
-        list = list.filter((w) => w.employee_id === filters.employeeId);
-      }
-      if (filters?.projectId && filters.projectId !== 'all') {
-        list = list.filter((w) => w.project_id === filters.projectId);
-      }
-      if (filters?.status && filters.status !== 'all') {
-        list = list.filter((w) => w.status === filters.status);
-      }
-      return list;
-    },
     queryFn: async (): Promise<DailyWage[]> => {
       try {
         let query = supabase
@@ -1318,29 +1257,14 @@ export function useWages(filters?: {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          let list = [...memoryDailyWages];
-          if (filters?.employeeId && filters.employeeId !== 'all') {
-            list = list.filter((w) => w.employee_id === filters.employeeId);
-          }
-          if (filters?.projectId && filters.projectId !== 'all') {
-            list = list.filter((w) => w.project_id === filters.projectId);
-          }
-          if (filters?.status && filters.status !== 'all') {
-            list = list.filter((w) => w.status === filters.status);
-          }
-          return list;
+        if (error) {
+          console.warn('Daily wages query error:', error.message);
+          return [];
         }
-        return data as DailyWage[];
-      } catch {
-        let list = [...memoryDailyWages];
-        if (filters?.employeeId && filters.employeeId !== 'all') {
-          list = list.filter((w) => w.employee_id === filters.employeeId);
-        }
-        if (filters?.projectId && filters.projectId !== 'all') {
-          list = list.filter((w) => w.project_id === filters.projectId);
-        }
-        return list;
+        return (data as DailyWage[]) || [];
+      } catch (err) {
+        console.warn('Daily wages query notice:', err);
+        return [];
       }
     },
   });
@@ -1606,16 +1530,6 @@ export function useEmployeeAdvances(filters?: {
 }) {
   return useQuery({
     queryKey: ['advances', filters],
-    initialData: () => {
-      let list = [...memoryAdvances];
-      if (filters?.employeeId && filters.employeeId !== 'all') {
-        list = list.filter((a) => a.employee_id === filters.employeeId);
-      }
-      if (filters?.status && filters.status !== 'all') {
-        list = list.filter((a) => a.status === filters.status);
-      }
-      return list;
-    },
     queryFn: async (): Promise<EmployeeAdvance[]> => {
       try {
         let query = supabase
@@ -1631,23 +1545,14 @@ export function useEmployeeAdvances(filters?: {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          let list = [...memoryAdvances];
-          if (filters?.employeeId && filters.employeeId !== 'all') {
-            list = list.filter((a) => a.employee_id === filters.employeeId);
-          }
-          if (filters?.status && filters.status !== 'all') {
-            list = list.filter((a) => a.status === filters.status);
-          }
-          return list;
+        if (error) {
+          console.warn('Employee advances query error:', error.message);
+          return [];
         }
-        return data as EmployeeAdvance[];
-      } catch {
-        let list = [...memoryAdvances];
-        if (filters?.employeeId && filters.employeeId !== 'all') {
-          list = list.filter((a) => a.employee_id === filters.employeeId);
-        }
-        return list;
+        return (data as EmployeeAdvance[]) || [];
+      } catch (err) {
+        console.warn('Employee advances query notice:', err);
+        return [];
       }
     },
   });
@@ -1737,16 +1642,6 @@ export function useEmployeePayments(filters?: {
 }) {
   return useQuery({
     queryKey: ['employee-payments', filters],
-    initialData: () => {
-      let list = [...memoryEmployeePayments];
-      if (filters?.employeeId && filters.employeeId !== 'all') {
-        list = list.filter((p) => p.employee_id === filters.employeeId);
-      }
-      if (filters?.status && filters.status !== 'all') {
-        list = list.filter((p) => p.status === filters.status);
-      }
-      return list;
-    },
     queryFn: async (): Promise<EmployeePayment[]> => {
       try {
         let query = supabase
@@ -1762,23 +1657,14 @@ export function useEmployeePayments(filters?: {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          let list = [...memoryEmployeePayments];
-          if (filters?.employeeId && filters.employeeId !== 'all') {
-            list = list.filter((p) => p.employee_id === filters.employeeId);
-          }
-          if (filters?.status && filters.status !== 'all') {
-            list = list.filter((p) => p.status === filters.status);
-          }
-          return list;
+        if (error) {
+          console.warn('Employee payments query error:', error.message);
+          return [];
         }
-        return data as EmployeePayment[];
-      } catch {
-        let list = [...memoryEmployeePayments];
-        if (filters?.employeeId && filters.employeeId !== 'all') {
-          list = list.filter((p) => p.employee_id === filters.employeeId);
-        }
-        return list;
+        return (data as EmployeePayment[]) || [];
+      } catch (err) {
+        console.warn('Employee payments query notice:', err);
+        return [];
       }
     },
   });

@@ -232,7 +232,6 @@ export function UsersRolesPage() {
               <option value="all">All Roles</option>
               <option value="owner">Owner / Admin</option>
               <option value="supervisor">Supervisor</option>
-              <option value="worker">Worker</option>
             </select>
           </div>
 
@@ -463,7 +462,7 @@ export function UsersRolesPage() {
             </div>
 
             <div className="space-y-3">
-              {(Object.keys(USER_ROLES) as UserRole[]).map((r) => {
+              {(['owner', 'supervisor'] as UserRole[]).map((r) => {
                 const def = USER_ROLES[r];
                 const isSelected = selectedRole === r;
                 return (

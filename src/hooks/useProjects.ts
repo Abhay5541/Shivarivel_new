@@ -336,7 +336,7 @@ export const devEvalDocuments: Record<string, ProjectDocument[]> = {
   ],
 };
 
-let memoryProjects: Project[] = [...devEvalProjects];
+let memoryProjects: Project[] = [];
 
 export interface UseProjectsOptions {
   search?: string;
@@ -397,27 +397,7 @@ export function useProjects(options: UseProjectsOptions = {}) {
         return filtered;
       }
 
-      return (data as unknown as Project[]) || memoryProjects;
-    },
-    initialData: () => {
-      let filtered = [...memoryProjects];
-      if (customerId) {
-        filtered = filtered.filter((p) => p.customer_id === customerId);
-      }
-      if (status && status !== 'all') {
-        filtered = filtered.filter((p) => p.status === status);
-      }
-      if (search && search.trim()) {
-        const s = search.toLowerCase();
-        filtered = filtered.filter(
-          (p) =>
-            p.name.toLowerCase().includes(s) ||
-            p.project_code.toLowerCase().includes(s) ||
-            (p.site_address && p.site_address.toLowerCase().includes(s)) ||
-            (p.customer?.name && p.customer.name.toLowerCase().includes(s))
-        );
-      }
-      return filtered;
+      return (data as unknown as Project[]) || [];
     },
     staleTime: 1000 * 60 * 2,
   });
@@ -448,10 +428,6 @@ export function useProject(id?: string) {
 
       return data as unknown as Project;
     },
-    initialData: () => {
-      if (!id) return null;
-      return memoryProjects.find((p) => p.id === id) || null;
-    },
     enabled: Boolean(id),
     staleTime: 1000 * 60 * 2,
   });
@@ -477,7 +453,7 @@ export function useProjectWorkProgress(projectId?: string) {
         .eq('project_id', projectId)
         .order('created_at', { ascending: true });
 
-      const fallback = devEvalWorkProgress[projectId] || {
+      const fallback = {
         summary: {
           project_id: projectId,
           project_code: 'PRJ',
@@ -496,10 +472,6 @@ export function useProjectWorkProgress(projectId?: string) {
         summary: (summaryData as unknown as ProjectWorkProgressSummary) || fallback.summary,
         items: (itemsData as unknown as WorkProgressItem[]) || fallback.items,
       };
-    },
-    initialData: () => {
-      if (!projectId) return null;
-      return devEvalWorkProgress[projectId] || null;
     },
     enabled: Boolean(projectId),
     staleTime: 1000 * 60 * 2,
@@ -526,7 +498,7 @@ export function useProjectFinancials(projectId?: string) {
         .eq('project_id', projectId)
         .maybeSingle();
 
-      const fallback = devEvalFinancials[projectId] || {
+      const fallback = {
         contract_value: 0,
         amount_received: 0,
         outstanding_amount: 0,
@@ -553,10 +525,6 @@ export function useProjectFinancials(projectId?: string) {
         recorded_project_cost: Number(cost?.recorded_project_cost) || fallback.recorded_project_cost,
       };
     },
-    initialData: () => {
-      if (!projectId) return null;
-      return devEvalFinancials[projectId] || null;
-    },
     enabled: Boolean(projectId),
     staleTime: 1000 * 60 * 2,
   });
@@ -575,15 +543,11 @@ export function useProjectDocuments(projectId?: string) {
         .eq('entity_id', projectId)
         .order('created_at', { ascending: false });
 
-      if (error || !data || data.length === 0) {
-        return devEvalDocuments[projectId] || [];
+      if (error || !data) {
+        return [];
       }
 
       return data as unknown as ProjectDocument[];
-    },
-    initialData: () => {
-      if (!projectId) return [];
-      return devEvalDocuments[projectId] || [];
     },
     enabled: Boolean(projectId),
     staleTime: 1000 * 60 * 2,

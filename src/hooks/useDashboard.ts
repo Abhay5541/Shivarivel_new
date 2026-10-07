@@ -209,19 +209,18 @@ export function useDashboard() {
         const { data, error } = await (supabase.rpc as any)('get_dashboard');
 
         if (error) {
-          // If RPC fails because backend is unseeded or offline in dev, provide dev evaluation snapshot
           console.warn('Dashboard RPC notice:', error.message);
-          return devEvalDashboardData;
+          return defaultDashboardData;
         }
 
         if (!data || typeof data !== 'object') {
-          return devEvalDashboardData;
+          return defaultDashboardData;
         }
 
         return data as unknown as DashboardData;
       } catch (err) {
         console.warn('Dashboard query fallback:', err);
-        return devEvalDashboardData;
+        return defaultDashboardData;
       }
     },
     staleTime: 60 * 1000,

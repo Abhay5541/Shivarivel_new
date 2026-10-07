@@ -20,7 +20,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Watcher } from '@/components/ui/Watcher';
 import { LabelInput } from '@/components/ui/LabelInput';
 import logoImg from '@/Asserts/shivarivel_svc_logo.png';
-import bgImg from '@/Asserts/Background_UI.png';
+import bgImg from '@/Asserts/Background_UI.jpg';
 
 // 8 Core Services matching Shivarivel Construction Hero Banner Reference UI
 const SERVICES = [
@@ -70,7 +70,7 @@ export function LoginPage() {
 
     if (error) {
       setErrorMessage(
-        error.message || 'Invalid staff credentials. Please check your email and password.'
+        error.message || 'Invalid credentials. Please check your email and password.'
       );
     } else {
       navigate(from, { replace: true });
@@ -204,7 +204,7 @@ export function LoginPage() {
                     Welcome Back!
                   </h3>
                   <p className="font-inter text-[11.5px] text-gray-500 mt-0.5 mb-2.5">
-                    Sign in to continue to your account
+                    Sign in to access your administrative portal
                   </p>
                 </div>
               </div>
@@ -221,7 +221,7 @@ export function LoginPage() {
                 <div className="w-full">
                   <LabelInput
                     field="Email"
-                    id="staff-email"
+                    id="owner-email"
                     name="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -234,7 +234,7 @@ export function LoginPage() {
                 <div className="w-full">
                   <LabelInput
                     field="Password"
-                    id="staff-password"
+                    id="owner-password"
                     name="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

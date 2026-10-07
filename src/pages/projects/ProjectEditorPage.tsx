@@ -404,27 +404,29 @@ export const ProjectEditorPage: React.FC = () => {
           <div className="flex items-center gap-2 border-b border-[#E2DDD5]/70 pb-3">
             <User className="w-4 h-4 text-[#C99A2E]" />
             <h2 className="font-bold text-sm text-[#242424] uppercase tracking-wider">
-              Field Supervision & Operational Notes
+              Project Scope & Operational Details
             </h2>
           </div>
 
-          <div>
-            <label className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider block mb-1.5">
-              Assigned Field Supervisor
-            </label>
-            <select
-              value={assignedTo}
-              onChange={(e) => setAssignedTo(e.target.value)}
-              className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-2.5 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px]"
-            >
-              <option value="">-- Unassigned / Company Direct Supervision --</option>
-              {supervisors.map((sup) => (
-                <option key={sup.id} value={sup.id}>
-                  {sup.full_name} {sup.phone ? `(${sup.phone})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          {supervisors.length > 0 && (
+            <div>
+              <label className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider block mb-1.5">
+                Assigned Field Supervisor
+              </label>
+              <select
+                value={assignedTo}
+                onChange={(e) => setAssignedTo(e.target.value)}
+                className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-2.5 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px]"
+              >
+                <option value="">-- Unassigned / Company Direct Supervision --</option>
+                {supervisors.map((sup) => (
+                  <option key={sup.id} value={sup.id}>
+                    {sup.full_name} {sup.phone ? `(${sup.phone})` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider block mb-1.5">

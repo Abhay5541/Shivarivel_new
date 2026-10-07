@@ -132,15 +132,19 @@ export function useUpdateCompanySettings() {
 export function useUsersList() {
   return useQuery<UserProfile[], Error>({
     queryKey: ['users_list'],
-    initialData: () => inMemoryUserProfiles,
     queryFn: async () => {
       try {
         const { data, error } = await (supabase.from as any)('profiles')
           .select('*')
           .order('full_name', { ascending: true });
 
-        if (error || !data || data.length === 0) {
-          return inMemoryUserProfiles;
+        if (error) {
+          console.warn('Users list query notice:', error.message);
+          return [];
+        }
+
+        if (!data || data.length === 0) {
+          return [];
         }
 
         // Merge with existing emails/project counts
@@ -158,7 +162,7 @@ export function useUsersList() {
         return mapped;
       } catch (err) {
         console.warn('Users list query notice:', err);
-        return inMemoryUserProfiles;
+        return [];
       }
     },
     staleTime: 60 * 1000,

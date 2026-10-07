@@ -72,11 +72,11 @@ export const SiteDetailPage: React.FC = () => {
       <div>
         <button
           type="button"
-          onClick={() => navigate('/projects')}
+          onClick={() => (window.history.length > 1 ? navigate(-1) : navigate('/projects'))}
           className="inline-flex items-center gap-2 text-xs font-bold text-[#6B6B6B] hover:text-[#4A0E0E] transition-colors cursor-pointer min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Projects</span>
+          <span>Back</span>
         </button>
       </div>
 

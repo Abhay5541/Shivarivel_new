@@ -421,29 +421,6 @@ export function useCustomerPayments(filters?: {
 }) {
   return useQuery({
     queryKey: ['customer-payments', filters],
-    initialData: () => {
-      let list = [...memoryCustomerPayments];
-      if (filters?.customerId && filters.customerId !== 'all') {
-        list = list.filter((p) => p.customer_id === filters.customerId);
-      }
-      if (filters?.projectId && filters.projectId !== 'all') {
-        list = list.filter((p) => p.project_id === filters.projectId);
-      }
-      if (filters?.status && filters.status !== 'all') {
-        list = list.filter((p) => p.status === filters.status);
-      }
-      if (filters?.search && filters.search.trim()) {
-        const term = filters.search.toLowerCase().trim();
-        list = list.filter(
-          (p) =>
-            p.payment_number.toLowerCase().includes(term) ||
-            (p.reference_number && p.reference_number.toLowerCase().includes(term)) ||
-            (p.customer?.name && p.customer.name.toLowerCase().includes(term)) ||
-            (p.project?.name && p.project.name.toLowerCase().includes(term))
-        );
-      }
-      return list;
-    },
     queryFn: async (): Promise<CustomerPayment[]> => {
       try {
         let query = supabase
@@ -462,12 +439,25 @@ export function useCustomerPayments(filters?: {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          return memoryCustomerPayments;
+        if (error) {
+          console.warn('Customer payments query error:', error.message);
+          return [];
         }
-        return data as unknown as CustomerPayment[];
-      } catch {
-        return memoryCustomerPayments;
+        let list = (data || []) as unknown as CustomerPayment[];
+        if (filters?.search && filters.search.trim()) {
+          const term = filters.search.toLowerCase().trim();
+          list = list.filter(
+            (p) =>
+              p.payment_number.toLowerCase().includes(term) ||
+              (p.reference_number && p.reference_number.toLowerCase().includes(term)) ||
+              (p.customer?.name && p.customer.name.toLowerCase().includes(term)) ||
+              (p.project?.name && p.project.name.toLowerCase().includes(term))
+          );
+        }
+        return list;
+      } catch (err) {
+        console.warn('Customer payments query notice:', err);
+        return [];
       }
     },
   });
@@ -477,7 +467,6 @@ export function useCustomerPayment(id: string | undefined) {
   return useQuery({
     queryKey: ['customer-payment', id],
     enabled: Boolean(id),
-    initialData: () => (id ? memoryCustomerPayments.find((p) => p.id === id) || null : null),
     queryFn: async (): Promise<CustomerPayment | null> => {
       if (!id) return null;
       try {
@@ -488,11 +477,11 @@ export function useCustomerPayment(id: string | undefined) {
           .single();
 
         if (error || !data) {
-          return memoryCustomerPayments.find((p) => p.id === id) || null;
+          return null;
         }
         return data as unknown as CustomerPayment;
       } catch {
-        return memoryCustomerPayments.find((p) => p.id === id) || null;
+        return null;
       }
     },
   });
@@ -584,7 +573,6 @@ export function useProjectCustomerBalance(projectId: string | undefined) {
   return useQuery({
     queryKey: ['project-customer-balance', projectId],
     enabled: Boolean(projectId),
-    initialData: () => (projectId ? memoryProjectCustomerBalances.find((b) => b.project_id === projectId) || null : null),
     queryFn: async (): Promise<ProjectCustomerBalance | null> => {
       if (!projectId) return null;
       try {
@@ -595,11 +583,11 @@ export function useProjectCustomerBalance(projectId: string | undefined) {
           .single();
 
         if (error || !data) {
-          return memoryProjectCustomerBalances.find((b) => b.project_id === projectId) || null;
+          return null;
         }
         return data as unknown as ProjectCustomerBalance;
       } catch {
-        return memoryProjectCustomerBalances.find((b) => b.project_id === projectId) || null;
+        return null;
       }
     },
   });
@@ -608,19 +596,20 @@ export function useProjectCustomerBalance(projectId: string | undefined) {
 export function useCustomerBalances() {
   return useQuery({
     queryKey: ['customer-balances'],
-    initialData: () => memoryProjectCustomerBalances,
     queryFn: async (): Promise<ProjectCustomerBalance[]> => {
       try {
         const { data, error } = await supabase
           .from('v_project_customer_payment_balance' as any)
           .select('*');
 
-        if (error || !data || data.length === 0) {
-          return memoryProjectCustomerBalances;
+        if (error) {
+          console.warn('Customer balances query notice:', error.message);
+          return [];
         }
-        return data as unknown as ProjectCustomerBalance[];
-      } catch {
-        return memoryProjectCustomerBalances;
+        return (data || []) as unknown as ProjectCustomerBalance[];
+      } catch (err) {
+        console.warn('Customer balances query notice:', err);
+        return [];
       }
     },
   });
@@ -638,34 +627,6 @@ export function useExpenses(filters?: {
 }) {
   return useQuery({
     queryKey: ['expenses', filters],
-    initialData: () => {
-      let list = [...memoryExpenses];
-      if (filters?.projectId && filters.projectId !== 'all') {
-        if (filters.projectId === 'overhead') {
-          list = list.filter((e) => e.project_id === null);
-        } else {
-          list = list.filter((e) => e.project_id === filters.projectId);
-        }
-      }
-      if (filters?.category && filters.category !== 'all') {
-        list = list.filter((e) => e.category === filters.category);
-      }
-      if (filters?.status && filters.status !== 'all') {
-        list = list.filter((e) => e.status === filters.status);
-      }
-      if (filters?.search && filters.search.trim()) {
-        const term = filters.search.toLowerCase().trim();
-        list = list.filter(
-          (e) =>
-            e.expense_number.toLowerCase().includes(term) ||
-            e.description.toLowerCase().includes(term) ||
-            e.category.toLowerCase().includes(term) ||
-            (e.paid_by && e.paid_by.toLowerCase().includes(term)) ||
-            (e.reference_number && e.reference_number.toLowerCase().includes(term))
-        );
-      }
-      return list;
-    },
     queryFn: async (): Promise<Expense[]> => {
       try {
         let query = supabase
@@ -688,12 +649,26 @@ export function useExpenses(filters?: {
         }
 
         const { data, error } = await query;
-        if (error || !data || data.length === 0) {
-          return memoryExpenses;
+        if (error) {
+          console.warn('Expenses query error:', error.message);
+          return [];
         }
-        return data as unknown as Expense[];
-      } catch {
-        return memoryExpenses;
+        let list = (data || []) as unknown as Expense[];
+        if (filters?.search && filters.search.trim()) {
+          const term = filters.search.toLowerCase().trim();
+          list = list.filter(
+            (e) =>
+              e.expense_number.toLowerCase().includes(term) ||
+              e.description.toLowerCase().includes(term) ||
+              e.category.toLowerCase().includes(term) ||
+              (e.paid_by && e.paid_by.toLowerCase().includes(term)) ||
+              (e.reference_number && e.reference_number.toLowerCase().includes(term))
+          );
+        }
+        return list;
+      } catch (err) {
+        console.warn('Expenses query notice:', err);
+        return [];
       }
     },
   });
@@ -703,7 +678,6 @@ export function useExpense(id: string | undefined) {
   return useQuery({
     queryKey: ['expense', id],
     enabled: Boolean(id),
-    initialData: () => (id ? memoryExpenses.find((e) => e.id === id) || null : null),
     queryFn: async (): Promise<Expense | null> => {
       if (!id) return null;
       try {
@@ -714,11 +688,11 @@ export function useExpense(id: string | undefined) {
           .single();
 
         if (error || !data) {
-          return memoryExpenses.find((e) => e.id === id) || null;
+          return null;
         }
         return data as unknown as Expense;
       } catch {
-        return memoryExpenses.find((e) => e.id === id) || null;
+        return null;
       }
     },
   });
@@ -809,19 +783,20 @@ export function useRecordExpense() {
 export function useProjectRecordedCosts() {
   return useQuery({
     queryKey: ['project-recorded-costs'],
-    initialData: () => memoryProjectRecordedCosts,
     queryFn: async (): Promise<RecordedProjectCost[]> => {
       try {
         const { data, error } = await supabase
           .from('v_project_recorded_cost' as any)
           .select('*');
 
-        if (error || !data || data.length === 0) {
-          return memoryProjectRecordedCosts;
+        if (error) {
+          console.warn('Recorded costs query notice:', error.message);
+          return [];
         }
-        return data as unknown as RecordedProjectCost[];
-      } catch {
-        return memoryProjectRecordedCosts;
+        return (data || []) as unknown as RecordedProjectCost[];
+      } catch (err) {
+        console.warn('Recorded costs query notice:', err);
+        return [];
       }
     },
   });
@@ -831,7 +806,6 @@ export function useProjectRecordedCost(projectId: string | undefined) {
   return useQuery({
     queryKey: ['project-recorded-cost', projectId],
     enabled: Boolean(projectId),
-    initialData: () => (projectId ? memoryProjectRecordedCosts.find((p) => p.project_id === projectId) || null : null),
     queryFn: async (): Promise<RecordedProjectCost | null> => {
       if (!projectId) return null;
       try {
@@ -842,11 +816,11 @@ export function useProjectRecordedCost(projectId: string | undefined) {
           .single();
 
         if (error || !data) {
-          return memoryProjectRecordedCosts.find((p) => p.project_id === projectId) || null;
+          return null;
         }
         return data as unknown as RecordedProjectCost;
       } catch {
-        return memoryProjectRecordedCosts.find((p) => p.project_id === projectId) || null;
+        return null;
       }
     },
   });
@@ -856,10 +830,40 @@ export function useProjectRecordedCost(projectId: string | undefined) {
 // 4. FINANCIAL SUMMARY COMMAND HOOK
 // ==========================================
 
+export const emptyCompanyFinancialSummary: CompanyFinancialSummary = {
+  customer: {
+    total_contract_value: 0,
+    total_received: 0,
+    total_outstanding: 0,
+  },
+  supplier: {
+    total_purchases: 0,
+    total_paid: 0,
+    total_outstanding: 0,
+    unallocated_credit: 0,
+  },
+  employee: {
+    wages_earned: 0,
+    wages_paid: 0,
+    wage_payable: 0,
+    advances_given: 0,
+    advances_recovered: 0,
+    advance_outstanding: 0,
+  },
+  expenses: {
+    total_expenses: 0,
+    site_expenses: 0,
+    overhead_expenses: 0,
+  },
+  project_cost: {
+    total_recorded_cost: 0,
+    project_breakdown: [],
+  },
+};
+
 export function useFinancialSummary() {
   return useQuery({
     queryKey: ['financial-summary'],
-    initialData: calculateCompanyFinancialSummary,
     queryFn: async (): Promise<CompanyFinancialSummary> => {
       try {
         // Query authoritative dashboard financial view
@@ -869,39 +873,42 @@ export function useFinancialSummary() {
           .single();
 
         if (error || !data) {
-          return calculateCompanyFinancialSummary();
+          return emptyCompanyFinancialSummary;
         }
 
         const record = data as Record<string, any>;
-        const summary = calculateCompanyFinancialSummary();
-        // Overlay database values where available
         return {
-          ...summary,
           customer: {
-            total_contract_value: Number(record.total_contract_value) || summary.customer.total_contract_value,
-            total_received: Number(record.total_customer_received) || summary.customer.total_received,
-            total_outstanding: Number(record.total_customer_receivable) || summary.customer.total_outstanding,
+            total_contract_value: Number(record.total_contract_value) || 0,
+            total_received: Number(record.total_customer_received) || 0,
+            total_outstanding: Number(record.total_customer_receivable) || 0,
           },
           supplier: {
-            ...summary.supplier,
-            total_outstanding: Number(record.total_supplier_payable) || summary.supplier.total_outstanding,
+            total_purchases: Number(record.total_purchases) || 0,
+            total_paid: Number(record.total_supplier_paid) || 0,
+            total_outstanding: Number(record.total_supplier_payable) || 0,
+            unallocated_credit: Number(record.unallocated_credit) || 0,
           },
           employee: {
-            ...summary.employee,
-            wage_payable: Number(record.total_wage_payable) || summary.employee.wage_payable,
-            advance_outstanding: Number(record.total_advance_outstanding) || summary.employee.advance_outstanding,
+            wages_earned: Number(record.total_wages_earned) || 0,
+            wages_paid: Number(record.total_wages_paid) || 0,
+            wage_payable: Number(record.total_wage_payable) || 0,
+            advances_given: Number(record.total_advances_given) || 0,
+            advances_recovered: Number(record.total_advances_recovered) || 0,
+            advance_outstanding: Number(record.total_advance_outstanding) || 0,
           },
           expenses: {
-            ...summary.expenses,
-            total_expenses: Number(record.total_expenses) || summary.expenses.total_expenses,
+            total_expenses: Number(record.total_expenses) || 0,
+            site_expenses: Number(record.site_expenses) || 0,
+            overhead_expenses: Number(record.overhead_expenses) || 0,
           },
           project_cost: {
-            total_recorded_cost: Number(record.total_recorded_project_cost) || summary.project_cost.total_recorded_cost,
-            project_breakdown: memoryProjectRecordedCosts,
+            total_recorded_cost: Number(record.total_recorded_project_cost) || 0,
+            project_breakdown: [],
           },
         };
       } catch {
-        return calculateCompanyFinancialSummary();
+        return emptyCompanyFinancialSummary;
       }
     },
   });

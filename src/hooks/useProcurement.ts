@@ -20,7 +20,7 @@ import { devEvalProjects } from '@/hooks/useProjects';
 // EVALUATION / LOCAL MOCK FALLBACK DATA
 // ==========================================
 
-export let memorySuppliers: Supplier[] = [
+export const devEvalSuppliers: Supplier[] = [
   {
     id: 'sup-01',
     company_id: 'comp-shivarivel-001',
@@ -103,7 +103,9 @@ export let memorySuppliers: Supplier[] = [
   },
 ];
 
-export let memoryMaterials: Material[] = [
+export let memorySuppliers: Supplier[] = [...devEvalSuppliers];
+
+export const devEvalMaterials: Material[] = [
   {
     id: 'mat-01',
     company_id: 'comp-shivarivel-001',
@@ -202,7 +204,9 @@ export let memoryMaterials: Material[] = [
   },
 ];
 
-export let memoryPurchases: Purchase[] = [
+export let memoryMaterials: Material[] = [...devEvalMaterials];
+
+export const devEvalPurchases: Purchase[] = [
   {
     id: 'pur-01',
     company_id: 'comp-shivarivel-001',
@@ -400,7 +404,9 @@ export let memoryPurchases: Purchase[] = [
   },
 ];
 
-export let memorySupplierPayments: SupplierPayment[] = [
+export let memoryPurchases: Purchase[] = [...devEvalPurchases];
+
+export const devEvalSupplierPayments: SupplierPayment[] = [
   {
     id: 'sp-01',
     company_id: 'comp-shivarivel-001',
@@ -463,6 +469,8 @@ export let memorySupplierPayments: SupplierPayment[] = [
   },
 ];
 
+export let memorySupplierPayments: SupplierPayment[] = [...devEvalSupplierPayments];
+
 // Helper to derive payment status from allocation
 export function derivePurchasePaymentStatus(total: number, allocated: number): PurchasePaymentStatus {
   if (allocated <= 0) return 'Unpaid';
@@ -489,25 +497,12 @@ export function useSuppliers(searchQuery?: string, statusFilter?: 'all' | 'activ
 
       const { data, error } = await query;
 
-      if (error || !data || data.length === 0) {
-        let results = [...memorySuppliers];
-        if (statusFilter && statusFilter !== 'all') {
-          results = results.filter((s) => s.status === statusFilter);
-        }
-        if (searchQuery) {
-          const q = searchQuery.toLowerCase();
-          results = results.filter(
-            (s) =>
-              s.name.toLowerCase().includes(q) ||
-              s.contact_person?.toLowerCase().includes(q) ||
-              s.phone?.includes(q) ||
-              s.gst_number?.toLowerCase().includes(q)
-          );
-        }
-        return results;
+      if (error) {
+        console.warn('Suppliers query error:', error.message);
+        return [];
       }
 
-      let filtered = data as Supplier[];
+      let filtered = (data as Supplier[]) || [];
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter(
@@ -520,23 +515,6 @@ export function useSuppliers(searchQuery?: string, statusFilter?: 'all' | 'activ
       }
 
       return filtered;
-    },
-    initialData: () => {
-      let results = [...memorySuppliers];
-      if (statusFilter && statusFilter !== 'all') {
-        results = results.filter((s) => s.status === statusFilter);
-      }
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        results = results.filter(
-          (s) =>
-            s.name.toLowerCase().includes(q) ||
-            s.contact_person?.toLowerCase().includes(q) ||
-            s.phone?.includes(q) ||
-            s.gst_number?.toLowerCase().includes(q)
-        );
-      }
-      return results;
     },
     staleTime: 1000 * 60 * 2,
   });
@@ -555,14 +533,10 @@ export function useSupplier(id?: string) {
         .maybeSingle();
 
       if (error || !data) {
-        return memorySuppliers.find((s) => s.id === id) || null;
+        return null;
       }
 
       return data as Supplier;
-    },
-    initialData: () => {
-      if (!id) return null;
-      return memorySuppliers.find((s) => s.id === id) || null;
     },
     enabled: Boolean(id),
     staleTime: 1000 * 60 * 2,
@@ -814,24 +788,12 @@ export function useMaterials(searchQuery?: string, categoryFilter?: string) {
 
       const { data, error } = await query;
 
-      if (error || !data || data.length === 0) {
-        let results = [...memoryMaterials];
-        if (categoryFilter && categoryFilter !== 'all') {
-          results = results.filter((m) => m.category === categoryFilter);
-        }
-        if (searchQuery) {
-          const q = searchQuery.toLowerCase();
-          results = results.filter(
-            (m) =>
-              m.name.toLowerCase().includes(q) ||
-              m.description?.toLowerCase().includes(q) ||
-              m.category.toLowerCase().includes(q)
-          );
-        }
-        return results;
+      if (error) {
+        console.warn('Materials query error:', error.message);
+        return [];
       }
 
-      let filtered = data as Material[];
+      let filtered = (data as Material[]) || [];
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter(
@@ -842,22 +804,6 @@ export function useMaterials(searchQuery?: string, categoryFilter?: string) {
         );
       }
       return filtered;
-    },
-    initialData: () => {
-      let results = [...memoryMaterials];
-      if (categoryFilter && categoryFilter !== 'all') {
-        results = results.filter((m) => m.category === categoryFilter);
-      }
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        results = results.filter(
-          (m) =>
-            m.name.toLowerCase().includes(q) ||
-            m.description?.toLowerCase().includes(q) ||
-            m.category.toLowerCase().includes(q)
-        );
-      }
-      return results;
     },
     staleTime: 1000 * 60 * 2,
   });
@@ -999,34 +945,12 @@ export function usePurchases(filters?: PurchaseFilters) {
         }
       }
 
-      if (error || !data || data.length === 0) {
-        let results = [...memoryPurchases];
-        if (filters?.supplier_id && filters.supplier_id !== 'all') {
-          results = results.filter((p) => p.supplier_id === filters.supplier_id);
-        }
-        if (filters?.project_id === 'general') {
-          results = results.filter((p) => !p.project_id);
-        } else if (filters?.project_id && filters.project_id !== 'all') {
-          results = results.filter((p) => p.project_id === filters.project_id);
-        }
-        if (filters?.payment_status && filters.payment_status !== 'all') {
-          results = results.filter((p) => p.payment_status === filters.payment_status);
-        }
-        if (filters?.search) {
-          const q = filters.search.toLowerCase();
-          results = results.filter(
-            (p) =>
-              p.purchase_number.toLowerCase().includes(q) ||
-              p.invoice_number?.toLowerCase().includes(q) ||
-              p.supplier?.name.toLowerCase().includes(q) ||
-              p.project?.name.toLowerCase().includes(q) ||
-              p.items?.some((i) => (i.description || i.material?.name || '').toLowerCase().includes(q))
-          );
-        }
-        return results;
+      if (error) {
+        console.warn('Purchases query error:', error.message);
+        return [];
       }
 
-      let results: Purchase[] = (data as any[]).map((row) => {
+      let results: Purchase[] = ((data as any[]) || []).map((row) => {
         const bal = balanceMap.get(row.id);
         const total_allocated = bal?.total_allocated ?? 0;
         const outstanding_balance = bal?.outstanding_balance ?? row.total_amount;
@@ -1064,32 +988,6 @@ export function usePurchases(filters?: PurchaseFilters) {
 
       return results;
     },
-    initialData: () => {
-      let results = [...memoryPurchases];
-      if (filters?.supplier_id && filters.supplier_id !== 'all') {
-        results = results.filter((p) => p.supplier_id === filters.supplier_id);
-      }
-      if (filters?.project_id === 'general') {
-        results = results.filter((p) => !p.project_id);
-      } else if (filters?.project_id && filters.project_id !== 'all') {
-        results = results.filter((p) => p.project_id === filters.project_id);
-      }
-      if (filters?.payment_status && filters.payment_status !== 'all') {
-        results = results.filter((p) => p.payment_status === filters.payment_status);
-      }
-      if (filters?.search) {
-        const q = filters.search.toLowerCase();
-        results = results.filter(
-          (p) =>
-            p.purchase_number.toLowerCase().includes(q) ||
-            p.invoice_number?.toLowerCase().includes(q) ||
-            p.supplier?.name.toLowerCase().includes(q) ||
-            p.project?.name.toLowerCase().includes(q) ||
-            p.items?.some((i) => (i.description || i.material?.name || '').toLowerCase().includes(q))
-        );
-      }
-      return results;
-    },
     staleTime: 1000 * 60 * 2,
   });
 }
@@ -1118,7 +1016,7 @@ export function usePurchase(id?: string) {
         .maybeSingle();
 
       if (error || !data) {
-        return memoryPurchases.find((p) => p.id === id) || null;
+        return null;
       }
 
       const purchaseData = data as any;
@@ -1133,10 +1031,6 @@ export function usePurchase(id?: string) {
         outstanding_balance,
         payment_status,
       } as Purchase;
-    },
-    initialData: () => {
-      if (!id) return null;
-      return memoryPurchases.find((p) => p.id === id) || null;
     },
     enabled: Boolean(id),
     staleTime: 1000 * 60 * 2,
@@ -1423,15 +1317,12 @@ export function useSupplierPayments(supplierId?: string) {
 
       const { data, error } = await query;
 
-      if (error || !data || data.length === 0) {
-        let results = [...memorySupplierPayments];
-        if (supplierId && supplierId !== 'all') {
-          results = results.filter((p) => p.supplier_id === supplierId);
-        }
-        return results;
+      if (error) {
+        console.warn('Supplier payments query error:', error.message);
+        return [];
       }
 
-      return (data as any[]).map((sp) => {
+      return ((data as any[]) || []).map((sp) => {
         const totalAlloc = (sp.allocations || []).reduce((acc: number, a: any) => acc + Number(a.amount || 0), 0);
         const unallocated = Math.max(0, Number(sp.amount || 0) - totalAlloc);
         return {
@@ -1440,13 +1331,6 @@ export function useSupplierPayments(supplierId?: string) {
           unallocated_amount: unallocated,
         };
       });
-    },
-    initialData: () => {
-      let results = [...memorySupplierPayments];
-      if (supplierId && supplierId !== 'all') {
-        results = results.filter((p) => p.supplier_id === supplierId);
-      }
-      return results;
     },
     staleTime: 1000 * 60 * 2,
   });
