@@ -9,15 +9,8 @@ import { PageLoadingFallback } from '@/components/ui/PageLoadingFallback';
 
 // Route-based code splitting for production performance
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
-const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
-const TodayPage = lazy(() => import('@/pages/today/TodayPage').then(m => ({ default: m.TodayPage })));
 const CustomersPage = lazy(() => import('@/pages/customers/CustomersPage').then(m => ({ default: m.CustomersPage })));
 const CustomerDetailPage = lazy(() => import('@/pages/customers/CustomerDetailPage').then(m => ({ default: m.CustomerDetailPage })));
-const EnquiriesPage = lazy(() => import('@/pages/enquiries/EnquiriesPage').then(m => ({ default: m.EnquiriesPage })));
-const SiteVisitsPage = lazy(() => import('@/pages/site-visits/SiteVisitsPage').then(m => ({ default: m.SiteVisitsPage })));
-const EstimatesPage = lazy(() => import('@/pages/estimates/EstimatesPage').then(m => ({ default: m.EstimatesPage })));
-const EstimateEditorPage = lazy(() => import('@/pages/estimates/EstimateEditorPage').then(m => ({ default: m.EstimateEditorPage })));
-const EstimateDetailPage = lazy(() => import('@/pages/estimates/EstimateDetailPage').then(m => ({ default: m.EstimateDetailPage })));
 const SitesPage = lazy(() => import('@/pages/projects/SitesPage').then(m => ({ default: m.SitesPage })));
 const SiteDetailPage = lazy(() => import('@/pages/projects/SiteDetailPage').then(m => ({ default: m.SiteDetailPage })));
 const ProjectEditorPage = lazy(() => import('@/pages/projects/ProjectEditorPage').then(m => ({ default: m.ProjectEditorPage })));
@@ -46,15 +39,9 @@ const ExpensesPage = lazy(() => import('@/pages/finance/ExpensesPage').then(m =>
 const ExpenseEditorPage = lazy(() => import('@/pages/finance/ExpenseEditorPage').then(m => ({ default: m.ExpenseEditorPage })));
 const ExpenseDetailPage = lazy(() => import('@/pages/finance/ExpenseDetailPage').then(m => ({ default: m.ExpenseDetailPage })));
 const FinancialSummaryPage = lazy(() => import('@/pages/finance/FinancialSummaryPage').then(m => ({ default: m.FinancialSummaryPage })));
-const WeeklyReportPage = lazy(() => import('@/pages/reports/WeeklyReportPage').then(m => ({ default: m.WeeklyReportPage })));
-const ProjectReportPage = lazy(() => import('@/pages/reports/ProjectReportPage').then(m => ({ default: m.ProjectReportPage })));
-const PurchaseReportPage = lazy(() => import('@/pages/reports/PurchaseReportPage').then(m => ({ default: m.PurchaseReportPage })));
-const WorkforceReportPage = lazy(() => import('@/pages/reports/WorkforceReportPage').then(m => ({ default: m.WorkforceReportPage })));
-const PaymentReportPage = lazy(() => import('@/pages/reports/PaymentReportPage').then(m => ({ default: m.PaymentReportPage })));
 const SettingsOverviewPage = lazy(() => import('@/pages/settings/SettingsOverviewPage').then(m => ({ default: m.SettingsOverviewPage })));
 const CompanyProfilePage = lazy(() => import('@/pages/settings/CompanyProfilePage').then(m => ({ default: m.CompanyProfilePage })));
 const UsersRolesPage = lazy(() => import('@/pages/settings/UsersRolesPage').then(m => ({ default: m.UsersRolesPage })));
-const PlaceholderPage = lazy(() => import('@/pages/PlaceholderPage').then(m => ({ default: m.PlaceholderPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
 import { ScrollManager } from '@/components/layout/ScrollManager';
@@ -98,34 +85,27 @@ function App() {
                   <Route path="/customers/:id" element={<CustomerDetailPage />} />
                   <Route path="/sites" element={<SitesPage />} />
                   <Route path="/sites/:id" element={<SiteDetailPage />} />
-
-                  {/* Main Command Center */}
-                  <Route path="/dashboard" element={<DashboardPage />} />
-
-                  {/* My Day Operations */}
-                  <Route path="/today" element={<TodayPage />} />
-                  <Route path="/my-day" element={<TodayPage />} />
-                  <Route path="/tasks" element={<PlaceholderPage />} />
-                  <Route path="/follow-ups" element={<PlaceholderPage />} />
-                  <Route path="/reminders" element={<PlaceholderPage />} />
-
-                  {/* Business & CRM (Phase 03) */}
-                  <Route path="/enquiries" element={<EnquiriesPage />} />
-                  <Route path="/site-visits" element={<SiteVisitsPage />} />
-                  {/* Estimates Module (Phase 04) */}
-                  <Route path="/estimates" element={<EstimatesPage />} />
-                  <Route path="/estimates/new" element={<EstimateEditorPage />} />
-                  <Route path="/estimates/:id" element={<EstimateDetailPage />} />
-                  <Route path="/estimates/:id/edit" element={<EstimateEditorPage />} />
-
-                  {/* Projects & Operations (Phase 05) */}
                   <Route path="/projects" element={<SitesPage />} />
                   <Route path="/projects/new" element={<ProjectEditorPage />} />
                   <Route path="/projects/:id" element={<SiteDetailPage />} />
                   <Route path="/projects/:id/edit" element={<ProjectEditorPage />} />
-                  <Route path="/work-progress" element={<PlaceholderPage />} />
-                  <Route path="/projects/progress" element={<PlaceholderPage />} />
-                  <Route path="/daily-reports" element={<PlaceholderPage />} />
+
+                  {/* Legacy Routes Redirected to Clean Core Modules */}
+                  <Route path="/dashboard" element={<Navigate to="/customers" replace />} />
+                  <Route path="/today" element={<Navigate to="/customers" replace />} />
+                  <Route path="/my-day" element={<Navigate to="/customers" replace />} />
+                  <Route path="/tasks" element={<Navigate to="/customers" replace />} />
+                  <Route path="/follow-ups" element={<Navigate to="/customers" replace />} />
+                  <Route path="/reminders" element={<Navigate to="/customers" replace />} />
+                  <Route path="/enquiries" element={<Navigate to="/customers" replace />} />
+                  <Route path="/site-visits" element={<Navigate to="/customers" replace />} />
+                  <Route path="/estimates" element={<Navigate to="/customers" replace />} />
+                  <Route path="/estimates/*" element={<Navigate to="/customers" replace />} />
+                  <Route path="/reports" element={<Navigate to="/customers" replace />} />
+                  <Route path="/reports/*" element={<Navigate to="/customers" replace />} />
+                  <Route path="/work-progress" element={<Navigate to="/customers" replace />} />
+                  <Route path="/projects/progress" element={<Navigate to="/customers" replace />} />
+                  <Route path="/daily-reports" element={<Navigate to="/customers" replace />} />
 
                   {/* Procurement & Suppliers */}
                   <Route path="/procurement" element={<PurchasesPage />} />
@@ -166,15 +146,8 @@ function App() {
                   <Route path="/financial-summary" element={<FinancialSummaryPage />} />
                   <Route path="/finance" element={<FinancialSummaryPage />} />
 
-                  {/* Reports & Operational Audits (Phase 09) */}
-                  <Route path="/reports" element={<Navigate to="/reports/weekly" replace />} />
-                  <Route path="/reports/weekly" element={<WeeklyReportPage />} />
-                  <Route path="/reports/project" element={<ProjectReportPage />} />
-                  <Route path="/reports/purchases" element={<PurchaseReportPage />} />
-                  <Route path="/reports/purchase" element={<PurchaseReportPage />} />
-                  <Route path="/reports/workforce" element={<WorkforceReportPage />} />
-                  <Route path="/reports/payments" element={<PaymentReportPage />} />
-                  <Route path="/reports/payment" element={<PaymentReportPage />} />
+                  {/* Reports Redirected to Customers */}
+                  <Route path="/reports/*" element={<Navigate to="/customers" replace />} />
 
                   {/* Settings & Administration (Phase 10) */}
                   <Route path="/settings" element={<SettingsOverviewPage />} />
