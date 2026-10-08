@@ -78,15 +78,14 @@ export function SettingsOverviewPage() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h2 className="text-base font-bold text-[#242424] font-heading">
-                    Company Profile &amp; Letterhead
+                    Company Profile
                   </h2>
                   <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#F7F5F0] text-[#4A0E0E] border border-[#E2DDD5]">
                     Official Entity Record
                   </span>
                 </div>
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                  Business identity, official address, and contact numbers used dynamically across
-                  printed reports, client estimates, invoice letterheads, and application documents.
+                  Official company identity, registered business address, and primary contact details for Shivarivel Construction &amp; Interiors.
                 </p>
                 {company && (
                   <div className="pt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-[#242424]">

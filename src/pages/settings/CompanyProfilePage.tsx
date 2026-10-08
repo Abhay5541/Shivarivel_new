@@ -93,7 +93,7 @@ export function CompanyProfilePage() {
 
     try {
       await updateCompanyMutation.mutateAsync(validation.data);
-      setSuccessMessage('Company profile updated successfully. Printed reports and documents will now use the new identity.');
+      setSuccessMessage('Company profile updated successfully.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setErrorMessage('Company profile could not be updated. Please verify all details and try again.');
