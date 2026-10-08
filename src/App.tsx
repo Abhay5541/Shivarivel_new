@@ -45,7 +45,6 @@ const SupplierPaymentEditorPage = lazy(() => import('@/pages/procurement/Supplie
 // 6. Settings & Administration
 const SettingsOverviewPage = lazy(() => import('@/pages/settings/SettingsOverviewPage').then(m => ({ default: m.SettingsOverviewPage })));
 const CompanyProfilePage = lazy(() => import('@/pages/settings/CompanyProfilePage').then(m => ({ default: m.CompanyProfilePage })));
-const UsersRolesPage = lazy(() => import('@/pages/settings/UsersRolesPage').then(m => ({ default: m.UsersRolesPage })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,8 +123,8 @@ export function App() {
                   <Route path="/settings" element={<SettingsOverviewPage />} />
                   <Route path="/settings/company" element={<CompanyProfilePage />} />
                   <Route path="/company-profile" element={<CompanyProfilePage />} />
-                  <Route path="/settings/users" element={<UsersRolesPage />} />
-                  <Route path="/users-roles" element={<UsersRolesPage />} />
+                  <Route path="/settings/users" element={<Navigate to="/settings" replace />} />
+                  <Route path="/users-roles" element={<Navigate to="/settings" replace />} />
 
                   {/* All other URLs redirect to /customers */}
                   <Route path="*" element={<Navigate to="/customers" replace />} />
