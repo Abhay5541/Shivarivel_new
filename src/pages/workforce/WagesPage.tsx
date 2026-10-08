@@ -432,6 +432,7 @@ export function WagesPage() {
           value={activeTab}
           onChange={setActiveTab}
           size="md"
+          fullWidth
           ariaLabel="Wages view"
         />
       </div>
@@ -811,43 +812,89 @@ export function WagesPage() {
       {activeTab === 'weekly' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Week Selector Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => navigateWeek(-1)}
-                className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Previous Week</span>
-              </Button>
+          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
+            {/* Mobile Layout (sm:hidden) */}
+            <div className="flex flex-col gap-2.5 sm:hidden">
+              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
+                  <span className="font-display font-bold text-sm text-[#242424] truncate">
+                    {weekRange.label}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWeekReferenceDate(todayStr)}
+                  className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer shrink-0 ml-2"
+                >
+                  Current Week
+                </button>
+              </div>
 
-              <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
-                <span>{weekRange.label}</span>
-              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateWeek(-1)}
+                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous Week</span>
+                </Button>
 
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => navigateWeek(1)}
-                className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-              >
-                <span>Next Week</span>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateWeek(1)}
+                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                >
+                  <span>Next Week</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setWeekReferenceDate(todayStr)}
-              className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
-            >
-              Current Week
-            </button>
+            {/* Desktop Layout (sm and up) */}
+            <div className="hidden sm:flex items-center justify-between w-full">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateWeek(-1)}
+                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous Week</span>
+                </Button>
+
+                <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
+                  <span>{weekRange.label}</span>
+                </span>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateWeek(1)}
+                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                >
+                  <span>Next Week</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setWeekReferenceDate(todayStr)}
+                className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
+              >
+                Current Week
+              </button>
+            </div>
           </div>
 
           {/* Weekly Operational Summary Banner */}

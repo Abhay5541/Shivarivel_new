@@ -280,6 +280,7 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'project',
         label: 'Project Purchases',
+        shortLabel: 'Projects',
         icon: <Building2 className="w-4 h-4 text-[#C99A2E]" />,
         count: allProjectPurchases.length,
         activeColorClass: 'text-[#4A0E0E]',
@@ -287,6 +288,7 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'general',
         label: 'General Purchases',
+        shortLabel: 'General',
         icon: <Package className="w-4 h-4 text-[#C99A2E]" />,
         count: generalPurchases.length,
         activeColorClass: 'text-[#4A0E0E]',
@@ -294,6 +296,7 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'suppliers',
         label: 'Supplier Summary',
+        shortLabel: 'Suppliers',
         icon: <Truck className="w-4 h-4 text-[#C99A2E]" />,
         count: allSupplierSummaries.length,
         activeColorClass: 'text-[#4A0E0E]',
@@ -477,6 +480,7 @@ export const PurchasesPage: React.FC = () => {
           value={activeTab}
           onChange={setActiveTab}
           size="md"
+          fullWidth
           ariaLabel="Procurement sections"
         />
       </div>

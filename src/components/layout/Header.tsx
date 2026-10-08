@@ -118,7 +118,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               <span className="font-cinzel font-bold text-[13px] tracking-[0.14em] text-[#242424] uppercase">
                 SHIVARIVEL
               </span>
-              <span className="font-inter text-[8.5px] font-bold tracking-[0.22em] text-[#C9A24A] uppercase mt-0.5">
+              <span className="font-inter text-[8.5px] font-bold tracking-[0.22em] text-[#C9A24A] uppercase mt-0.5 hidden lg:block">
                 Construction &amp; Interiors
               </span>
             </div>
@@ -140,11 +140,11 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
 
           {/* ── Right Utility Suite (Quick Add, Bell, Profile) ────────────────── */}
           <div className="glass-header-actions">
-            {/* Quick Add CTA — shown on PC/desktop only (mobile has bottom center +) */}
+            {/* Quick Add CTA — shown on desktop screens */}
             <button
               type="button"
               onClick={onOpenQuickAdd}
-              className="glass-action-btn glass-quick-add hidden md:inline-flex cursor-pointer"
+              className="glass-action-btn glass-quick-add hidden lg:inline-flex cursor-pointer"
               aria-label="Open Quick Add Menu (Hotkey: Q)"
             >
               <Plus className="w-4 h-4 text-[#4A0E0E]" />

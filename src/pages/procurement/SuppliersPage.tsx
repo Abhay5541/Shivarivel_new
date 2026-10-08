@@ -140,20 +140,20 @@ export const SuppliersPage: React.FC = () => {
                 </div>
 
                 {/* Financial Summary Strip */}
-                <div className="mt-3 pt-3 border-t border-[#E2DDD5] grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="bg-[#F7F5F0] rounded-xl p-2">
-                    <span className="text-[11px] text-[#6B6B6B] block">Total Purchased</span>
-                    <span className="font-bold text-[#242424]">{formatINR(bal.purchased)}</span>
+                <div className="mt-3 pt-3 border-t border-[#E2DDD5] grid grid-cols-3 gap-1.5 sm:gap-2 text-center text-xs">
+                  <div className="bg-[#F7F5F0] rounded-xl p-2 min-w-0">
+                    <span className="text-[10px] sm:text-[11px] text-[#6B6B6B] block truncate">Purchased</span>
+                    <span className="font-bold text-xs sm:text-sm text-[#242424] tabular-nums truncate block">{formatINR(bal.purchased)}</span>
                   </div>
-                  <div className="bg-[#DCFCE7]/40 rounded-xl p-2">
-                    <span className="text-[11px] text-[#166534] block">Paid</span>
-                    <span className="font-bold text-[#166534]">{formatINR(bal.paid)}</span>
+                  <div className="bg-[#DCFCE7]/40 rounded-xl p-2 min-w-0">
+                    <span className="text-[10px] sm:text-[11px] text-[#166534] block truncate">Paid</span>
+                    <span className="font-bold text-xs sm:text-sm text-[#166534] tabular-nums truncate block">{formatINR(bal.paid)}</span>
                   </div>
-                  <div className={`rounded-xl p-2 ${bal.pending > 0 ? 'bg-[#FEE2E2]/50' : 'bg-[#F7F5F0]'}`}>
-                    <span className={`text-[11px] block ${bal.pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
+                  <div className={`rounded-xl p-2 min-w-0 ${bal.pending > 0 ? 'bg-[#FEE2E2]/50' : 'bg-[#F7F5F0]'}`}>
+                    <span className={`text-[10px] sm:text-[11px] block truncate ${bal.pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
                       Pending
                     </span>
-                    <span className={`font-bold ${bal.pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
+                    <span className={`font-bold text-xs sm:text-sm tabular-nums truncate block ${bal.pending > 0 ? 'text-[#991B1B]' : 'text-[#6B6B6B]'}`}>
                       {formatINR(bal.pending)}
                     </span>
                   </div>

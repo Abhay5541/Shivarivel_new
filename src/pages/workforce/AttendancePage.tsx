@@ -23,12 +23,16 @@ import {
   getTodayDateString,
   type AttendanceBatchItem,
 } from '@/hooks/useWorkforce';
+import { useProjects } from '@/hooks/useProjects';
 import type { AttendanceStatus } from '@/types/workforce';
 
 export function AttendancePage() {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Load all active projects
+  const { data: projects = [] } = useProjects();
 
   // Load all active employees
   const { data: employees = [], isLoading: isLoadingEmployees } = useEmployees({
@@ -284,8 +288,11 @@ export function AttendancePage() {
               className="w-full bg-transparent border-none text-xs font-semibold text-[#242424] focus:outline-none"
             >
               <option value="all">All Assigned Sites</option>
-              <option value="proj-01">Annamalai Residential Villa</option>
-              <option value="proj-02">Meenakshi Commercial Complex</option>
+              {projects.map((proj) => (
+                <option key={proj.id} value={proj.id}>
+                  {proj.name}
+                </option>
+              ))}
             </select>
           </div>
 

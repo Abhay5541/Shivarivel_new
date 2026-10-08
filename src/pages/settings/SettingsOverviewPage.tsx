@@ -43,7 +43,7 @@ export function SettingsOverviewPage() {
               {company?.name || 'Shivarivel Construction & Interiors'}
             </h3>
             <p className="text-xs text-[#6B6B6B] truncate mt-0.5">
-              GSTIN: <span className="font-mono font-medium">{company?.gst_number || '33AAACS1234F1Z5'}</span>
+              {company?.email || 'Registered Business Profile'}
             </p>
           </div>
         </div>

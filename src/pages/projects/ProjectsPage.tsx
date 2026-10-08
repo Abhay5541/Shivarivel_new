@@ -270,6 +270,7 @@ export const ProjectsPage: React.FC = () => {
           value={activeTab}
           onChange={(val) => setActiveTab(val)}
           size="md"
+          fullWidth
           ariaLabel="Filter projects by status"
         />
       </div>
