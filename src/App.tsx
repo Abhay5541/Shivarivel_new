@@ -6,23 +6,21 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageLoadingFallback } from '@/components/ui/PageLoadingFallback';
+import { ScrollManager } from '@/components/layout/ScrollManager';
 
-// Route-based code splitting for production performance
+// 1. Authentication
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+
+// 2. Module 1: Customers
 const CustomersPage = lazy(() => import('@/pages/customers/CustomersPage').then(m => ({ default: m.CustomersPage })));
 const CustomerDetailPage = lazy(() => import('@/pages/customers/CustomerDetailPage').then(m => ({ default: m.CustomerDetailPage })));
+
+// 3. Module 2: Projects & Sites
 const SitesPage = lazy(() => import('@/pages/projects/SitesPage').then(m => ({ default: m.SitesPage })));
 const SiteDetailPage = lazy(() => import('@/pages/projects/SiteDetailPage').then(m => ({ default: m.SiteDetailPage })));
 const ProjectEditorPage = lazy(() => import('@/pages/projects/ProjectEditorPage').then(m => ({ default: m.ProjectEditorPage })));
-const SuppliersPage = lazy(() => import('@/pages/procurement/SuppliersPage').then(m => ({ default: m.SuppliersPage })));
-const SupplierEditorPage = lazy(() => import('@/pages/procurement/SupplierEditorPage').then(m => ({ default: m.SupplierEditorPage })));
-const SupplierDetailPage = lazy(() => import('@/pages/procurement/SupplierDetailPage').then(m => ({ default: m.SupplierDetailPage })));
-const MaterialsPage = lazy(() => import('@/pages/procurement/MaterialsPage').then(m => ({ default: m.MaterialsPage })));
-const PurchasesPage = lazy(() => import('@/pages/procurement/PurchasesPage').then(m => ({ default: m.PurchasesPage })));
-const PurchaseEditorPage = lazy(() => import('@/pages/procurement/PurchaseEditorPage').then(m => ({ default: m.PurchaseEditorPage })));
-const PurchaseDetailPage = lazy(() => import('@/pages/procurement/PurchaseDetailPage').then(m => ({ default: m.PurchaseDetailPage })));
-const SupplierPaymentsPage = lazy(() => import('@/pages/procurement/SupplierPaymentsPage').then(m => ({ default: m.SupplierPaymentsPage })));
-const SupplierPaymentEditorPage = lazy(() => import('@/pages/procurement/SupplierPaymentEditorPage').then(m => ({ default: m.SupplierPaymentEditorPage })));
+
+// 4. Module 3: Wages, Attendance & Workforce
 const EmployeesPage = lazy(() => import('@/pages/workforce/EmployeesPage').then(m => ({ default: m.EmployeesPage })));
 const EmployeeEditorPage = lazy(() => import('@/pages/workforce/EmployeeEditorPage').then(m => ({ default: m.EmployeeEditorPage })));
 const EmployeeDetailPage = lazy(() => import('@/pages/workforce/EmployeeDetailPage').then(m => ({ default: m.EmployeeDetailPage })));
@@ -32,32 +30,35 @@ const AdvancesPage = lazy(() => import('@/pages/workforce/AdvancesPage').then(m 
 const AdvanceEditorPage = lazy(() => import('@/pages/workforce/AdvanceEditorPage').then(m => ({ default: m.AdvanceEditorPage })));
 const EmployeePaymentsPage = lazy(() => import('@/pages/workforce/EmployeePaymentsPage').then(m => ({ default: m.EmployeePaymentsPage })));
 const EmployeePaymentEditorPage = lazy(() => import('@/pages/workforce/EmployeePaymentEditorPage').then(m => ({ default: m.EmployeePaymentEditorPage })));
-const CustomerPaymentsPage = lazy(() => import('@/pages/finance/CustomerPaymentsPage').then(m => ({ default: m.CustomerPaymentsPage })));
-const CustomerPaymentEditorPage = lazy(() => import('@/pages/finance/CustomerPaymentEditorPage').then(m => ({ default: m.CustomerPaymentEditorPage })));
-const CustomerPaymentDetailPage = lazy(() => import('@/pages/finance/CustomerPaymentDetailPage').then(m => ({ default: m.CustomerPaymentDetailPage })));
-const ExpensesPage = lazy(() => import('@/pages/finance/ExpensesPage').then(m => ({ default: m.ExpensesPage })));
-const ExpenseEditorPage = lazy(() => import('@/pages/finance/ExpenseEditorPage').then(m => ({ default: m.ExpenseEditorPage })));
-const ExpenseDetailPage = lazy(() => import('@/pages/finance/ExpenseDetailPage').then(m => ({ default: m.ExpenseDetailPage })));
-const FinancialSummaryPage = lazy(() => import('@/pages/finance/FinancialSummaryPage').then(m => ({ default: m.FinancialSummaryPage })));
+
+// 5. Module 4: Procurement & Purchases
+const SuppliersPage = lazy(() => import('@/pages/procurement/SuppliersPage').then(m => ({ default: m.SuppliersPage })));
+const SupplierEditorPage = lazy(() => import('@/pages/procurement/SupplierEditorPage').then(m => ({ default: m.SupplierEditorPage })));
+const SupplierDetailPage = lazy(() => import('@/pages/procurement/SupplierDetailPage').then(m => ({ default: m.SupplierDetailPage })));
+const MaterialsPage = lazy(() => import('@/pages/procurement/MaterialsPage').then(m => ({ default: m.MaterialsPage })));
+const PurchasesPage = lazy(() => import('@/pages/procurement/PurchasesPage').then(m => ({ default: m.PurchasesPage })));
+const PurchaseEditorPage = lazy(() => import('@/pages/procurement/PurchaseEditorPage').then(m => ({ default: m.PurchaseEditorPage })));
+const PurchaseDetailPage = lazy(() => import('@/pages/procurement/PurchaseDetailPage').then(m => ({ default: m.PurchaseDetailPage })));
+const SupplierPaymentsPage = lazy(() => import('@/pages/procurement/SupplierPaymentsPage').then(m => ({ default: m.SupplierPaymentsPage })));
+const SupplierPaymentEditorPage = lazy(() => import('@/pages/procurement/SupplierPaymentEditorPage').then(m => ({ default: m.SupplierPaymentEditorPage })));
+
+// 6. Settings & Administration
 const SettingsOverviewPage = lazy(() => import('@/pages/settings/SettingsOverviewPage').then(m => ({ default: m.SettingsOverviewPage })));
 const CompanyProfilePage = lazy(() => import('@/pages/settings/CompanyProfilePage').then(m => ({ default: m.CompanyProfilePage })));
 const UsersRolesPage = lazy(() => import('@/pages/settings/UsersRolesPage').then(m => ({ default: m.UsersRolesPage })));
-const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
-
-import { ScrollManager } from '@/components/layout/ScrollManager';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes: Keeps data warm in memory for instant Back/Forward navigation
-      gcTime: 1000 * 60 * 30, // 30 minutes garbage collection
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
     },
   },
 });
 
-function App() {
+export function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -66,10 +67,10 @@ function App() {
             <ScrollManager />
             <Suspense fallback={<PageLoadingFallback />}>
               <Routes>
-                {/* Public Authentication Route */}
+                {/* Public Authentication */}
                 <Route path="/login" element={<LoginPage />} />
 
-                {/* Protected Application Routes with Global Shell */}
+                {/* Protected Application Shell */}
                 <Route
                   element={
                     <ProtectedRoute>
@@ -77,12 +78,14 @@ function App() {
                     </ProtectedRoute>
                   }
                 >
-                  {/* Default Index Redirect */}
+                  {/* Default Landing: Customers */}
                   <Route index element={<Navigate to="/customers" replace />} />
 
-                  {/* Simplified Client Modules (Phase 02: Customers & Sites) */}
+                  {/* 1. CUSTOMERS MODULE */}
                   <Route path="/customers" element={<CustomersPage />} />
                   <Route path="/customers/:id" element={<CustomerDetailPage />} />
+
+                  {/* 2. PROJECTS & SITES MODULE */}
                   <Route path="/sites" element={<SitesPage />} />
                   <Route path="/sites/:id" element={<SiteDetailPage />} />
                   <Route path="/projects" element={<SitesPage />} />
@@ -90,76 +93,42 @@ function App() {
                   <Route path="/projects/:id" element={<SiteDetailPage />} />
                   <Route path="/projects/:id/edit" element={<ProjectEditorPage />} />
 
-                  {/* Legacy Routes Redirected to Clean Core Modules */}
-                  <Route path="/dashboard" element={<Navigate to="/customers" replace />} />
-                  <Route path="/today" element={<Navigate to="/customers" replace />} />
-                  <Route path="/my-day" element={<Navigate to="/customers" replace />} />
-                  <Route path="/tasks" element={<Navigate to="/customers" replace />} />
-                  <Route path="/follow-ups" element={<Navigate to="/customers" replace />} />
-                  <Route path="/reminders" element={<Navigate to="/customers" replace />} />
-                  <Route path="/enquiries" element={<Navigate to="/customers" replace />} />
-                  <Route path="/site-visits" element={<Navigate to="/customers" replace />} />
-                  <Route path="/estimates" element={<Navigate to="/customers" replace />} />
-                  <Route path="/estimates/*" element={<Navigate to="/customers" replace />} />
-                  <Route path="/reports" element={<Navigate to="/customers" replace />} />
-                  <Route path="/reports/*" element={<Navigate to="/customers" replace />} />
-                  <Route path="/work-progress" element={<Navigate to="/customers" replace />} />
-                  <Route path="/projects/progress" element={<Navigate to="/customers" replace />} />
-                  <Route path="/daily-reports" element={<Navigate to="/customers" replace />} />
-
-                  {/* Procurement & Suppliers */}
-                  <Route path="/procurement" element={<PurchasesPage />} />
-                  <Route path="/suppliers" element={<SuppliersPage />} />
-                  <Route path="/suppliers/new" element={<SupplierEditorPage />} />
-                  <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
-                  <Route path="/suppliers/:id/edit" element={<SupplierEditorPage />} />
-                  <Route path="/materials" element={<MaterialsPage />} />
-                  <Route path="/purchases" element={<PurchasesPage />} />
-                  <Route path="/purchases/new" element={<PurchaseEditorPage />} />
-                  <Route path="/purchases/:id" element={<PurchaseDetailPage />} />
-                  <Route path="/purchases/:id/edit" element={<PurchaseEditorPage />} />
-                  <Route path="/supplier-payments" element={<SupplierPaymentsPage />} />
-                  <Route path="/supplier-payments/new" element={<SupplierPaymentEditorPage />} />
-
-                  {/* Workforce & Labor (Phase 07) */}
+                  {/* 3. WAGES, ATTENDANCE & WORKFORCE MODULE */}
+                  <Route path="/wages" element={<WagesPage />} />
+                  <Route path="/daily-wages" element={<Navigate to="/wages" replace />} />
+                  <Route path="/attendance" element={<AttendancePage />} />
                   <Route path="/employees" element={<EmployeesPage />} />
                   <Route path="/employees/new" element={<EmployeeEditorPage />} />
                   <Route path="/employees/:id" element={<EmployeeDetailPage />} />
                   <Route path="/employees/:id/edit" element={<EmployeeEditorPage />} />
-                  <Route path="/attendance" element={<AttendancePage />} />
-                  <Route path="/wages" element={<WagesPage />} />
-                  <Route path="/daily-wages" element={<Navigate to="/wages" replace />} />
                   <Route path="/advances" element={<AdvancesPage />} />
                   <Route path="/advances/new" element={<AdvanceEditorPage />} />
                   <Route path="/employee-payments" element={<EmployeePaymentsPage />} />
                   <Route path="/employee-payments/new" element={<EmployeePaymentEditorPage />} />
 
-                  {/* Finance & Treasury (Strict Rule 18 Non-Netting) */}
-                  <Route path="/customer-payments" element={<CustomerPaymentsPage />} />
-                  <Route path="/customer-payments/new" element={<CustomerPaymentEditorPage />} />
-                  <Route path="/customer-payments/:id" element={<CustomerPaymentDetailPage />} />
-                  <Route path="/finance/supplier-payments" element={<SupplierPaymentsPage />} />
-                  <Route path="/finance/employee-payments" element={<EmployeePaymentsPage />} />
-                  <Route path="/expenses" element={<ExpensesPage />} />
-                  <Route path="/expenses/new" element={<ExpenseEditorPage />} />
-                  <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
-                  <Route path="/financial-summary" element={<FinancialSummaryPage />} />
-                  <Route path="/finance" element={<FinancialSummaryPage />} />
+                  {/* 4. PROCUREMENT & PURCHASES MODULE */}
+                  <Route path="/procurement" element={<PurchasesPage />} />
+                  <Route path="/purchases" element={<PurchasesPage />} />
+                  <Route path="/purchases/new" element={<PurchaseEditorPage />} />
+                  <Route path="/purchases/:id" element={<PurchaseDetailPage />} />
+                  <Route path="/purchases/:id/edit" element={<PurchaseEditorPage />} />
+                  <Route path="/suppliers" element={<SuppliersPage />} />
+                  <Route path="/suppliers/new" element={<SupplierEditorPage />} />
+                  <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
+                  <Route path="/suppliers/:id/edit" element={<SupplierEditorPage />} />
+                  <Route path="/materials" element={<MaterialsPage />} />
+                  <Route path="/supplier-payments" element={<SupplierPaymentsPage />} />
+                  <Route path="/supplier-payments/new" element={<SupplierPaymentEditorPage />} />
 
-                  {/* Reports Redirected to Customers */}
-                  <Route path="/reports/*" element={<Navigate to="/customers" replace />} />
-
-                  {/* Settings & Administration (Phase 10) */}
+                  {/* 5. SETTINGS */}
                   <Route path="/settings" element={<SettingsOverviewPage />} />
                   <Route path="/settings/company" element={<CompanyProfilePage />} />
                   <Route path="/company-profile" element={<CompanyProfilePage />} />
                   <Route path="/settings/users" element={<UsersRolesPage />} />
                   <Route path="/users-roles" element={<UsersRolesPage />} />
-                  <Route path="/settings/service-types" element={<Navigate to="/settings" replace />} />
-                  <Route path="/service-types" element={<Navigate to="/settings" replace />} />
 
-                  {/* Catch-all 404 Not Found */}
-                  <Route path="*" element={<NotFoundPage />} />
+                  {/* All other URLs redirect to /customers */}
+                  <Route path="*" element={<Navigate to="/customers" replace />} />
                 </Route>
               </Routes>
             </Suspense>

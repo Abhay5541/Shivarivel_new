@@ -9,8 +9,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useCustomers } from '@/hooks/useCustomers';
-import { useEnquiries } from '@/hooks/useEnquiries';
-import { useEstimates } from '@/hooks/useEstimates';
 import { useProject, useCreateProject, useUpdateProject } from '@/hooks/useProjects';
 import { useSupervisors } from '@/hooks/useBusinessLookups';
 import { Button } from '@/components/ui/Button';
@@ -32,8 +30,6 @@ export const ProjectEditorPage: React.FC = () => {
 
   // Lookups
   const { data: customers = [] } = useCustomers();
-  const { data: allEnquiries = [] } = useEnquiries();
-  const { data: allEstimates = [] } = useEstimates();
   const { data: supervisors = [] } = useSupervisors();
 
   // Mutations
@@ -42,13 +38,11 @@ export const ProjectEditorPage: React.FC = () => {
 
   // URL prefill parameters
   const paramCustomerId = searchParams.get('customer_id') || '';
-  const paramEstimateId = searchParams.get('estimate_id') || '';
-  const paramEnquiryId = searchParams.get('enquiry_id') || '';
 
   // Form State
   const [customerId, setCustomerId] = useState<string>(paramCustomerId);
-  const [enquiryId, setEnquiryId] = useState<string>(paramEnquiryId);
-  const [estimateId, setEstimateId] = useState<string>(paramEstimateId);
+  const [enquiryId, setEnquiryId] = useState<string>('');
+  const [estimateId, setEstimateId] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [siteAddress, setSiteAddress] = useState<string>('');
@@ -59,20 +53,6 @@ export const ProjectEditorPage: React.FC = () => {
   const [assignedTo, setAssignedTo] = useState<string>('');
   const [notes, setNotes] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
-
-  // If prefilling from estimate
-  useEffect(() => {
-    if (paramEstimateId && allEstimates.length > 0) {
-      const est = allEstimates.find((e) => e.id === paramEstimateId);
-      if (est) {
-        setCustomerId(est.customer_id);
-        setEstimateId(est.id);
-        if (est.enquiry_id) setEnquiryId(est.enquiry_id);
-        if (est.title && !name) setName(est.title);
-        if (est.total_amount && !contractValue) setContractValue(est.total_amount.toString());
-      }
-    }
-  }, [paramEstimateId, allEstimates, name, contractValue]);
 
   // Pre-fill if editing existing project
   useEffect(() => {
@@ -100,18 +80,6 @@ export const ProjectEditorPage: React.FC = () => {
   const selectedCustomer = useMemo(() => {
     return customers.find((c) => c.id === customerId);
   }, [customers, customerId]);
-
-  // Customer-scoped enquiries
-  const customerEnquiries = useMemo(() => {
-    if (!customerId) return [];
-    return allEnquiries.filter((e) => e.customer_id === customerId);
-  }, [allEnquiries, customerId]);
-
-  // Customer-scoped estimates
-  const customerEstimates = useMemo(() => {
-    if (!customerId) return [];
-    return allEstimates.filter((e) => e.customer_id === customerId);
-  }, [allEstimates, customerId]);
 
   // Auto-fill address if empty and customer has address
   useEffect(() => {
@@ -279,58 +247,6 @@ export const ProjectEditorPage: React.FC = () => {
               onChange={(e) => setName(e.target.value)}
               className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-3 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px] font-semibold text-[#242424]"
             />
-          </div>
-
-          {/* Linked Enquiry & Estimate */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-            <div>
-              <label className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider block mb-1.5">
-                Linked Enquiry (Optional)
-              </label>
-              <select
-                value={enquiryId}
-                onChange={(e) => setEnquiryId(e.target.value)}
-                disabled={!customerId}
-                className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-2.5 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px] disabled:bg-[#F7F5F0]"
-              >
-                <option value="">-- General Project / No linked enquiry --</option>
-                {customerEnquiries.map((enq) => (
-                  <option key={enq.id} value={enq.id}>
-                    {(enq.description || 'Enquiry').slice(0, 45)}... ({enq.status})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider block mb-1.5">
-                Linked Commercial Estimate (Optional)
-              </label>
-              <select
-                value={estimateId}
-                onChange={(e) => {
-                  setEstimateId(e.target.value);
-                  const selEst = customerEstimates.find((est) => est.id === e.target.value);
-                  if (selEst) {
-                    if (selEst.total_amount && !contractValue) {
-                      setContractValue(selEst.total_amount.toString());
-                    }
-                    if (selEst.title && !name) {
-                      setName(selEst.title);
-                    }
-                  }
-                }}
-                disabled={!customerId}
-                className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-2.5 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px] disabled:bg-[#F7F5F0]"
-              >
-                <option value="">-- No linked estimate --</option>
-                {customerEstimates.map((est) => (
-                  <option key={est.id} value={est.id}>
-                    {est.estimate_number} — {est.title || 'Estimate'} ({est.status})
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
         </div>
 
