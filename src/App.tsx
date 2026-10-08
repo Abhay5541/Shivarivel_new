@@ -8,8 +8,9 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageLoadingFallback } from '@/components/ui/PageLoadingFallback';
 import { ScrollManager } from '@/components/layout/ScrollManager';
 
-// 1. Authentication
+// 1. Authentication & Dashboard
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
+const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage })));
 
 // 2. Module 1: Customers
 const CustomersPage = lazy(() => import('@/pages/customers/CustomersPage').then(m => ({ default: m.CustomersPage })));
@@ -77,8 +78,11 @@ export function App() {
                     </ProtectedRoute>
                   }
                 >
-                  {/* Default Landing: Customers */}
-                  <Route index element={<Navigate to="/customers" replace />} />
+                  {/* Default Landing: Dashboard */}
+                  <Route index element={<Navigate to="/dashboard" replace />} />
+
+                  {/* EXECUTIVE DASHBOARD */}
+                  <Route path="/dashboard" element={<DashboardPage />} />
 
                   {/* 1. CUSTOMERS MODULE */}
                   <Route path="/customers" element={<CustomersPage />} />

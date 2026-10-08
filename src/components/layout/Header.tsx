@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Calendar,
   Settings,
+  LayoutDashboard,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
@@ -21,6 +22,7 @@ interface HeaderProps {
 }
 
 function resolveActiveKey(pathname: string) {
+  if (pathname === '/' || pathname.startsWith('/dashboard')) return '/dashboard';
   if (pathname.startsWith('/customers')) return '/customers';
   if (pathname.startsWith('/projects') || pathname.startsWith('/sites')) return '/projects';
   if (pathname.startsWith('/wages') || pathname.startsWith('/employees') || pathname.startsWith('/attendance')) return '/wages';
@@ -40,6 +42,12 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
   // Desktop Center Nav Items for the Magnifying Dock
   const desktopDockItems: DockItem[] = useMemo(
     () => [
+      {
+        key: '/dashboard',
+        label: 'Dashboard',
+        Icon: LayoutDashboard,
+        onClick: () => navigate('/dashboard'),
+      },
       {
         key: '/customers',
         label: 'Customers',

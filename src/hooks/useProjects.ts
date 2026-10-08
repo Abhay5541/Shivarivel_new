@@ -355,8 +355,6 @@ export function useProjects(options: UseProjectsOptions = {}) {
         .select(`
           *,
           customer:customers!customer_id (id, name, phone, email, address, city),
-          enquiry:enquiries!enquiry_id (id, description, status),
-          estimate:estimates!estimate_id (id, estimate_number, title, total_amount, status),
           supervisor:profiles!assigned_to (id, full_name, phone, role)
         `)
         .order('created_at', { ascending: false });
@@ -414,8 +412,6 @@ export function useProject(id?: string) {
         .select(`
           *,
           customer:customers!customer_id (id, name, phone, email, address, city),
-          enquiry:enquiries!enquiry_id (id, description, status),
-          estimate:estimates!estimate_id (id, estimate_number, title, total_amount, status),
           supervisor:profiles!assigned_to (id, full_name, phone, role)
         `)
         .eq('id', id)

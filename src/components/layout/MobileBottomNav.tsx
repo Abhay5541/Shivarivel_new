@@ -9,6 +9,7 @@ import {
   UserPlus,
   UserCheck,
   Calendar,
+  LayoutDashboard,
 } from 'lucide-react';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 
@@ -27,7 +28,9 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
   };
 
   const activeKey =
-    location.pathname.startsWith('/customers')
+    location.pathname === '/' || location.pathname.startsWith('/dashboard')
+      ? '/dashboard'
+      : location.pathname.startsWith('/customers')
       ? '/customers'
       : location.pathname.startsWith('/projects') || location.pathname.startsWith('/sites')
       ? '/projects'
@@ -39,20 +42,26 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
 
   const dockItems: DockItem[] = [
     {
+      key: '/dashboard',
+      label: 'Home',
+      Icon: LayoutDashboard,
+      onClick: () => navigate('/dashboard'),
+    },
+    {
       key: '/customers',
-      label: 'Customers',
+      label: 'Clients',
       Icon: Users,
       onClick: () => navigate('/customers'),
     },
     {
       key: '/projects',
-      label: 'Projects',
+      label: 'Sites',
       Icon: Building2,
       onClick: () => navigate('/projects'),
     },
     {
       key: 'quick-add',
-      label: 'Quick Add',
+      label: 'Add',
       Icon: Plus,
       isAction: true,
       onClick: () => (onOpenQuickAdd ? onOpenQuickAdd() : setIsActionSheetOpen(true)),
@@ -65,7 +74,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
     },
     {
       key: '/procurement',
-      label: 'Procurement',
+      label: 'Purchases',
       Icon: ShoppingCart,
       onClick: () => navigate('/procurement'),
     },
