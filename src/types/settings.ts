@@ -77,8 +77,8 @@ export const initialCompanyProfile: CompanyProfile = {
   phone: '+91 94431 87654',
   alternate_phone: '+91 98421 23344',
   email: 'contact@shivarivel.com',
-  website: 'https://shivarivel.com',
-  gst_number: '33AAACS1234F1Z5',
+  website: null,
+  gst_number: null,
   logo_url: null,
 };
 

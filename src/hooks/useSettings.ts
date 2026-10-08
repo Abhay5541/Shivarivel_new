@@ -29,7 +29,7 @@ function loadStoredCompanyProfile(): CompanyProfile {
       const stored = localStorage.getItem(COMPANY_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        return { ...initialCompanyProfile, ...parsed };
+        return { ...initialCompanyProfile, ...parsed, gst_number: null, website: null };
       }
     } catch {}
   }
@@ -68,8 +68,8 @@ export function useCompanySettings() {
           phone: data.phone || inMemoryCompanyProfile.phone,
           alternate_phone: data.alternate_phone || inMemoryCompanyProfile.alternate_phone,
           email: data.email || inMemoryCompanyProfile.email,
-          website: data.website || inMemoryCompanyProfile.website,
-          gst_number: data.gst_number || inMemoryCompanyProfile.gst_number,
+          website: null,
+          gst_number: null,
           logo_url: data.logo_url || null,
           created_at: data.created_at,
           updated_at: data.updated_at,

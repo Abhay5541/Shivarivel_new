@@ -85,7 +85,7 @@ export function SettingsOverviewPage() {
                   </span>
                 </div>
                 <p className="text-xs text-[#6B6B6B] leading-relaxed">
-                  Business identity, official address, contact numbers, and GSTIN used dynamically across
+                  Business identity, official address, and contact numbers used dynamically across
                   printed reports, client estimates, invoice letterheads, and application documents.
                 </p>
                 {company && (
