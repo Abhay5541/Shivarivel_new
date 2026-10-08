@@ -5,9 +5,7 @@ import {
   Building2,
   Calendar,
   ShoppingCart,
-  Plus,
   ArrowUpRight,
-  ShieldCheck,
   HardHat,
   PackageCheck,
   ArrowRight,
@@ -117,66 +115,28 @@ export function DashboardPage() {
 
   return (
     <PageContainer>
-      {/* 1. EXECUTIVE COMMAND HERO BANNER */}
+      {/* 1. HERO BANNER */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#071510] via-[#0D241C] to-[#071510] border border-[#C9A24A]/30 p-6 sm:p-8 text-white shadow-xl mb-6">
         {/* Subtle geometric pattern & gold ambient glow */}
         <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-[#C9A24A]/10 blur-3xl pointer-events-none" />
         <div className="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-[#152B23]/40 blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-[#C9A24A]/20 text-[#E5C378] border border-[#C9A24A]/30 tracking-wider uppercase">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C9A24A]" />
-                Executive Command Center
-              </span>
-              <span className="text-xs text-gray-400 font-medium hidden sm:inline">
-                {todayFormatted}
-              </span>
-            </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <span className="text-xs text-[#E5C378]/80 font-medium block">
+              {todayFormatted}
+            </span>
 
             <h1 className="font-playfair text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
               {greeting}, <span className="font-semibold text-[#E5C378]">{ownerName}</span>
             </h1>
-
-            <p className="font-inter text-xs sm:text-sm text-gray-300 max-w-xl">
-              Real-time operational overview for <span className="text-white font-medium">{company?.name || 'Shivarivel Construction & Interiors'}</span> across your 4 core business departments.
-            </p>
-          </div>
-
-          {/* Quick Action Hub */}
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => navigate('/wages?mark=1')}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#C9A24A] hover:bg-[#d8b056] text-[#071510] font-inter text-xs font-bold transition-all shadow-md hover:shadow-lg cursor-pointer"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Mark Daily Wages</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/procurement?new=1')}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-inter text-xs font-semibold backdrop-blur-md transition-all cursor-pointer"
-            >
-              <ShoppingCart className="w-4 h-4 text-[#C9A24A]" />
-              <span>Log Purchase</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/projects/new')}
-              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/20 font-inter text-xs font-semibold backdrop-blur-md transition-all cursor-pointer"
-            >
-              <Plus className="w-4 h-4 text-[#C9A24A]" />
-              <span>New Site</span>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* 2. FOUR CORE MODULE EXECUTIVE KPI CARDS */}
+      {/* 2. CORE EXECUTIVE KPI CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {/* Module 1: Customers */}
+        {/* Module 1: Clients */}
         <div
           onClick={() => navigate('/customers')}
           className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-[#C9A24A] transition-all duration-200 cursor-pointer flex flex-col justify-between"
@@ -184,7 +144,7 @@ export function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Module 1 · Clients
+                Clients
               </span>
               <div className="w-9 h-9 rounded-xl bg-[#F9F3E5] text-[#8F6A18] flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Users className="w-4 h-4" />
@@ -198,12 +158,12 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-[#8F6A18] group-hover:translate-x-0.5 transition-transform">
-            <span>Manage Customers</span>
+            <span>Manage Clients</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </div>
 
-        {/* Module 2: Projects & Sites */}
+        {/* Module 2: Projects */}
         <div
           onClick={() => navigate('/projects')}
           className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-[#4A0E0E] transition-all duration-200 cursor-pointer flex flex-col justify-between"
@@ -211,7 +171,7 @@ export function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Module 2 · Sites &amp; Projects
+                Projects
               </span>
               <div className="w-9 h-9 rounded-xl bg-[#F7EFEF] text-[#4A0E0E] flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Building2 className="w-4 h-4" />
@@ -225,12 +185,12 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-[#4A0E0E] group-hover:translate-x-0.5 transition-transform">
-            <span>Site Execution Status</span>
+            <span>View Projects</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </div>
 
-        {/* Module 3: Workforce & Wages */}
+        {/* Module 3: Daily Laborers */}
         <div
           onClick={() => navigate('/wages')}
           className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-emerald-600 transition-all duration-200 cursor-pointer flex flex-col justify-between"
@@ -238,7 +198,7 @@ export function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Module 3 · Daily Laborers
+                Daily Laborers
               </span>
               <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
                 <HardHat className="w-4 h-4" />
@@ -257,7 +217,7 @@ export function DashboardPage() {
           </div>
         </div>
 
-        {/* Module 4: Procurement & Materials */}
+        {/* Module 4: Procurement */}
         <div
           onClick={() => navigate('/procurement')}
           className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-[#8F6A18] transition-all duration-200 cursor-pointer flex flex-col justify-between"
@@ -265,7 +225,7 @@ export function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Module 4 · Procurement
+                Procurement
               </span>
               <div className="w-9 h-9 rounded-xl bg-[#F9F3E5] text-[#8F6A18] flex items-center justify-center group-hover:scale-105 transition-transform">
                 <PackageCheck className="w-4 h-4" />
@@ -279,22 +239,22 @@ export function DashboardPage() {
             </p>
           </div>
           <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-[#8F6A18] group-hover:translate-x-0.5 transition-transform">
-            <span>Suppliers &amp; Material Bills</span>
+            <span>Material Purchases</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </div>
       </div>
 
-      {/* 3. DUAL OPERATIONAL PANELS: ACTIVE SITES & RECENT PURCHASES */}
+      {/* 3. DUAL OPERATIONAL PANELS: ACTIVE PROJECTS & RECENT PURCHASES */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Left Panel: Active Construction Sites */}
+        {/* Left Panel: Active Projects */}
         <div className="bg-white rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD5]/70 mb-4">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-[#4A0E0E]" />
                 <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wider">
-                  Active Projects &amp; Sites
+                  Active Projects
                 </h2>
               </div>
               <Button
@@ -331,7 +291,7 @@ export function DashboardPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-[11px] font-bold text-[#8F6A18]">
-                          {p.project_code || 'SITE'}
+                          {p.project_code || 'PRJ'}
                         </span>
                         <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7EFEF] text-[#4A0E0E]">
                           {p.status}
@@ -341,7 +301,7 @@ export function DashboardPage() {
                         {p.name}
                       </h3>
                       <p className="text-[11px] text-[#6B6B6B] truncate">
-                        {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Direct Execution'}
+                        {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
                       </p>
                     </div>
 
@@ -424,7 +384,7 @@ export function DashboardPage() {
                         {pur.supplier?.name || 'Material Vendor'}
                       </h3>
                       <p className="text-[11px] text-[#6B6B6B] truncate">
-                        {pur.project?.name ? `Site: ${pur.project.name}` : pur.purchase_date || 'General Stock'}
+                        {pur.project?.name ? `Project: ${pur.project.name}` : pur.purchase_date || 'General Stock'}
                       </p>
                     </div>
 
@@ -452,10 +412,10 @@ export function DashboardPage() {
           </div>
           <div>
             <h3 className="text-sm font-bold text-[#242424]">
-              Daily Site Labor &amp; Wage Register
+              Daily Labor &amp; Wage Register
             </h3>
             <p className="text-xs text-[#6B6B6B] mt-0.5">
-              Record morning/evening site attendance, calculate wages, and handle advance settlements.
+              Record morning/evening attendance, calculate wages, and handle advance settlements.
             </p>
           </div>
         </div>

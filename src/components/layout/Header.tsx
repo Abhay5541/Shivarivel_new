@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useCompanySettings } from '@/hooks/useSettings';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 import logoImg from '@/Asserts/shivarivel_svc_logo.png';
 
@@ -24,7 +25,7 @@ interface HeaderProps {
 function resolveActiveKey(pathname: string) {
   if (pathname === '/' || pathname.startsWith('/dashboard')) return '/dashboard';
   if (pathname.startsWith('/customers')) return '/customers';
-  if (pathname.startsWith('/projects') || pathname.startsWith('/sites')) return '/projects';
+  if (pathname.startsWith('/projects')) return '/projects';
   if (pathname.startsWith('/wages') || pathname.startsWith('/employees') || pathname.startsWith('/attendance')) return '/wages';
   if (pathname.startsWith('/procurement') || pathname.startsWith('/purchases') || pathname.startsWith('/suppliers')) return '/procurement';
   return '';
@@ -32,6 +33,7 @@ function resolveActiveKey(pathname: string) {
 
 export function Header({ onOpenQuickAdd }: HeaderProps) {
   const { user, signOut } = useAuth();
+  const { data: company } = useCompanySettings();
   const location = useLocation();
   const navigate = useNavigate();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -88,6 +90,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
   }, []);
 
   const userName =
+    company?.owner_name ||
     user?.user_metadata?.full_name ||
     user?.email?.split('@')[0] ||
     'K. Senthil Nathan';

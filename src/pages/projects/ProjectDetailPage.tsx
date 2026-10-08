@@ -16,7 +16,7 @@ import { useProject } from '@/hooks/useProjects';
 import { useWages, useEmployees } from '@/hooks/useWorkforce';
 import { formatINR } from '@/lib/utils';
 
-export const SiteDetailPage: React.FC = () => {
+export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 

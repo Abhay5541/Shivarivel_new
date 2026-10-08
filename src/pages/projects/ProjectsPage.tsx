@@ -20,7 +20,7 @@ import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/Sli
 import type { Project, ProjectStatus } from '@/types/projects';
 import { SplitText } from '@/components/ui/SplitText';
 
-export const SitesPage: React.FC = () => {
+export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');

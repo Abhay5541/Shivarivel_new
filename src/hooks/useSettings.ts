@@ -21,8 +21,23 @@ import {
   type ServiceTypeFormData,
 } from '@/types/settings';
 
+const COMPANY_STORAGE_KEY = 'shivarivel_company_profile';
+
+function loadStoredCompanyProfile(): CompanyProfile {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(COMPANY_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return { ...initialCompanyProfile, ...parsed };
+      }
+    } catch {}
+  }
+  return { ...initialCompanyProfile };
+}
+
 // In-memory singletons for evaluation mode / offline dev
-export let inMemoryCompanyProfile: CompanyProfile = { ...initialCompanyProfile };
+export let inMemoryCompanyProfile: CompanyProfile = loadStoredCompanyProfile();
 export let inMemoryUserProfiles: UserProfile[] = [...initialUserProfiles];
 export let inMemoryServiceTypes: ServiceType[] = [...initialServiceTypes];
 
@@ -33,7 +48,7 @@ export let inMemoryServiceTypes: ServiceType[] = [...initialServiceTypes];
 export function useCompanySettings() {
   return useQuery<CompanyProfile, Error>({
     queryKey: ['company_settings'],
-    initialData: () => inMemoryCompanyProfile,
+    initialData: () => loadStoredCompanyProfile(),
     queryFn: async () => {
       try {
         const { data, error } = await (supabase.from as any)('companies')
@@ -42,7 +57,7 @@ export function useCompanySettings() {
           .maybeSingle();
 
         if (error || !data) {
-          return inMemoryCompanyProfile;
+          return loadStoredCompanyProfile();
         }
 
         const profile: CompanyProfile = {
@@ -61,10 +76,15 @@ export function useCompanySettings() {
         };
 
         inMemoryCompanyProfile = profile;
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem(COMPANY_STORAGE_KEY, JSON.stringify(profile));
+          } catch {}
+        }
         return profile;
       } catch (err) {
         console.warn('Company settings query notice:', err);
-        return inMemoryCompanyProfile;
+        return loadStoredCompanyProfile();
       }
     },
     staleTime: 60 * 1000,
@@ -89,32 +109,37 @@ export function useUpdateCompanySettings() {
         updated_at: new Date().toISOString(),
       };
 
+      const newProfile: CompanyProfile = {
+        ...inMemoryCompanyProfile,
+        ...payload,
+      };
+
+      inMemoryCompanyProfile = newProfile;
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(COMPANY_STORAGE_KEY, JSON.stringify(newProfile));
+        } catch {}
+      }
+
       try {
-        const { data, error } = await (supabase.from as any)('companies')
-          .update(payload)
-          .eq('id', inMemoryCompanyProfile.id)
-          .select()
+        const { data: existing } = await (supabase.from as any)('companies')
+          .select('id')
+          .limit(1)
           .maybeSingle();
 
-        if (error) {
-          console.warn('Supabase company update warning, updating local state:', error.message);
+        if (existing?.id) {
+          await (supabase.from as any)('companies')
+            .update(payload)
+            .eq('id', existing.id);
+        } else {
+          await (supabase.from as any)('companies')
+            .insert([payload]);
         }
-
-        inMemoryCompanyProfile = {
-          ...inMemoryCompanyProfile,
-          ...payload,
-          id: data?.id || inMemoryCompanyProfile.id,
-        };
-
-        return inMemoryCompanyProfile;
       } catch (err) {
-        console.warn('Company mutation offline fallback:', err);
-        inMemoryCompanyProfile = {
-          ...inMemoryCompanyProfile,
-          ...payload,
-        };
-        return inMemoryCompanyProfile;
+        console.warn('Company mutation sync note:', err);
       }
+
+      return newProfile;
     },
     onSuccess: (updated) => {
       queryClient.setQueryData(['company_settings'], updated);

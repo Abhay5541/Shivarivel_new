@@ -32,7 +32,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
       ? '/dashboard'
       : location.pathname.startsWith('/customers')
       ? '/customers'
-      : location.pathname.startsWith('/projects') || location.pathname.startsWith('/sites')
+      : location.pathname.startsWith('/projects')
       ? '/projects'
       : location.pathname.startsWith('/wages')
       ? '/wages'
@@ -55,7 +55,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
     },
     {
       key: '/projects',
-      label: 'Sites',
+      label: 'Projects',
       Icon: Building2,
       onClick: () => navigate('/projects'),
     },
@@ -140,7 +140,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
                     Add Project
                   </span>
                   <span className="text-[10px] text-[#6B6B6B]">
-                    New work location
+                    New project
                   </span>
                 </div>
               </button>

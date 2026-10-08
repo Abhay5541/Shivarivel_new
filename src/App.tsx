@@ -16,9 +16,9 @@ const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage').then(
 const CustomersPage = lazy(() => import('@/pages/customers/CustomersPage').then(m => ({ default: m.CustomersPage })));
 const CustomerDetailPage = lazy(() => import('@/pages/customers/CustomerDetailPage').then(m => ({ default: m.CustomerDetailPage })));
 
-// 3. Module 2: Projects & Sites
-const SitesPage = lazy(() => import('@/pages/projects/SitesPage').then(m => ({ default: m.SitesPage })));
-const SiteDetailPage = lazy(() => import('@/pages/projects/SiteDetailPage').then(m => ({ default: m.SiteDetailPage })));
+// 3. Module 2: Projects
+const ProjectsPage = lazy(() => import('@/pages/projects/ProjectsPage').then(m => ({ default: m.ProjectsPage })));
+const ProjectDetailPage = lazy(() => import('@/pages/projects/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
 const ProjectEditorPage = lazy(() => import('@/pages/projects/ProjectEditorPage').then(m => ({ default: m.ProjectEditorPage })));
 
 // 4. Module 3: Wages, Attendance & Workforce
@@ -88,12 +88,10 @@ export function App() {
                   <Route path="/customers" element={<CustomersPage />} />
                   <Route path="/customers/:id" element={<CustomerDetailPage />} />
 
-                  {/* 2. PROJECTS & SITES MODULE */}
-                  <Route path="/sites" element={<SitesPage />} />
-                  <Route path="/sites/:id" element={<SiteDetailPage />} />
-                  <Route path="/projects" element={<SitesPage />} />
+                  {/* 2. PROJECTS MODULE */}
+                  <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/projects/new" element={<ProjectEditorPage />} />
-                  <Route path="/projects/:id" element={<SiteDetailPage />} />
+                  <Route path="/projects/:id" element={<ProjectDetailPage />} />
                   <Route path="/projects/:id/edit" element={<ProjectEditorPage />} />
 
                   {/* 3. WAGES, ATTENDANCE & WORKFORCE MODULE */}
