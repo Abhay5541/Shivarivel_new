@@ -7,8 +7,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  FileText,
-  Globe,
   User,
   CheckCircle2,
   AlertCircle,
@@ -147,15 +145,7 @@ export function CompanyProfilePage() {
         </button>
       </div>
 
-      <PageHeader
-        title="Company Profile"
-        badge={
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#4A0E0E]/10 text-[#4A0E0E] border border-[#4A0E0E]/20">
-            <Building className="w-3.5 h-3.5" />
-            Master Entity
-          </span>
-        }
-      />
+      <PageHeader title="Company Profile" />
 
       {/* Success Notification */}
       {successMessage && (
@@ -188,9 +178,6 @@ export function CompanyProfilePage() {
               <h2 className="text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
                 1. Business Identity
               </h2>
-              <p className="text-xs text-[#6B6B6B]">
-                Legal entity name and proprietor responsible for operations
-              </p>
             </div>
           </div>
 
@@ -199,7 +186,6 @@ export function CompanyProfilePage() {
               label="Company Name"
               required
               error={errors.name}
-              description="Official business trade name appearing on all ERP headers and estimates"
             >
               <Input
                 value={formData.name}
@@ -213,7 +199,6 @@ export function CompanyProfilePage() {
               label="Proprietor / Owner Name"
               required
               error={errors.owner_name}
-              description="Managing director or proprietor signature authority"
             >
               <div className="relative">
                 <User className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
@@ -222,23 +207,6 @@ export function CompanyProfilePage() {
                   onChange={(e) => handleChange('owner_name', e.target.value)}
                   placeholder="e.g. K. Senthil Nathan"
                   className="pl-9 h-10 text-sm"
-                />
-              </div>
-            </FormField>
-
-            <FormField
-              label="Company Website"
-              error={errors.website}
-              description="Official web portal or digital portfolio URL"
-              className="md:col-span-2"
-            >
-              <div className="relative">
-                <Globe className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
-                <Input
-                  value={formData.website || ''}
-                  onChange={(e) => handleChange('website', e.target.value)}
-                  placeholder="https://shivarivel.com"
-                  className="pl-9 h-10 text-sm font-mono"
                 />
               </div>
             </FormField>
@@ -253,9 +221,6 @@ export function CompanyProfilePage() {
               <h2 className="text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
                 2. Contact Information
               </h2>
-              <p className="text-xs text-[#6B6B6B]">
-                Primary telecommunications and client communication channels
-              </p>
             </div>
           </div>
 
@@ -264,7 +229,6 @@ export function CompanyProfilePage() {
               label="Official Email"
               required
               error={errors.email}
-              description="Central email address for customer quotes, purchase orders, and receipts"
             >
               <div className="relative">
                 <Mail className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
@@ -282,7 +246,6 @@ export function CompanyProfilePage() {
               label="Primary Phone Number"
               required
               error={errors.phone}
-              description="Primary Indian mobile/landline for site calls &amp; WhatsApp"
             >
               <div className="relative">
                 <Phone className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
@@ -298,7 +261,6 @@ export function CompanyProfilePage() {
             <FormField
               label="Alternate Phone Number (Optional)"
               error={errors.alternate_phone}
-              description="Secondary emergency phone or site coordination number"
               className="md:col-span-2"
             >
               <div className="relative">
@@ -314,17 +276,14 @@ export function CompanyProfilePage() {
           </div>
         </div>
 
-        {/* Card 3: Business Address & Registration */}
+        {/* Card 3: Registered Business Address */}
         <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs">
           <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-[#E2DDD5]">
             <MapPin className="w-5 h-5 text-[#1E6B37]" />
             <div>
               <h2 className="text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
-                3. Business Address &amp; GSTIN Registration
+                3. Registered Business Address
               </h2>
-              <p className="text-xs text-[#6B6B6B]">
-                Registered premises and commercial tax identification
-              </p>
             </div>
           </div>
 
@@ -333,7 +292,6 @@ export function CompanyProfilePage() {
               label="Registered Business Address"
               required
               error={errors.address}
-              description="Complete street address printed on all official company letters and invoices"
             >
               <textarea
                 value={formData.address}
@@ -343,35 +301,6 @@ export function CompanyProfilePage() {
                 className="w-full px-3 py-2 text-sm bg-white border border-[#E2DDD5] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[#C99A2E] focus:border-[#C99A2E] transition-colors resize-none"
               />
             </FormField>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <FormField
-                label="GSTIN (Goods and Services Tax Number)"
-                error={errors.gst_number}
-                description="15-digit state registration identifier for input credit &amp; tax invoicing"
-              >
-                <div className="relative">
-                  <FileText className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
-                  <Input
-                    value={formData.gst_number || ''}
-                    onChange={(e) => handleChange('gst_number', e.target.value.toUpperCase())}
-                    placeholder="33AAACS1234F1Z5"
-                    maxLength={15}
-                    className="pl-9 h-10 text-sm font-mono tracking-wider uppercase font-semibold"
-                  />
-                </div>
-              </FormField>
-
-              <div className="bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl p-4 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-[#4A0E0E]/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-4 h-4 text-[#4A0E0E]" />
-                </span>
-                <div className="text-xs text-[#6B6B6B] leading-relaxed">
-                  <strong className="text-[#242424] font-medium block">Document Integration Active</strong>
-                  Updates saved here propagate immediately to Report Print headers, Estimate letterheads, and payment documents.
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
