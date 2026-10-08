@@ -50,6 +50,8 @@ export function useCompanySettings() {
     queryKey: ['company_settings'],
     initialData: () => loadStoredCompanyProfile(),
     queryFn: async () => {
+      const stored = loadStoredCompanyProfile();
+
       try {
         const { data, error } = await (supabase.from as any)('companies')
           .select('*')
@@ -57,17 +59,46 @@ export function useCompanySettings() {
           .maybeSingle();
 
         if (error || !data) {
-          return loadStoredCompanyProfile();
+          return stored;
         }
 
+        const storedTime = stored?.updated_at ? new Date(stored.updated_at).getTime() : 0;
+        const dbTime = data?.updated_at ? new Date(data.updated_at).getTime() : 0;
+
+        // If local storage has newer edits than database (e.g. saved locally while offline or RLS restricted),
+        // preserve local user edits and do NOT overwrite with stale cloud row
+        if (storedTime >= dbTime && storedTime > 0) {
+          // Attempt to sync newer local profile to cloud database in background
+          if (data.id) {
+            (supabase.from as any)('companies')
+              .update({
+                name: stored.name,
+                owner_name: stored.owner_name,
+                address: stored.address,
+                phone: stored.phone,
+                alternate_phone: stored.alternate_phone,
+                email: stored.email,
+                website: null,
+                gst_number: null,
+                logo_url: stored.logo_url,
+                updated_at: stored.updated_at,
+              })
+              .eq('id', data.id)
+              .then(() => {})
+              .catch(() => {});
+          }
+          return stored;
+        }
+
+        // Database is newer than local storage
         const profile: CompanyProfile = {
           id: data.id,
           name: data.name,
-          owner_name: data.owner_name || inMemoryCompanyProfile.owner_name,
-          address: data.address || inMemoryCompanyProfile.address,
-          phone: data.phone || inMemoryCompanyProfile.phone,
-          alternate_phone: data.alternate_phone || inMemoryCompanyProfile.alternate_phone,
-          email: data.email || inMemoryCompanyProfile.email,
+          owner_name: data.owner_name || stored.owner_name || inMemoryCompanyProfile.owner_name,
+          address: data.address || stored.address || inMemoryCompanyProfile.address,
+          phone: data.phone || stored.phone || inMemoryCompanyProfile.phone,
+          alternate_phone: data.alternate_phone || stored.alternate_phone || inMemoryCompanyProfile.alternate_phone,
+          email: data.email || stored.email || inMemoryCompanyProfile.email,
           website: null,
           gst_number: null,
           logo_url: data.logo_url || null,
@@ -84,10 +115,10 @@ export function useCompanySettings() {
         return profile;
       } catch (err) {
         console.warn('Company settings query notice:', err);
-        return loadStoredCompanyProfile();
+        return stored;
       }
     },
-    staleTime: 60 * 1000,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -96,6 +127,7 @@ export function useUpdateCompanySettings() {
 
   return useMutation({
     mutationFn: async (updated: CompanyProfileFormData) => {
+      const now = new Date().toISOString();
       const payload = {
         name: updated.name.trim(),
         owner_name: updated.owner_name.trim(),
@@ -103,24 +135,29 @@ export function useUpdateCompanySettings() {
         phone: updated.phone.trim(),
         alternate_phone: updated.alternate_phone?.trim() || null,
         email: updated.email.trim(),
-        website: updated.website?.trim() || null,
-        gst_number: updated.gst_number?.trim() || null,
+        website: null,
+        gst_number: null,
         logo_url: updated.logo_url || null,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       };
 
       const newProfile: CompanyProfile = {
         ...inMemoryCompanyProfile,
         ...payload,
+        updated_at: now,
       };
 
+      // 1. Immediately persist to localStorage & in-memory cache
       inMemoryCompanyProfile = newProfile;
       if (typeof window !== 'undefined') {
         try {
           localStorage.setItem(COMPANY_STORAGE_KEY, JSON.stringify(newProfile));
-        } catch {}
+        } catch (e) {
+          console.warn('Failed to save company profile to localStorage:', e);
+        }
       }
 
+      // 2. Best-effort sync to Supabase
       try {
         const { data: existing } = await (supabase.from as any)('companies')
           .select('id')
@@ -128,22 +165,28 @@ export function useUpdateCompanySettings() {
           .maybeSingle();
 
         if (existing?.id) {
-          await (supabase.from as any)('companies')
+          const { error: updErr } = await (supabase.from as any)('companies')
             .update(payload)
             .eq('id', existing.id);
+          if (updErr) {
+            console.warn('Supabase company update notice (persisted locally):', updErr.message);
+          }
         } else {
-          await (supabase.from as any)('companies')
+          const { error: insErr } = await (supabase.from as any)('companies')
             .insert([payload]);
+          if (insErr) {
+            console.warn('Supabase company insert notice (persisted locally):', insErr.message);
+          }
         }
       } catch (err) {
-        console.warn('Company mutation sync note:', err);
+        console.warn('Company mutation sync note (persisted locally):', err);
       }
 
       return newProfile;
     },
     onSuccess: (updated) => {
+      // Direct query cache update ensures the UI reflects latest saved changes immediately
       queryClient.setQueryData(['company_settings'], updated);
-      queryClient.invalidateQueries({ queryKey: ['company_settings'] });
       queryClient.invalidateQueries({ queryKey: ['report-weekly'] });
       queryClient.invalidateQueries({ queryKey: ['estimates'] });
     },

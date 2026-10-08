@@ -135,49 +135,58 @@ export function CompanyProfilePage() {
 
   return (
     <PageContainer>
-      <div className="mb-4">
+      <div className="mb-3 sm:mb-4">
         <button
+          type="button"
           onClick={() => navigate('/settings')}
-          className="inline-flex items-center gap-1.5 text-xs text-[#6B6B6B] hover:text-[#4A0E0E] font-medium transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs text-[#6B6B6B] hover:text-[#4A0E0E] font-medium transition-colors cursor-pointer py-1.5 px-2 -ml-2 rounded-lg hover:bg-[#F3EFEA] active:bg-[#EAE4DC]"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Settings Overview</span>
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span>Back to Settings</span>
         </button>
       </div>
 
-      <PageHeader title="Company Profile" />
+      <PageHeader
+        title="Company Profile"
+        subtitle="Manage registered entity name, owner details, contact information, and business address."
+      />
 
       {/* Success Notification */}
       {successMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-[#EAF5EE] border border-[#1E6B37]/30 flex items-start gap-3 animate-in fade-in duration-200">
+        <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-[#EAF5EE] border border-[#1E6B37]/30 flex items-start gap-3 animate-in fade-in duration-200">
           <CheckCircle2 className="w-5 h-5 text-[#1E6B37] shrink-0 mt-0.5" />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-bold text-[#1E6B37]">Profile Saved</h4>
-            <p className="text-xs text-[#1E6B37]/90 mt-0.5">{successMessage}</p>
+            <p className="text-xs text-[#1E6B37]/90 mt-0.5 break-words">{successMessage}</p>
           </div>
         </div>
       )}
 
       {/* Error Notification */}
       {errorMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-[#FDEDEC] border border-[#E02424]/30 flex items-start gap-3 animate-in fade-in duration-200">
+        <div className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-xl bg-[#FDEDEC] border border-[#E02424]/30 flex items-start gap-3 animate-in fade-in duration-200">
           <AlertCircle className="w-5 h-5 text-[#E02424] shrink-0 mt-0.5" />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-bold text-[#E02424]">Update Failed</h4>
-            <p className="text-xs text-[#E02424]/90 mt-0.5">{errorMessage}</p>
+            <p className="text-xs text-[#E02424]/90 mt-0.5 break-words">{errorMessage}</p>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {/* Card 1: Business Identity */}
-        <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs">
-          <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-[#E2DDD5]">
-            <Building className="w-5 h-5 text-[#4A0E0E]" />
-            <div>
-              <h2 className="text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
+        <div className="bg-white border border-[#E2DDD5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xs">
+          <div className="flex items-center gap-2.5 pb-3 sm:pb-4 mb-4 sm:mb-5 border-b border-[#E2DDD5]">
+            <div className="w-8 h-8 rounded-lg bg-[#4A0E0E]/10 flex items-center justify-center shrink-0">
+              <Building className="w-4 h-4 sm:w-5 sm:h-5 text-[#4A0E0E]" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
                 1. Business Identity
               </h2>
+              <p className="text-[11px] sm:text-xs text-[#6B6B6B] truncate">
+                Legal entity details and proprietor information
+              </p>
             </div>
           </div>
 
@@ -201,7 +210,7 @@ export function CompanyProfilePage() {
               error={errors.owner_name}
             >
               <div className="relative">
-                <User className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
+                <User className="w-4 h-4 text-[#8C8880] absolute left-3 top-3 pointer-events-none" />
                 <Input
                   value={formData.owner_name}
                   onChange={(e) => handleChange('owner_name', e.target.value)}
@@ -214,13 +223,18 @@ export function CompanyProfilePage() {
         </div>
 
         {/* Card 2: Contact Information */}
-        <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs">
-          <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-[#E2DDD5]">
-            <Phone className="w-5 h-5 text-[#C99A2E]" />
-            <div>
-              <h2 className="text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
+        <div className="bg-white border border-[#E2DDD5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xs">
+          <div className="flex items-center gap-2.5 pb-3 sm:pb-4 mb-4 sm:mb-5 border-b border-[#E2DDD5]">
+            <div className="w-8 h-8 rounded-lg bg-[#C99A2E]/10 flex items-center justify-center shrink-0">
+              <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#C99A2E]" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
                 2. Contact Information
               </h2>
+              <p className="text-[11px] sm:text-xs text-[#6B6B6B] truncate">
+                Primary contact numbers and official email
+              </p>
             </div>
           </div>
 
@@ -231,7 +245,7 @@ export function CompanyProfilePage() {
               error={errors.email}
             >
               <div className="relative">
-                <Mail className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
+                <Mail className="w-4 h-4 text-[#8C8880] absolute left-3 top-3 pointer-events-none" />
                 <Input
                   type="email"
                   value={formData.email}
@@ -248,8 +262,9 @@ export function CompanyProfilePage() {
               error={errors.phone}
             >
               <div className="relative">
-                <Phone className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
+                <Phone className="w-4 h-4 text-[#8C8880] absolute left-3 top-3 pointer-events-none" />
                 <Input
+                  type="tel"
                   value={formData.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
                   placeholder="+91 94431 87654"
@@ -264,8 +279,9 @@ export function CompanyProfilePage() {
               className="md:col-span-2"
             >
               <div className="relative">
-                <Phone className="w-4 h-4 text-[#8C8880] absolute left-3 top-3" />
+                <Phone className="w-4 h-4 text-[#8C8880] absolute left-3 top-3 pointer-events-none" />
                 <Input
+                  type="tel"
                   value={formData.alternate_phone || ''}
                   onChange={(e) => handleChange('alternate_phone', e.target.value)}
                   placeholder="+91 98421 23344"
@@ -277,13 +293,18 @@ export function CompanyProfilePage() {
         </div>
 
         {/* Card 3: Registered Business Address */}
-        <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs">
-          <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-[#E2DDD5]">
-            <MapPin className="w-5 h-5 text-[#1E6B37]" />
-            <div>
-              <h2 className="text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
+        <div className="bg-white border border-[#E2DDD5] rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xs">
+          <div className="flex items-center gap-2.5 pb-3 sm:pb-4 mb-4 sm:mb-5 border-b border-[#E2DDD5]">
+            <div className="w-8 h-8 rounded-lg bg-[#1E6B37]/10 flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#1E6B37]" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-bold text-[#242424] font-heading uppercase tracking-wider">
                 3. Registered Business Address
               </h2>
+              <p className="text-[11px] sm:text-xs text-[#6B6B6B] truncate">
+                Physical location displayed on quotes and invoices
+              </p>
             </div>
           </div>
 
@@ -298,20 +319,20 @@ export function CompanyProfilePage() {
                 onChange={(e) => handleChange('address', e.target.value)}
                 rows={3}
                 placeholder="14, South Car Street, Sankarankovil, Tenkasi District, Tamil Nadu - 627756"
-                className="w-full px-3 py-2 text-sm bg-white border border-[#E2DDD5] rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[#C99A2E] focus:border-[#C99A2E] transition-colors resize-none"
+                className="w-full px-3.5 py-2.5 text-sm bg-white border border-[#E2DDD5] rounded-lg text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-none focus:ring-2 focus:ring-[#4A0E0E] focus:border-transparent transition-colors resize-y min-h-[96px] leading-relaxed"
               />
             </FormField>
           </div>
         </div>
 
         {/* Action Toolbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t border-[#E2DDD5]">
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-[#E2DDD5]">
           <Button
             type="button"
             variant="outline"
             onClick={() => navigate('/settings')}
             disabled={updateCompanyMutation.isPending}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto h-11 sm:h-10 text-sm justify-center"
           >
             Cancel
           </Button>
@@ -319,7 +340,7 @@ export function CompanyProfilePage() {
           <Button
             type="submit"
             disabled={updateCompanyMutation.isPending}
-            className="w-full sm:w-auto gap-2 bg-[#4A0E0E] hover:bg-[#380B0B] text-white shadow-xs px-6"
+            className="w-full sm:w-auto gap-2 bg-[#4A0E0E] hover:bg-[#380B0B] text-white shadow-xs px-6 h-11 sm:h-10 text-sm font-medium justify-center"
           >
             {updateCompanyMutation.isPending ? (
               <>
