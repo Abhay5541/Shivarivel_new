@@ -146,6 +146,24 @@ export function WagesPage() {
     }
   }, [selectedDate]);
 
+  const formattedSelectedDateShort = useMemo(() => {
+    try {
+      const parts = selectedDate.split('-');
+      if (parts.length === 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        return d.toLocaleDateString('en-GB', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        });
+      }
+      return selectedDate;
+    } catch {
+      return selectedDate;
+    }
+  }, [selectedDate]);
+
   const isSelectedDateToday = selectedDate === todayStr;
 
   // Entries for selected date
@@ -424,26 +442,17 @@ export function WagesPage() {
       {activeTab === 'daily' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Date Navigator Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => navigateDate(-1)}
-                className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
-              </Button>
-
-              <div className="flex items-center gap-2">
-                <div className="relative flex items-center">
-                  <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
-                    <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
-                    <span>{formattedSelectedDate}</span>
+          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
+            {/* Mobile Layout (sm:hidden) */}
+            <div className="flex flex-col gap-2.5 sm:hidden">
+              {/* Selected Date & Quick Jump Row */}
+              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
+                <div className="relative flex items-center gap-2 min-w-0">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
+                  <span className="font-display font-bold text-sm text-[#242424] truncate">
+                    {formattedSelectedDateShort}
                   </span>
-                  {/* Invisible native date picker over button for instant jump */}
+                  {/* Invisible native date picker over container for instant jump */}
                   <input
                     type="date"
                     value={selectedDate}
@@ -456,47 +465,123 @@ export function WagesPage() {
                   />
                 </div>
 
-                {isSelectedDateToday ? (
-                  <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
-                    Today
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedDate(todayStr)}
-                    className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
-                  >
-                    Jump to Today
-                  </button>
-                )}
+                <div className="shrink-0 ml-2">
+                  {isSelectedDateToday ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                      Today
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDate(todayStr)}
+                      className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
+                    >
+                      Jump to Today
+                    </button>
+                  )}
+                </div>
               </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => navigateDate(1)}
-                className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-              >
-                <span>{selectedDate === todayStr ? 'Tomorrow' : 'Next Day'}</span>
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+              {/* Quick Navigation Buttons (50% / 50% grid) */}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDate(-1)}
+                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDate(1)}
+                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                >
+                  <span>{selectedDate === todayStr ? 'Tomorrow' : 'Next Day'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Add Wage Button on Mobile */}
+              <div className="pt-1 border-t border-[#E2DDD5]/70">
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setEditingWage(null);
+                    setIsAddWageModalOpen(true);
+                  }}
+                  className="w-full h-9 bg-[#4A0E0E] text-white text-xs font-bold rounded-lg cursor-pointer"
+                >
+                  + Add Wage Entry for this Day
+                </Button>
+              </div>
             </div>
 
-            {/* Quick Action when in mobile */}
-            <div className="sm:hidden w-full pt-1 border-t border-[#E2DDD5] flex justify-end">
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  setEditingWage(null);
-                  setIsAddWageModalOpen(true);
-                }}
-                className="w-full h-9 bg-[#4A0E0E] text-white text-xs font-bold rounded-lg cursor-pointer"
-              >
-                + Add Wage Entry for this Day
-              </Button>
+            {/* Desktop Layout (sm and up) */}
+            <div className="hidden sm:flex items-center justify-between w-full">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDate(-1)}
+                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
+                </Button>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex items-center">
+                    <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
+                      <span>{formattedSelectedDate}</span>
+                    </span>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => {
+                        if (e.target.value) setSelectedDate(e.target.value);
+                      }}
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      title="Choose a specific date"
+                      aria-label="Choose a specific date"
+                    />
+                  </div>
+
+                  {isSelectedDateToday ? (
+                    <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                      Today
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDate(todayStr)}
+                      className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
+                    >
+                      Jump to Today
+                    </button>
+                  )}
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDate(1)}
+                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                >
+                  <span>{selectedDate === todayStr ? 'Tomorrow' : 'Next Day'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
 

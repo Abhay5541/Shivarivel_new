@@ -156,12 +156,14 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'all',
         label: 'All',
+        shortLabel: 'All',
         count: filteredProjectPurchases.length,
         activeColorClass: 'text-[#242424]',
       },
       {
         id: 'pending',
         label: 'Pending Payment',
+        shortLabel: 'Pending',
         count: projectPendingPurchases.length,
         dotColor: '#C99A2E',
         activeColorClass: 'text-[#991B1B]',
@@ -169,6 +171,7 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'paid',
         label: 'Fully Paid',
+        shortLabel: 'Paid',
         count: projectPaidPurchases.length,
         dotColor: '#166534',
         activeColorClass: 'text-[#166534]',
@@ -236,12 +239,14 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'all',
         label: 'All',
+        shortLabel: 'All',
         count: filteredGeneralPurchases.length,
         activeColorClass: 'text-[#242424]',
       },
       {
         id: 'pending',
         label: 'Pending Payment',
+        shortLabel: 'Pending',
         count: generalPendingPurchases.length,
         dotColor: '#C99A2E',
         activeColorClass: 'text-[#991B1B]',
@@ -249,6 +254,7 @@ export const PurchasesPage: React.FC = () => {
       {
         id: 'paid',
         label: 'Fully Paid',
+        shortLabel: 'Paid',
         count: generalPaidPurchases.length,
         dotColor: '#166534',
         activeColorClass: 'text-[#166534]',
@@ -531,6 +537,7 @@ export const PurchasesPage: React.FC = () => {
                 options={projectFilterOptions}
                 value={projectPaymentFilter}
                 onChange={setProjectPaymentFilter}
+                fullWidth
               />
 
               {/* Project Purchases List */}
@@ -661,6 +668,7 @@ export const PurchasesPage: React.FC = () => {
                 options={generalFilterOptions}
                 value={generalPaymentFilter}
                 onChange={setGeneralPaymentFilter}
+                fullWidth
               />
 
               {/* General Purchases List */}

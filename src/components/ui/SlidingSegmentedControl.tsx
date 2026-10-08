@@ -3,6 +3,7 @@ import React, { useRef, useState, useLayoutEffect, useEffect, useCallback } from
 export interface SegmentOption<T extends string> {
   id: T;
   label: string;
+  shortLabel?: string;
   icon?: React.ReactNode;
   count?: number;
   dotColor?: string;
@@ -16,6 +17,7 @@ interface SlidingSegmentedControlProps<T extends string> {
   className?: string;
   id?: string;
   size?: 'sm' | 'md';
+  fullWidth?: boolean;
   ariaLabel?: string;
 }
 
@@ -26,6 +28,7 @@ export function SlidingSegmentedControl<T extends string>({
   className = '',
   id,
   size = 'sm',
+  fullWidth = false,
   ariaLabel = 'Navigation tabs',
 }: SlidingSegmentedControlProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,7 +83,9 @@ export function SlidingSegmentedControl<T extends string>({
       id={id}
       role="tablist"
       aria-label={ariaLabel}
-      className={`relative inline-flex items-center p-1 bg-[#F7F5F0] border border-[#E2DDD5] ${
+      className={`relative ${
+        fullWidth ? 'flex w-full' : 'inline-flex'
+      } items-center p-1 bg-[#F7F5F0] border border-[#E2DDD5] ${
         isMd ? 'rounded-xl sm:rounded-2xl' : 'rounded-xl'
       } select-none ${className}`}
     >
@@ -114,8 +119,10 @@ export function SlidingSegmentedControl<T extends string>({
             aria-selected={isActive}
             onClick={() => onChange(opt.id)}
             className={`relative z-10 ${
-              isMd ? 'px-3.5 sm:px-4 py-2 text-xs sm:text-sm rounded-lg sm:rounded-xl' : 'px-3 py-1.5 text-xs rounded-lg'
-            } font-bold transition-colors duration-200 cursor-pointer flex items-center gap-2 whitespace-nowrap active:scale-[0.98] ${
+              fullWidth ? 'flex-1 justify-center' : ''
+            } ${
+              isMd ? 'px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg sm:rounded-xl' : 'px-2 sm:px-3 py-1.5 text-xs rounded-lg'
+            } font-bold transition-colors duration-200 cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap active:scale-[0.98] ${
               isActive
                 ? opt.activeColorClass || 'text-[#242424]'
                 : 'text-[#6B6B6B] hover:text-[#242424]'
@@ -128,13 +135,16 @@ export function SlidingSegmentedControl<T extends string>({
             )}
             {opt.dotColor && (
               <span
-                className={`w-1.5 h-1.5 rounded-full transition-transform duration-200 ${
+                className={`w-1.5 h-1.5 rounded-full transition-transform duration-200 shrink-0 ${
                   isActive ? 'scale-110' : 'scale-90 opacity-70'
                 }`}
                 style={{ backgroundColor: opt.dotColor }}
               />
             )}
-            <span>{opt.label}</span>
+            <span className={opt.shortLabel ? 'hidden sm:inline' : ''}>{opt.label}</span>
+            {opt.shortLabel && (
+              <span className="sm:hidden">{opt.shortLabel}</span>
+            )}
             {opt.count !== undefined && (
               <span
                 className={`tabular-nums text-[11px] sm:text-xs transition-opacity duration-200 ${
