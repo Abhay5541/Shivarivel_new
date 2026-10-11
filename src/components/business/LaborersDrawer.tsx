@@ -44,6 +44,24 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
     setSuccessMsg(null);
   }, [isOpen, initialAddMode]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const count = Number(document.body.dataset.scrollLockCount || '0') + 1;
+    document.body.dataset.scrollLockCount = String(count);
+    if (count === 1) {
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      const remaining = Math.max(0, Number(document.body.dataset.scrollLockCount || '1') - 1);
+      document.body.dataset.scrollLockCount = String(remaining);
+      if (remaining === 0) {
+        document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        delete document.body.dataset.prevOverflow;
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleStartAdd = () => {
@@ -220,7 +238,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Murugan S."
-                    className="w-full h-10 px-3 bg-white border border-[#E2DDD5] rounded-lg text-sm text-[#242424] placeholder:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
+                    className="w-full h-10 px-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] placeholder:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
                   />
                 </div>
 
@@ -236,7 +254,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="e.g. 98421 11223"
-                      className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm text-[#242424] placeholder:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
+                      className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] placeholder:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
                     />
                   </div>
                   <p className="text-[11px] text-[#6B6B6B] mt-1">

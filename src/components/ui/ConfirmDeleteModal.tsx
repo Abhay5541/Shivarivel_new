@@ -28,13 +28,24 @@ export function ConfirmDeleteModal({
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape' && !isLoading) onClose();
     }
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
+    if (!isOpen) return;
+
+    window.addEventListener('keydown', handleKeyDown);
+    const count = Number(document.body.dataset.scrollLockCount || '0') + 1;
+    document.body.dataset.scrollLockCount = String(count);
+    if (count === 1) {
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
       document.body.style.overflow = 'hidden';
     }
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = '';
+      const remaining = Math.max(0, Number(document.body.dataset.scrollLockCount || '1') - 1);
+      document.body.dataset.scrollLockCount = String(remaining);
+      if (remaining === 0) {
+        document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        delete document.body.dataset.prevOverflow;
+      }
     };
   }, [isOpen, onClose, isLoading]);
 

@@ -47,6 +47,29 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
     setErrorMsg(null);
   }, [customer, isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const count = Number(document.body.dataset.scrollLockCount || '0') + 1;
+    document.body.dataset.scrollLockCount = String(count);
+    if (count === 1) {
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      const remaining = Math.max(0, Number(document.body.dataset.scrollLockCount || '1') - 1);
+      document.body.dataset.scrollLockCount = String(remaining);
+      if (remaining === 0) {
+        document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        delete document.body.dataset.prevOverflow;
+      }
+    };
+  }, [isOpen]);
+
+  const isDirty =
+    name !== (customer?.name || '') ||
+    phone !== (customer?.phone || '') ||
+    location !== (customer?.address || '');
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,7 +151,7 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
       <div
         className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs modal-backdrop-spring"
         onClick={() => {
-          if (!isSaving) onClose();
+          if (!isSaving && !isDirty) onClose();
         }}
       />
 
@@ -181,7 +204,7 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
                   placeholder="e.g. Arun Kumar"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full h-11 px-3 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
+                  className="w-full h-11 px-3 text-sm [@media(pointer:coarse)]:text-base bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
                   autoFocus
                 />
               </div>
@@ -202,7 +225,7 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
                     placeholder="9876543210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full h-11 pl-11 pr-3 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
+                    className="w-full h-11 pl-11 pr-3 text-sm [@media(pointer:coarse)]:text-base bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
                   />
                 </div>
                 <p className="text-[11px] text-[#6B6B6B] mt-1">
@@ -221,7 +244,7 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
                   placeholder="e.g. Nagercoil, Madurai, Tirunelveli"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full h-11 px-3 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
+                  className="w-full h-11 px-3 text-sm [@media(pointer:coarse)]:text-base bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
                 />
               </div>
 

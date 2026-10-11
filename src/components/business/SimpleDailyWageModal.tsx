@@ -86,6 +86,24 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
     }
   }, [isOpen, existingWage, preselectedDate, preselectedEmployeeId, preselectedProjectId, employees, projects]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const count = Number(document.body.dataset.scrollLockCount || '0') + 1;
+    document.body.dataset.scrollLockCount = String(count);
+    if (count === 1) {
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      const remaining = Math.max(0, Number(document.body.dataset.scrollLockCount || '1') - 1);
+      document.body.dataset.scrollLockCount = String(remaining);
+      if (remaining === 0) {
+        document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        delete document.body.dataset.prevOverflow;
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   // Duplicate detection check
@@ -268,7 +286,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
+                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               />
             </div>
           </div>
@@ -284,7 +302,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
                 required
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
-                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
+                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               >
                 <option value="" disabled>
                   Select Laborer
@@ -308,7 +326,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
               <select
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
-                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
+                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               >
                 <option value="">-- No Specific Site --</option>
                 {projects.map((proj) => (
@@ -386,7 +404,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
                 value={attendance === 'Absent' ? '0' : wage}
                 onChange={(e) => setWage(e.target.value)}
                 placeholder="e.g. 1100"
-                className="w-full h-10 pl-8 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm font-semibold tabular-nums text-[#242424] placeholder:text-[#99958F] disabled:bg-[#F3EFEA] disabled:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
+                className="w-full h-10 pl-8 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base font-semibold tabular-nums text-[#242424] placeholder:text-[#99958F] disabled:bg-[#F3EFEA] disabled:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               />
             </div>
           </div>

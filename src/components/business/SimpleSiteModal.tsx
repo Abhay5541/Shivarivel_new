@@ -57,6 +57,29 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
     setErrorMsg(null);
   }, [site, preselectedCustomer, preselectedCustomerId, defaultLocation, isOpen, customers]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const count = Number(document.body.dataset.scrollLockCount || '0') + 1;
+    document.body.dataset.scrollLockCount = String(count);
+    if (count === 1) {
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      const remaining = Math.max(0, Number(document.body.dataset.scrollLockCount || '1') - 1);
+      document.body.dataset.scrollLockCount = String(remaining);
+      if (remaining === 0) {
+        document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        delete document.body.dataset.prevOverflow;
+      }
+    };
+  }, [isOpen]);
+
+  const initialCustomerId = site ? (site.customer_id || '') : (preselectedCustomer?.id || preselectedCustomerId || (customers.length > 0 ? customers[0].id : ''));
+  const initialSiteName = site ? (site.name || '') : '';
+  const initialLocation = site ? (site.site_address || '') : (defaultLocation || preselectedCustomer?.address || '');
+  const isDirty = customerId !== initialCustomerId || siteName !== initialSiteName || location !== initialLocation;
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,7 +160,7 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
       <div
         className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs modal-backdrop-spring"
         onClick={() => {
-          if (!isSaving) onClose();
+          if (!isSaving && !isDirty) onClose();
         }}
       />
 
@@ -195,7 +218,7 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
                   setLocation(selectedCust.address);
                 }
               }}
-              className="w-full h-11 px-3 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all font-medium text-[#242424]"
+              className="w-full h-11 px-3 text-sm [@media(pointer:coarse)]:text-base bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all font-medium text-[#242424]"
             >
               <option value="" disabled>
                 Select Client...
@@ -220,7 +243,7 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
               placeholder="e.g. Arun Kumar Residence"
               value={siteName}
               onChange={(e) => setSiteName(e.target.value)}
-              className="w-full h-11 px-3 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
+              className="w-full h-11 px-3 text-sm [@media(pointer:coarse)]:text-base bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
               autoFocus
             />
           </div>
@@ -236,7 +259,7 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
               placeholder="e.g. Nagercoil"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full h-11 px-3 text-sm bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
+              className="w-full h-11 px-3 text-sm [@media(pointer:coarse)]:text-base bg-white border border-[#E2DDD5] rounded-xl focus:outline-none focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/20 transition-all"
             />
           </div>
 

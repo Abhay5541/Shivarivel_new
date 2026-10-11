@@ -3,17 +3,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Users,
   Building2,
-  ShoppingCart,
   Calendar,
-  Plus,
+  Layers,
 } from 'lucide-react';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 
-interface MobileBottomNavProps {
-  onOpenQuickAdd?: () => void;
-}
-
-export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd }) => {
+export const MobileBottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,23 +21,17 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
   };
 
   const activeKey =
-    location.pathname.startsWith('/customers')
-      ? '/customers'
-      : location.pathname.startsWith('/projects')
+    location.pathname.startsWith('/projects')
       ? '/projects'
+      : location.pathname.startsWith('/employees')
+      ? '/employees'
+      : location.pathname.startsWith('/materials')
+      ? '/materials'
       : location.pathname.startsWith('/wages')
       ? '/wages'
-      : location.pathname.startsWith('/procurement') || location.pathname.startsWith('/purchases') || location.pathname.startsWith('/suppliers')
-      ? '/procurement'
       : '';
 
   const dockItems: DockItem[] = [
-    {
-      key: '/customers',
-      label: 'Clients',
-      Icon: Users,
-      onClick: () => navigateTab('/customers'),
-    },
     {
       key: '/projects',
       label: 'Projects',
@@ -50,23 +39,22 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
       onClick: () => navigateTab('/projects'),
     },
     {
-      key: 'quick-add',
-      label: 'Add',
-      Icon: Plus,
-      isAction: true,
-      onClick: () => onOpenQuickAdd && onOpenQuickAdd(),
+      key: '/employees',
+      label: 'Employees',
+      Icon: Users,
+      onClick: () => navigateTab('/employees'),
+    },
+    {
+      key: '/materials',
+      label: 'Materials',
+      Icon: Layers,
+      onClick: () => navigateTab('/materials'),
     },
     {
       key: '/wages',
       label: 'Wages',
       Icon: Calendar,
       onClick: () => navigateTab('/wages'),
-    },
-    {
-      key: '/procurement',
-      label: 'Purchases',
-      Icon: ShoppingCart,
-      onClick: () => navigateTab('/procurement'),
     },
   ];
 
@@ -85,3 +73,4 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
     </div>
   );
 };
+

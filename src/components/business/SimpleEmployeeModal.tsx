@@ -44,6 +44,24 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
     setIsDeleteModalOpen(false);
   }, [employee, isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const count = Number(document.body.dataset.scrollLockCount || '0') + 1;
+    document.body.dataset.scrollLockCount = String(count);
+    if (count === 1) {
+      document.body.dataset.prevOverflow = document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      const remaining = Math.max(0, Number(document.body.dataset.scrollLockCount || '1') - 1);
+      document.body.dataset.scrollLockCount = String(remaining);
+      if (remaining === 0) {
+        document.body.style.overflow = document.body.dataset.prevOverflow || '';
+        delete document.body.dataset.prevOverflow;
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -158,7 +176,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Ravi, M. Shanmugam"
-              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
+              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm [@media(pointer:coarse)]:text-base font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
             />
           </div>
 
@@ -172,7 +190,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="e.g. 9876543210"
-              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
+              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm [@media(pointer:coarse)]:text-base font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
             />
           </div>
 
@@ -188,7 +206,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
               value={dailyWage}
               onChange={(e) => setDailyWage(e.target.value)}
               placeholder="e.g. 900"
-              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
+              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm [@media(pointer:coarse)]:text-base font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
             />
             <p className="mt-1 text-[11px] text-[#6B6B6B]">
               Automatically pre-fills the wage when logging daily work.
