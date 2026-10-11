@@ -278,9 +278,7 @@ export function useCreateProject() {
       const { data, error } = await (supabase
         .from('projects') as any)
         .insert({
-          customer_id: payload.customer_id,
-          enquiry_id: payload.enquiry_id || null,
-          estimate_id: payload.estimate_id || null,
+          customer_id: payload.customer_id || null,
           name: payload.name.trim(),
           description: payload.description?.trim() || null,
           site_address: payload.site_address?.trim() || null,
