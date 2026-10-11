@@ -5,7 +5,6 @@ import {
   UserPlus,
   Building2,
   ShoppingCart,
-  Search,
   UserCheck,
   Calendar,
 } from 'lucide-react';
@@ -92,13 +91,22 @@ const categoryTabs: ActionCategory[] = [
 
 export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ActionCategory>('All');
+
+  // Always reset to 'All' whenever the modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedCategory('All');
+    }
+  }, [isOpen]);
 
   // Handle escape key to close
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        setSelectedCategory('All');
+        onClose();
+      }
     }
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
@@ -112,18 +120,19 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
 
   const filteredActions = useMemo(() => {
     return actions.filter((act) => {
-      const matchesSearch =
-        act.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        act.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCat =
-        selectedCategory === 'All' || act.category === selectedCategory;
-      return matchesSearch && matchesCat;
+      return selectedCategory === 'All' || act.category === selectedCategory;
     });
-  }, [searchTerm, selectedCategory]);
+  }, [selectedCategory]);
 
   if (!isOpen) return null;
 
+  const handleClose = () => {
+    setSelectedCategory('All');
+    onClose();
+  };
+
   const handleSelect = (route: string) => {
+    setSelectedCategory('All');
     onClose();
     navigate(route);
   };
@@ -138,7 +147,7 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity modal-backdrop-spring"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal / Bottom Sheet Container */}
@@ -169,7 +178,7 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
             <button
               type="button"
               aria-label="Close Quick Add"
-              onClick={onClose}
+              onClick={handleClose}
               className="w-8 h-8 rounded-lg border border-[#E2DDD5] flex items-center justify-center text-[#6B6B6B] hover:text-[#242424] hover:bg-[#F7F5F0] transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -177,21 +186,8 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
           </div>
         </div>
 
-        {/* Search & Category Filter Rail */}
-        <div className="px-6 py-3 border-b border-[#E2DDD5]/60 bg-[#F7F5F0]/40 space-y-2.5">
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B6B6B]" />
-            <input
-              type="text"
-              placeholder="Search actions (e.g. 'Customer', 'Purchase', 'Attendance', 'Payment')..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full h-9 pl-9 pr-4 text-xs bg-white border border-[#E2DDD5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C99A2E] text-[#242424] placeholder:text-[#6B6B6B]/60"
-              autoFocus
-            />
-          </div>
-
-          {/* Category Tabs */}
+        {/* Category Filter Rail */}
+        <div className="px-6 py-3 border-b border-[#E2DDD5]/60 bg-[#F7F5F0]/40">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
             {categoryTabs.map((cat) => (
               <button
@@ -199,9 +195,9 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
-                  'px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors shrink-0 cursor-pointer',
+                  'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors shrink-0 cursor-pointer',
                   selectedCategory === cat
-                    ? 'bg-[#4A0E0E] text-white'
+                    ? 'bg-[#4A0E0E] text-white shadow-xs'
                     : 'bg-white text-[#6B6B6B] border border-[#E2DDD5] hover:bg-[#F7F5F0] hover:text-[#242424]'
                 )}
               >
@@ -211,7 +207,7 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
           </div>
         </div>
 
-        {/* Action Grid (Thumb-Friendly Touch Targets) */}
+        {/* Action Grid */}
         <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredActions.map((action) => {
             const Icon = action.icon;
@@ -247,12 +243,6 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
               </button>
             );
           })}
-
-          {filteredActions.length === 0 && (
-            <div className="col-span-1 sm:col-span-2 py-8 text-center text-xs text-[#6B6B6B]">
-              No actions found matching "{searchTerm}"
-            </div>
-          )}
         </div>
       </div>
     </div>
