@@ -89,6 +89,8 @@ export function MagnifyingDock({
      touch STARTED on, which is not the one it ended over — does
      not undo the choice. A mouse never sets it. */
   const chose = useRef(false);
+  const startItem = useRef<number | null>(null);
+  const startX = useRef<number>(0);
 
   const at = (clientX: number) => {
     const itemEls = bar.current?.querySelectorAll(".gdock-item");
@@ -144,19 +146,11 @@ export function MagnifyingDock({
          the finger. */
       onPointerDownCapture={(e) => {
         down.current = true;
-        /* ── disarmed HERE, not by the click ────────────────
-           `chose` used to be cleared by the click it was meant
-           to swallow, which assumes a click always follows a
-           touch. It does not: a finger that lands on one item
-           and lifts over another is a drag, and a browser is
-           entitled to send no click at all. Measured — the flag
-           stayed armed and ate the next real mouse click, so
-           the dock ignored the first thing you pressed after
-           any touch sweep. Cleared at the start of the next
-           gesture instead, which is true whatever the browser
-           decided to do with the last one. */
         chose.current = false;
-        to(at(e.clientX));
+        const initial = at(e.clientX);
+        startItem.current = initial;
+        startX.current = e.clientX;
+        to(initial);
       }}
       onPointerMoveCapture={track}
       /* ── and the touch has to CHOOSE something ────────────
@@ -166,7 +160,9 @@ export function MagnifyingDock({
          untouched by this — it still clicks the button. */
       onPointerUpCapture={(e) => {
         if (down.current && e.pointerType !== "mouse") {
-          const i = at(e.clientX);
+          const diffX = Math.abs(e.clientX - startX.current);
+          // If finger moved less than 24px, it was a direct tap! Honor the tapped item without edge drift
+          const i = diffX < 24 && startItem.current !== null ? startItem.current : at(e.clientX);
           if (i !== null && items[i]) {
             chose.current = true;
             if (items[i].key !== active) {

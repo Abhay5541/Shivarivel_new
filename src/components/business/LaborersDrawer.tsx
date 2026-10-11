@@ -10,12 +10,14 @@ interface LaborersDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectLaborer?: (laborer: Employee) => void;
+  initialAddMode?: boolean;
 }
 
 export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
   isOpen,
   onClose,
   onSelectLaborer,
+  initialAddMode = false,
 }) => {
   const { data: employees = [], isLoading } = useEmployees();
   const createEmployeeMutation = useCreateEmployee();
@@ -33,14 +35,14 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
   const deleteEmployeeMutation = useDeleteEmployee();
 
   useEffect(() => {
-    setIsAddingOrEditing(false);
+    setIsAddingOrEditing(Boolean(initialAddMode));
     setEditingLaborer(null);
     setDeletingLaborer(null);
     setName('');
     setPhone('');
     setErrorMsg(null);
     setSuccessMsg(null);
-  }, [isOpen]);
+  }, [isOpen, initialAddMode]);
 
   if (!isOpen) return null;
 
@@ -127,9 +129,15 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end modal-backdrop-spring">
+      <div
+        className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end modal-backdrop-spring"
+        onClick={onClose}
+      >
       {/* Drawer Container */}
-      <div className="bg-[#FFFFFF] w-full max-w-md h-full shadow-2xl flex flex-col border-l border-[#E2DDD5] drawer-spring">
+      <div
+        className="bg-[#FFFFFF] w-full max-w-md h-full shadow-2xl flex flex-col border-l border-[#E2DDD5] drawer-spring"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Drawer Header */}
         <div className="px-5 py-4 border-b border-[#E2DDD5] flex items-center justify-between bg-[#F7F5F0]">
           <div className="flex items-center gap-2.5">

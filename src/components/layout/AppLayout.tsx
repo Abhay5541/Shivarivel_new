@@ -1,30 +1,53 @@
-import { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
 import { QuickAddModal } from '@/components/quick-add/QuickAddModal';
+import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
+import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
+import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
+import { SimpleEmployeeModal } from '@/components/business/SimpleEmployeeModal';
+
+const TOP_LEVEL_SPOKES = [
+  '/customers',
+  '/projects',
+  '/wages',
+  '/procurement',
+  '/purchases',
+  '/attendance',
+  '/employees',
+  '/materials',
+  '/settings',
+];
 
 export function AppLayout() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [activeQuickAction, setActiveQuickAction] = useState<'customer' | 'project' | 'purchase' | 'laborer' | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const prevPathRef = useRef(location.pathname);
 
-  // Global keyboard shortcut for Quick Add (Q or Cmd+K / Ctrl+K)
   useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (
-        (e.key === 'q' || e.key === 'Q') &&
-        !['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)
-      ) {
-        e.preventDefault();
-        setIsQuickAddOpen((prev) => !prev);
-      } else if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsQuickAddOpen((prev) => !prev);
-      }
-    }
+    prevPathRef.current = location.pathname;
+  }, [location.pathname]);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  // Mobile Hub-and-Spoke Back Gestures:
+  // If user navigates Back from a top-level spoke, ensure they return cleanly to Dashboard
+  useEffect(() => {
+    const handlePopState = () => {
+      const current = window.location.pathname;
+      const prev = prevPathRef.current;
+      const isCurrentSpoke = TOP_LEVEL_SPOKES.some((tab) => current === tab || current.startsWith(tab + '/'));
+      const isPrevSpoke = TOP_LEVEL_SPOKES.some((tab) => prev === tab);
+
+      if (isCurrentSpoke && isPrevSpoke && current !== prev) {
+        navigate('/dashboard', { replace: true });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-[#F7F5F0] flex flex-col antialiased text-[#242424]">
@@ -36,13 +59,38 @@ export function AppLayout() {
         <Outlet />
       </main>
 
-      {/* Unified Bottom Navigation (Both PC & Mobile with 4 Options + Central Plus) */}
+      {/* Unified Bottom Navigation */}
       <MobileBottomNav onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
 
       {/* Signature Quick Add Modal */}
       <QuickAddModal
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
+        onSelectAction={(actionId) => {
+          setIsQuickAddOpen(false);
+          setActiveQuickAction(actionId);
+        }}
+      />
+
+      {/* In-Place Quick Creation Modals (Direct, no URL redirect) */}
+      <SimpleCustomerModal
+        isOpen={activeQuickAction === 'customer'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+
+      <SimpleSiteModal
+        isOpen={activeQuickAction === 'project'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+
+      <SimplePurchaseModal
+        isOpen={activeQuickAction === 'purchase'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+
+      <SimpleEmployeeModal
+        isOpen={activeQuickAction === 'laborer'}
+        onClose={() => setActiveQuickAction(null)}
       />
     </div>
   );

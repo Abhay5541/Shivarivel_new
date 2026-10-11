@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   X,
   UserPlus,
@@ -12,10 +12,11 @@ import { cn } from '@/lib/utils';
 interface QuickAddModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSelectAction?: (actionId: 'customer' | 'project' | 'purchase' | 'laborer') => void;
 }
 
 interface QuickAction {
-  id: string;
+  id: 'customer' | 'project' | 'purchase' | 'laborer';
   title: string;
   category: string;
   description: string;
@@ -68,8 +69,20 @@ const actions: QuickAction[] = [
   },
 ];
 
-export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
+export function QuickAddModal({ isOpen, onClose, onSelectAction }: QuickAddModalProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [canClick, setCanClick] = useState(false);
+
+  // Prevent mobile dock tap ghost clicks from accidentally activating buttons immediately upon open
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => setCanClick(true), 150);
+      return () => clearTimeout(timer);
+    } else {
+      setCanClick(false);
+    }
+  }, [isOpen]);
 
   // Handle escape key to close
   useEffect(() => {
@@ -90,9 +103,18 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
 
   if (!isOpen) return null;
 
-  const handleSelect = (route: string) => {
-    onClose();
-    navigate(route);
+  const handleSelect = (actionId: 'customer' | 'project' | 'purchase' | 'laborer', route: string) => {
+    if (!canClick) return;
+    if (onSelectAction) {
+      onSelectAction(actionId);
+    } else {
+      onClose();
+      if (location.pathname === '/' || location.pathname === '/dashboard') {
+        navigate(route);
+      } else {
+        navigate(route, { replace: true });
+      }
+    }
   };
 
   return (
@@ -152,7 +174,7 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
               <button
                 key={action.id}
                 type="button"
-                onClick={() => handleSelect(action.route)}
+                onClick={() => handleSelect(action.id, action.route)}
                 className="flex items-start gap-3.5 p-3.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs min-h-[68px]"
               >
                 <div

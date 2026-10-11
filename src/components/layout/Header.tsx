@@ -41,6 +41,17 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
 
   const activeKey = resolveActiveKey(location.pathname);
 
+  const navigateTab = useMemo(
+    () => (route: string) => {
+      if (location.pathname === '/' || location.pathname === '/dashboard') {
+        navigate(route);
+      } else {
+        navigate(route, { replace: true });
+      }
+    },
+    [location.pathname, navigate]
+  );
+
   // Desktop Center Nav Items for the Magnifying Dock
   const desktopDockItems: DockItem[] = useMemo(
     () => [
@@ -54,28 +65,28 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
         key: '/customers',
         label: 'Customers',
         Icon: Users,
-        onClick: () => navigate('/customers'),
+        onClick: () => navigateTab('/customers'),
       },
       {
         key: '/projects',
         label: 'Projects',
         Icon: Building2,
-        onClick: () => navigate('/projects'),
+        onClick: () => navigateTab('/projects'),
       },
       {
         key: '/wages',
         label: 'Wages',
         Icon: Calendar,
-        onClick: () => navigate('/wages'),
+        onClick: () => navigateTab('/wages'),
       },
       {
         key: '/procurement',
         label: 'Procurement',
         Icon: ShoppingCart,
-        onClick: () => navigate('/procurement'),
+        onClick: () => navigateTab('/procurement'),
       },
     ],
-    [navigate]
+    [navigate, navigateTab]
   );
 
   // Close menu on outside click

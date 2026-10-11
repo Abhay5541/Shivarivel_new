@@ -46,14 +46,16 @@ export function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showForgotModal, setShowForgotModal] = useState(false);
 
-  // Redirect if already authenticated
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard';
+  // Redirect if already authenticated - always start fresh on Dashboard
+  const targetPath = (location.state as { from?: { pathname: string } })?.from?.pathname;
+  const isDeepDetailLink = Boolean(targetPath && targetPath !== '/wages' && targetPath.split('/').filter(Boolean).length > 1);
+  const destination = isDeepDetailLink ? (targetPath as string) : '/dashboard';
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate(from, { replace: true });
+      navigate(destination, { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, navigate, destination]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +75,7 @@ export function LoginPage() {
         error.message || 'Invalid credentials. Please check your email and password.'
       );
     } else {
-      navigate(from, { replace: true });
+      navigate(destination, { replace: true });
     }
   };
 

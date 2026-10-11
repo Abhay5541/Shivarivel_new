@@ -41,6 +41,7 @@ export function WagesPage() {
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly'>('daily');
   const [isAddWageModalOpen, setIsAddWageModalOpen] = useState(false);
   const [isLaborersDrawerOpen, setIsLaborersDrawerOpen] = useState(false);
+  const [openInAddMode, setOpenInAddMode] = useState(false);
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
 
   // Segment options for Daily Muster vs Weekly Wages
@@ -76,6 +77,7 @@ export function WagesPage() {
       nextParams.delete('new');
       setSearchParams(nextParams, { replace: true });
     } else if (searchParams.get('laborer') === '1' || searchParams.get('laborer') === 'true') {
+      setOpenInAddMode(true);
       setIsLaborersDrawerOpen(true);
       const nextParams = new URLSearchParams(searchParams);
       nextParams.delete('laborer');
@@ -419,7 +421,10 @@ export function WagesPage() {
             variant="outline"
             icon={<Users className="w-4 h-4 text-[#4A0E0E]" />}
             label="Laborers Directory"
-            onClick={() => setIsLaborersDrawerOpen(true)}
+            onClick={() => {
+              setOpenInAddMode(false);
+              setIsLaborersDrawerOpen(true);
+            }}
           />
 
           {/* Primary Action Button */}
@@ -1140,7 +1145,11 @@ export function WagesPage() {
       {/* Laborers Directory Drawer */}
       <LaborersDrawer
         isOpen={isLaborersDrawerOpen}
-        onClose={() => setIsLaborersDrawerOpen(false)}
+        initialAddMode={openInAddMode}
+        onClose={() => {
+          setIsLaborersDrawerOpen(false);
+          setOpenInAddMode(false);
+        }}
         onSelectLaborer={() => {
           // Keep drawer open or close as needed
         }}
