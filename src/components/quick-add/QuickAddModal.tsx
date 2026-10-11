@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   X,
@@ -15,12 +15,10 @@ interface QuickAddModalProps {
   onClose: () => void;
 }
 
-export type ActionCategory = 'All' | 'Customers' | 'Projects' | 'Wages' | 'Procurement';
-
 interface QuickAction {
   id: string;
   title: string;
-  category: 'Customers' | 'Projects' | 'Wages' | 'Procurement';
+  category: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
   iconBg: string;
@@ -81,30 +79,13 @@ const actions: QuickAction[] = [
   },
 ];
 
-const categoryTabs: ActionCategory[] = [
-  'All',
-  'Customers',
-  'Projects',
-  'Wages',
-  'Procurement',
-];
-
 export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState<ActionCategory>('All');
-
-  // Always reset to 'All' whenever the modal is opened
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedCategory('All');
-    }
-  }, [isOpen]);
 
   // Handle escape key to close
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        setSelectedCategory('All');
         onClose();
       }
     }
@@ -118,21 +99,9 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
     };
   }, [isOpen, onClose]);
 
-  const filteredActions = useMemo(() => {
-    return actions.filter((act) => {
-      return selectedCategory === 'All' || act.category === selectedCategory;
-    });
-  }, [selectedCategory]);
-
   if (!isOpen) return null;
 
-  const handleClose = () => {
-    setSelectedCategory('All');
-    onClose();
-  };
-
   const handleSelect = (route: string) => {
-    setSelectedCategory('All');
     onClose();
     navigate(route);
   };
@@ -147,11 +116,11 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-[#242424]/60 backdrop-blur-xs transition-opacity modal-backdrop-spring"
-        onClick={handleClose}
+        onClick={onClose}
       />
 
       {/* Modal / Bottom Sheet Container */}
-      <div className="relative w-full lg:max-w-3xl bg-white rounded-t-2xl lg:rounded-2xl shadow-2xl border border-[#E2DDD5] z-10 max-h-[90vh] flex flex-col modal-spring">
+      <div className="relative w-full lg:max-w-2xl bg-white rounded-t-2xl lg:rounded-2xl shadow-2xl border border-[#E2DDD5] z-10 max-h-[90vh] flex flex-col modal-spring">
         {/* Mobile Drag Indicator */}
         <div className="w-12 h-1.5 bg-[#E2DDD5] rounded-full mx-auto mt-3 mb-1 lg:hidden" />
 
@@ -178,7 +147,7 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
             <button
               type="button"
               aria-label="Close Quick Add"
-              onClick={handleClose}
+              onClick={onClose}
               className="w-8 h-8 rounded-lg border border-[#E2DDD5] flex items-center justify-center text-[#6B6B6B] hover:text-[#242424] hover:bg-[#F7F5F0] transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
@@ -186,37 +155,16 @@ export function QuickAddModal({ isOpen, onClose }: QuickAddModalProps) {
           </div>
         </div>
 
-        {/* Category Filter Rail */}
-        <div className="px-6 py-3 border-b border-[#E2DDD5]/60 bg-[#F7F5F0]/40">
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
-            {categoryTabs.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={cn(
-                  'px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors shrink-0 cursor-pointer',
-                  selectedCategory === cat
-                    ? 'bg-[#4A0E0E] text-white shadow-xs'
-                    : 'bg-white text-[#6B6B6B] border border-[#E2DDD5] hover:bg-[#F7F5F0] hover:text-[#242424]'
-                )}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Action Grid */}
-        <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filteredActions.map((action) => {
+        {/* Action Grid (Always displays all options directly) */}
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {actions.map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.id}
                 type="button"
                 onClick={() => handleSelect(action.route)}
-                className="flex items-start gap-3.5 p-3 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs min-h-[64px]"
+                className="flex items-start gap-3.5 p-3.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs min-h-[68px]"
               >
                 <div
                   className={cn(
