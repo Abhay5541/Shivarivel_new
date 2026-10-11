@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, UserCheck, Plus, Edit2, Phone, Tag, Check, AlertCircle, Trash2 } from 'lucide-react';
 import { useEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmployee } from '@/hooks/useWorkforce';
 import { indianPhoneRegex } from '@/types/business';
@@ -31,6 +31,16 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
 
   const updateEmployeeMutation = useUpdateEmployee(editingLaborer?.id || '');
   const deleteEmployeeMutation = useDeleteEmployee();
+
+  useEffect(() => {
+    setIsAddingOrEditing(false);
+    setEditingLaborer(null);
+    setDeletingLaborer(null);
+    setName('');
+    setPhone('');
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

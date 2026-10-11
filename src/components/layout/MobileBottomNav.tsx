@@ -175,24 +175,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
                 </div>
               </button>
 
-              {/* Add Wage */}
-              <button
-                type="button"
-                onClick={() => handleAction('/wages?new=1')}
-                className="p-3.5 rounded-xl border border-[#E2DDD5] bg-[#F7F5F0]/60 hover:bg-[#F7F5F0] text-left flex flex-col gap-2 cursor-pointer"
-              >
-                <div className="w-9 h-9 rounded-lg bg-[#C99A2E] text-white flex items-center justify-center shadow-xs">
-                  <Calendar className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-[#242424] block">
-                    Add Wage
-                  </span>
-                  <span className="text-[10px] text-[#6B6B6B]">
-                    Record site labor
-                  </span>
-                </div>
-              </button>
+
 
               {/* View Dashboard */}
               <button

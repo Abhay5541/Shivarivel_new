@@ -132,7 +132,7 @@ export function useEmployees(filters?: {
         ...local.filter((le) => !remoteIds.has(le.id)),
         ...remote.map((re) => {
           const localItem = local.find((le) => le.id === re.id);
-          return localItem || re;
+          return localItem ? { ...localItem, ...re } : re;
         }),
       ];
 
@@ -182,14 +182,28 @@ export function useCreateEmployee() {
 
   return useMutation({
     mutationFn: async (formData: EmployeeFormData): Promise<Employee> => {
-      const codeNumber = memoryEmployees.length + 1;
-      const generatedCode = `EMP-${String(codeNumber).padStart(4, '0')}`;
+      // Find the highest existing employee code number among memory and stored employees to guarantee unique IDs
+      const stored = loadStoredEmployees();
+      const allCurrent = [...memoryEmployees, ...stored];
+      let maxNum = 0;
+      for (const emp of allCurrent) {
+        const match = emp.employee_code?.match(/\d+/);
+        if (match) {
+          const num = parseInt(match[0], 10);
+          if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
+          }
+        }
+      }
+      const nextCodeNum = maxNum + 1;
+      const generatedCode = `EMP-${String(nextCodeNum).padStart(4, '0')}`;
       const now = new Date().toISOString();
 
       try {
         const { data, error } = await (supabase as any)
           .from('employees')
           .insert({
+            employee_code: generatedCode,
             name: formData.name.trim(),
             phone: formData.phone || null,
             worker_type: formData.worker_type || null,
@@ -206,7 +220,10 @@ export function useCreateEmployee() {
         if (error || !data) {
           throw error;
         }
-        return data as Employee;
+        const createdEmp = data as Employee;
+        memoryEmployees = [createdEmp, ...memoryEmployees.filter((e) => e.id !== createdEmp.id)];
+        saveStoredEmployees(memoryEmployees);
+        return createdEmp;
       } catch {
         // Local memory persistence fallback
         const newEmp: Employee = {
@@ -233,7 +250,7 @@ export function useCreateEmployee() {
           total_advances_recovered: 0,
           advance_outstanding: 0,
         };
-        memoryEmployees = [newEmp, ...memoryEmployees];
+        memoryEmployees = [newEmp, ...memoryEmployees.filter((e) => e.id !== newEmp.id)];
         saveStoredEmployees(memoryEmployees);
         return newEmp;
       }

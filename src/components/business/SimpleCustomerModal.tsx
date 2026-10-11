@@ -28,6 +28,11 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+  useEffect(() => {
+    setIsConfirmDeleteOpen(false);
+  }, [isOpen]);
 
   useEffect(() => {
     if (customer) {
@@ -88,8 +93,6 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
       setErrorMsg(msg);
     }
   };
-
-  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
   const handleDelete = () => {
     if (!customer) return;

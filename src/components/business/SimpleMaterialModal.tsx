@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Layers } from 'lucide-react';
 import { useCreateMaterial } from '@/hooks/useProcurement';
 import type { Material } from '@/types/procurement';
@@ -22,6 +22,12 @@ export const SimpleMaterialModal: React.FC<SimpleMaterialModalProps> = ({
   const [name, setName] = useState('');
   const [unit, setUnit] = useState('Bag');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    setName('');
+    setUnit('Bag');
+    setErrorMsg(null);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

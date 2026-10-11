@@ -6,7 +6,6 @@ import {
   Building2,
   ShoppingCart,
   UserCheck,
-  Calendar,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -60,22 +59,12 @@ const actions: QuickAction[] = [
   {
     id: 'laborer',
     title: 'Add Laborer',
-    category: 'Wages',
+    category: 'Workforce',
     description: 'Register laborer name, phone, and auto-generated ID',
     icon: UserCheck,
     iconBg: 'bg-[#F7EFEF]',
     iconColor: 'text-[#4A0E0E]',
     route: '/wages?laborer=1',
-  },
-  {
-    id: 'wage',
-    title: 'Add Wage',
-    category: 'Wages',
-    description: 'Record daily wage entry for laborer on a project',
-    icon: Calendar,
-    iconBg: 'bg-[#F9F3E5]',
-    iconColor: 'text-[#C99A2E]',
-    route: '/wages?new=1',
   },
 ];
 

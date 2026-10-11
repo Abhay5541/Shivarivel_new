@@ -36,6 +36,11 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
   const [siteName, setSiteName] = useState('');
   const [location, setLocation] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+  useEffect(() => {
+    setIsConfirmDeleteOpen(false);
+  }, [isOpen]);
 
   useEffect(() => {
     if (site) {
@@ -97,8 +102,6 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
       setErrorMsg(msg);
     }
   };
-
-  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
   const handleDeleteSite = () => {
     if (!site) return;

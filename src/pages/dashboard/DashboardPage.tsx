@@ -427,15 +427,7 @@ export function DashboardPage() {
             onClick={() => navigate('/wages')}
             className="flex-1 md:flex-none text-xs"
           >
-            Attendance Register
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => navigate('/wages?mark=1')}
-            className="flex-1 md:flex-none text-xs bg-[#071510] hover:bg-[#152B23] text-white"
-          >
-            Record Today's Wages
+            View Attendance &amp; Wages
           </Button>
         </div>
       </div>
