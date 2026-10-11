@@ -9,7 +9,32 @@ import type {
   ProjectDocument,
 } from '@/types/projects';
 
-let memoryProjects: Project[] = [];
+const PROJECTS_STORAGE_KEY = 'shivarivel_projects';
+
+function loadStoredProjects(): Project[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(PROJECTS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+function saveStoredProjects(projects: Project[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+    } catch (e) {
+      console.warn('Failed to save projects to localStorage:', e);
+    }
+  }
+}
+
+export let memoryProjects: Project[] = loadStoredProjects();
 
 export interface UseProjectsOptions {
   search?: string;
@@ -23,52 +48,74 @@ export function useProjects(options: UseProjectsOptions = {}) {
   return useQuery({
     queryKey: ['projects', { search, status, customerId }],
     queryFn: async (): Promise<Project[]> => {
-      let query = supabase
-        .from('projects')
-        .select(`
-          *,
-          customer:customers!customer_id (id, name, phone, email, address, city),
-          supervisor:profiles!assigned_to (id, full_name, phone, role)
-        `)
-        .order('created_at', { ascending: false });
+      const local = loadStoredProjects();
+      let remoteProjects: Project[] = [];
 
-      if (customerId) {
-        query = query.eq('customer_id', customerId);
-      }
+      try {
+        let query = supabase
+          .from('projects')
+          .select(`
+            *,
+            customer:customers!customer_id (id, name, phone, email, address, city),
+            supervisor:profiles!assigned_to (id, full_name, phone, role)
+          `)
+          .order('created_at', { ascending: false });
 
-      if (status && status !== 'all') {
-        query = query.eq('status', status);
-      }
-
-      if (search && search.trim()) {
-        const term = `%${search.trim()}%`;
-        query = query.or(`name.ilike.${term},project_code.ilike.${term},site_address.ilike.${term}`);
-      }
-
-      const { data, error } = await query;
-      if (error) {
-        console.warn('Supabase projects query returned error; using local memory fallback:', error.message);
-        let filtered = [...memoryProjects];
         if (customerId) {
-          filtered = filtered.filter((p) => p.customer_id === customerId);
+          query = query.eq('customer_id', customerId);
         }
+
         if (status && status !== 'all') {
-          filtered = filtered.filter((p) => p.status === status);
+          query = query.eq('status', status);
         }
+
         if (search && search.trim()) {
-          const s = search.toLowerCase();
-          filtered = filtered.filter(
-            (p) =>
-              p.name.toLowerCase().includes(s) ||
-              p.project_code.toLowerCase().includes(s) ||
-              (p.site_address && p.site_address.toLowerCase().includes(s)) ||
-              (p.customer?.name && p.customer.name.toLowerCase().includes(s))
-          );
+          const term = `%${search.trim()}%`;
+          query = query.or(`name.ilike.${term},project_code.ilike.${term},site_address.ilike.${term}`);
         }
-        return filtered;
+
+        const { data, error } = await query;
+        if (!error && data) {
+          remoteProjects = (data as unknown as Project[]) || [];
+        } else if (error) {
+          console.warn('Supabase projects query returned error; using local fallback:', error.message);
+        }
+      } catch (err) {
+        console.warn('Supabase projects query notice:', err);
       }
 
-      return (data as unknown as Project[]) || [];
+      // Merge remote and local projects:
+      // Local projects not in remote are preserved, and local overrides take precedence.
+      const remoteIds = new Set(remoteProjects.map((p) => p.id));
+      const combined = [
+        ...local.filter((lp) => !remoteIds.has(lp.id)),
+        ...remoteProjects.map((rp) => {
+          const localItem = local.find((lp) => lp.id === rp.id);
+          return localItem || rp;
+        }),
+      ];
+
+      memoryProjects = combined;
+      saveStoredProjects(combined);
+
+      let filtered = [...combined];
+      if (customerId) {
+        filtered = filtered.filter((p) => p.customer_id === customerId);
+      }
+      if (status && status !== 'all') {
+        filtered = filtered.filter((p) => p.status === status);
+      }
+      if (search && search.trim()) {
+        const s = search.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.name.toLowerCase().includes(s) ||
+            p.project_code.toLowerCase().includes(s) ||
+            (p.site_address && p.site_address.toLowerCase().includes(s)) ||
+            (p.customer?.name && p.customer.name.toLowerCase().includes(s))
+        );
+      }
+      return filtered;
     },
     staleTime: 1000 * 60 * 2,
   });
@@ -282,7 +329,15 @@ export function useCreateProject() {
         };
 
         memoryProjects = [createdProject, ...memoryProjects];
+        saveStoredProjects(memoryProjects);
         return createdProject;
+      }
+
+      if (data) {
+        const proj = data as unknown as Project;
+        memoryProjects = [proj, ...memoryProjects.filter((p) => p.id !== proj.id)];
+        saveStoredProjects(memoryProjects);
+        return proj;
       }
 
       return data as unknown as Project;
@@ -339,8 +394,21 @@ export function useUpdateProject() {
             customer: existingWithCust?.customer || memoryProjects[idx].customer,
             updated_at: new Date().toISOString(),
           };
+          saveStoredProjects(memoryProjects);
           return memoryProjects[idx];
         }
+      }
+
+      if (data) {
+        const updated = data as unknown as Project;
+        const idx = memoryProjects.findIndex((p) => p.id === id);
+        if (idx >= 0) {
+          memoryProjects[idx] = updated;
+        } else {
+          memoryProjects.push(updated);
+        }
+        saveStoredProjects(memoryProjects);
+        return updated;
       }
 
       return data as unknown as Project;
@@ -398,6 +466,7 @@ export function useConvertEstimateToProject() {
           updated_at: new Date().toISOString(),
         };
         memoryProjects = [newProj, ...memoryProjects];
+        saveStoredProjects(memoryProjects);
         return newProj.id;
       }
 
@@ -425,6 +494,7 @@ export function useDeleteProject() {
         console.warn('Supabase project delete error:', err);
       }
       memoryProjects = memoryProjects.filter((p) => p.id !== id);
+      saveStoredProjects(memoryProjects);
       return id;
     },
     onSuccess: (id) => {

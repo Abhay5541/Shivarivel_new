@@ -21,9 +21,76 @@ export function getTodayDateString(): string {
   return `${year}-${month}-${day}`;
 }
 
-export let memoryEmployees: Employee[] = [];
-export let memoryAttendance: AttendanceRecord[] = [];
-export let memoryDailyWages: DailyWage[] = [];
+const EMPLOYEES_STORAGE_KEY = 'shivarivel_employees';
+const ATTENDANCE_STORAGE_KEY = 'shivarivel_attendance';
+const DAILY_WAGES_STORAGE_KEY = 'shivarivel_daily_wages';
+
+export function loadStoredEmployees(): Employee[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(EMPLOYEES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredEmployees(emps: Employee[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(EMPLOYEES_STORAGE_KEY, JSON.stringify(emps));
+    } catch {}
+  }
+}
+
+export function loadStoredDailyWages(): DailyWage[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(DAILY_WAGES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredDailyWages(wages: DailyWage[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(DAILY_WAGES_STORAGE_KEY, JSON.stringify(wages));
+    } catch {}
+  }
+}
+
+export function loadStoredAttendance(): AttendanceRecord[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(ATTENDANCE_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredAttendance(att: AttendanceRecord[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(ATTENDANCE_STORAGE_KEY, JSON.stringify(att));
+    } catch {}
+  }
+}
+
+export let memoryEmployees: Employee[] = loadStoredEmployees();
+export let memoryAttendance: AttendanceRecord[] = loadStoredAttendance();
+export let memoryDailyWages: DailyWage[] = loadStoredDailyWages();
 export let memoryAdvances: EmployeeAdvance[] = [];
 export let memoryEmployeePayments: EmployeePayment[] = [];
 
@@ -40,6 +107,9 @@ export function useEmployees(filters?: {
   return useQuery({
     queryKey: ['employees', filters],
     queryFn: async (): Promise<Employee[]> => {
+      const local = loadStoredEmployees();
+      let remote: Employee[] = [];
+
       try {
         let query = supabase.from('employees').select('*').order('created_at', { ascending: false });
 
@@ -48,30 +118,42 @@ export function useEmployees(filters?: {
         }
 
         const { data, error } = await query;
-        if (error) {
+        if (!error && data) {
+          remote = data as Employee[];
+        } else if (error) {
           console.warn('Employees query error:', error.message);
-          return [];
         }
-
-        let result = (data as Employee[]) || [];
-        if (filters?.role && filters.role !== 'all') {
-          result = result.filter((e) => e.worker_type?.toLowerCase().includes(filters.role!.toLowerCase()));
-        }
-        if (filters?.search && filters.search.trim()) {
-          const term = filters.search.toLowerCase().trim();
-          result = result.filter(
-            (e) =>
-              e.name.toLowerCase().includes(term) ||
-              e.employee_code.toLowerCase().includes(term) ||
-              (e.phone && e.phone.includes(term)) ||
-              (e.worker_type && e.worker_type.toLowerCase().includes(term))
-          );
-        }
-        return result;
       } catch (err) {
         console.warn('Employees query notice:', err);
-        return [];
       }
+
+      const remoteIds = new Set(remote.map((e) => e.id));
+      const merged = [
+        ...local.filter((le) => !remoteIds.has(le.id)),
+        ...remote.map((re) => {
+          const localItem = local.find((le) => le.id === re.id);
+          return localItem || re;
+        }),
+      ];
+
+      memoryEmployees = merged;
+      saveStoredEmployees(merged);
+
+      let result = merged;
+      if (filters?.role && filters.role !== 'all') {
+        result = result.filter((e) => e.worker_type?.toLowerCase().includes(filters.role!.toLowerCase()));
+      }
+      if (filters?.search && filters.search.trim()) {
+        const term = filters.search.toLowerCase().trim();
+        result = result.filter(
+          (e) =>
+            e.name.toLowerCase().includes(term) ||
+            e.employee_code.toLowerCase().includes(term) ||
+            (e.phone && e.phone.includes(term)) ||
+            (e.worker_type && e.worker_type.toLowerCase().includes(term))
+        );
+      }
+      return result;
     },
   });
 }
@@ -152,6 +234,7 @@ export function useCreateEmployee() {
           advance_outstanding: 0,
         };
         memoryEmployees = [newEmp, ...memoryEmployees];
+        saveStoredEmployees(memoryEmployees);
         return newEmp;
       }
     },
@@ -189,7 +272,15 @@ export function useUpdateEmployee(id: string) {
         if (error || !data) {
           throw error;
         }
-        return data as Employee;
+        const updated = data as Employee;
+        const idx = memoryEmployees.findIndex((e) => e.id === id);
+        if (idx !== -1) {
+          memoryEmployees[idx] = updated;
+        } else {
+          memoryEmployees.push(updated);
+        }
+        saveStoredEmployees(memoryEmployees);
+        return updated;
       } catch {
         const idx = memoryEmployees.findIndex((e) => e.id === id);
         if (idx !== -1) {
@@ -206,6 +297,7 @@ export function useUpdateEmployee(id: string) {
             notes: formData.notes || null,
             updated_at: now,
           };
+          saveStoredEmployees(memoryEmployees);
           return memoryEmployees[idx];
         }
         throw new Error('Employee not found');
@@ -232,6 +324,7 @@ export function useDeleteEmployee() {
         // Local fallback
       }
       memoryEmployees = memoryEmployees.filter((e) => e.id !== id);
+      saveStoredEmployees(memoryEmployees);
       return id;
     },
     onSuccess: (id) => {
@@ -458,6 +551,9 @@ export function useWages(filters?: {
   return useQuery({
     queryKey: ['wages', filters],
     queryFn: async (): Promise<DailyWage[]> => {
+      const local = loadStoredDailyWages();
+      let remote: DailyWage[] = [];
+
       try {
         let query = supabase
           .from('daily_wages')
@@ -475,15 +571,40 @@ export function useWages(filters?: {
         }
 
         const { data, error } = await query;
-        if (error) {
+        if (!error && data) {
+          remote = data as DailyWage[];
+        } else if (error) {
           console.warn('Daily wages query error:', error.message);
-          return [];
         }
-        return (data as DailyWage[]) || [];
       } catch (err) {
         console.warn('Daily wages query notice:', err);
-        return [];
       }
+
+      // Merge remote + local:
+      // Local wages not found in remote are kept. Local edits take precedence.
+      const remoteIds = new Set(remote.map((w) => w.id));
+      const merged = [
+        ...local.filter((lw) => !remoteIds.has(lw.id)),
+        ...remote.map((rw) => {
+          const localItem = local.find((lw) => lw.id === rw.id);
+          return localItem || rw;
+        }),
+      ];
+
+      memoryDailyWages = merged;
+      saveStoredDailyWages(merged);
+
+      let filtered = merged;
+      if (filters?.employeeId && filters.employeeId !== 'all') {
+        filtered = filtered.filter((w) => w.employee_id === filters.employeeId);
+      }
+      if (filters?.projectId && filters.projectId !== 'all') {
+        filtered = filtered.filter((w) => w.project_id === filters.projectId);
+      }
+      if (filters?.status && filters.status !== 'all') {
+        filtered = filtered.filter((w) => w.status === filters.status);
+      }
+      return filtered;
     },
   });
 }
@@ -568,6 +689,8 @@ export function useRecordDailyWage() {
                 updated_at: new Date().toISOString(),
               };
             }
+            saveStoredDailyWages(memoryDailyWages);
+            saveStoredAttendance(memoryAttendance);
           }
         }
       } else {
@@ -616,6 +739,7 @@ export function useRecordDailyWage() {
               project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
               updated_at: new Date().toISOString(),
             };
+            saveStoredDailyWages(memoryDailyWages);
           } else {
             const nextNum = memoryDailyWages.length + 1;
             const newAttId = `att-${Date.now()}-${payload.employee_id}`;
@@ -657,6 +781,7 @@ export function useRecordDailyWage() {
               amount_payable: wageAmount,
             };
             memoryDailyWages = [wageRecord, ...memoryDailyWages];
+            saveStoredDailyWages(memoryDailyWages);
 
             // Also add to memoryAttendance
             const attRecord: AttendanceRecord = {
@@ -676,6 +801,7 @@ export function useRecordDailyWage() {
               project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
             };
             memoryAttendance.push(attRecord);
+            saveStoredAttendance(memoryAttendance);
           }
         }
       }
@@ -686,6 +812,7 @@ export function useRecordDailyWage() {
         const empWages = memoryDailyWages.filter((w) => w.employee_id === emp.id && w.status === 'Confirmed');
         emp.total_wages_earned = empWages.reduce((sum, w) => sum + w.amount, 0);
         emp.total_present_days = empWages.length;
+        saveStoredEmployees(memoryEmployees);
       }
 
       return true;
@@ -723,8 +850,10 @@ export function useDeleteDailyWage() {
 
       // In-memory fallback removal
       memoryDailyWages = memoryDailyWages.filter((w) => w.id !== wageId);
+      saveStoredDailyWages(memoryDailyWages);
       if (attendanceId) {
         memoryAttendance = memoryAttendance.filter((a) => a.id !== attendanceId);
+        saveStoredAttendance(memoryAttendance);
       }
       return true;
     },

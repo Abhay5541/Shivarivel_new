@@ -15,10 +15,99 @@ import type {
   SupplierSummaryItem,
 } from '@/types/procurement';
 
-export let memorySuppliers: Supplier[] = [];
-export let memoryMaterials: Material[] = [];
-export let memoryPurchases: Purchase[] = [];
-export let memorySupplierPayments: SupplierPayment[] = [];
+const PURCHASES_STORAGE_KEY = 'shivarivel_purchases';
+const SUPPLIERS_STORAGE_KEY = 'shivarivel_suppliers';
+const SUPPLIER_PAYMENTS_STORAGE_KEY = 'shivarivel_supplier_payments';
+const MATERIALS_STORAGE_KEY = 'shivarivel_materials';
+
+export function loadStoredPurchases(): Purchase[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(PURCHASES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredPurchases(purchases: Purchase[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(PURCHASES_STORAGE_KEY, JSON.stringify(purchases));
+    } catch {}
+  }
+}
+
+export function loadStoredSuppliers(): Supplier[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(SUPPLIERS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredSuppliers(suppliers: Supplier[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(SUPPLIERS_STORAGE_KEY, JSON.stringify(suppliers));
+    } catch {}
+  }
+}
+
+export function loadStoredSupplierPayments(): SupplierPayment[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(SUPPLIER_PAYMENTS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredSupplierPayments(sp: SupplierPayment[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(SUPPLIER_PAYMENTS_STORAGE_KEY, JSON.stringify(sp));
+    } catch {}
+  }
+}
+
+export function loadStoredMaterials(): Material[] {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(MATERIALS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+  }
+  return [];
+}
+
+export function saveStoredMaterials(mats: Material[]) {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem(MATERIALS_STORAGE_KEY, JSON.stringify(mats));
+    } catch {}
+  }
+}
+
+export let memorySuppliers: Supplier[] = loadStoredSuppliers();
+export let memoryMaterials: Material[] = loadStoredMaterials();
+export let memoryPurchases: Purchase[] = loadStoredPurchases();
+export let memorySupplierPayments: SupplierPayment[] = loadStoredSupplierPayments();
 
 // Helper to derive payment status from allocation
 export function derivePurchasePaymentStatus(total: number, allocated: number): PurchasePaymentStatus {
@@ -35,23 +124,42 @@ export function useSuppliers(searchQuery?: string, statusFilter?: 'all' | 'activ
   return useQuery({
     queryKey: ['suppliers', searchQuery, statusFilter],
     queryFn: async (): Promise<Supplier[]> => {
-      let query = supabase
-        .from('suppliers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const local = loadStoredSuppliers();
+      let remote: Supplier[] = [];
 
-      if (statusFilter && statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+      try {
+        let query = supabase
+          .from('suppliers')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (statusFilter && statusFilter !== 'all') {
+          query = query.eq('status', statusFilter);
+        }
+
+        const { data, error } = await query;
+        if (!error && data) {
+          remote = data as Supplier[];
+        } else if (error) {
+          console.warn('Suppliers query error:', error.message);
+        }
+      } catch (err) {
+        console.warn('Suppliers query notice:', err);
       }
 
-      const { data, error } = await query;
+      const remoteIds = new Set(remote.map((s) => s.id));
+      const merged = [
+        ...local.filter((ls) => !remoteIds.has(ls.id)),
+        ...remote.map((rs) => {
+          const localItem = local.find((ls) => ls.id === rs.id);
+          return localItem || rs;
+        }),
+      ];
 
-      if (error) {
-        console.warn('Suppliers query error:', error.message);
-        return [];
-      }
+      memorySuppliers = merged;
+      saveStoredSuppliers(merged);
 
-      let filtered = (data as Supplier[]) || [];
+      let filtered = merged;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter(
@@ -458,60 +566,81 @@ export function usePurchases(filters?: PurchaseFilters) {
   return useQuery({
     queryKey: ['purchases', filters],
     queryFn: async (): Promise<Purchase[]> => {
-      let query = supabase
-        .from('purchases')
-        .select(`
-          *,
-          supplier:suppliers!supplier_id (*),
-          project:projects!project_id (id, name, project_code, site_address),
-          items:purchase_items (*, material:materials!material_id (*))
-        `)
-        .order('purchase_date', { ascending: false });
+      const local = loadStoredPurchases();
+      let remoteResults: Purchase[] = [];
 
-      if (filters?.supplier_id && filters.supplier_id !== 'all') {
-        query = query.eq('supplier_id', filters.supplier_id);
-      }
-      if (filters?.project_id === 'general') {
-        query = query.is('project_id', null);
-      } else if (filters?.project_id && filters.project_id !== 'all') {
-        query = query.eq('project_id', filters.project_id);
-      }
+      try {
+        let query = supabase
+          .from('purchases')
+          .select(`
+            *,
+            supplier:suppliers!supplier_id (*),
+            project:projects!project_id (id, name, project_code, site_address),
+            items:purchase_items (*, material:materials!material_id (*))
+          `)
+          .order('purchase_date', { ascending: false });
 
-      const { data, error } = await query;
-
-      // Fetch balances from v_purchase_balance
-      const { data: balanceData } = await (supabase
-        .from('v_purchase_balance') as any)
-        .select('*');
-
-      const balanceMap = new Map<string, { total_allocated: number; outstanding_balance: number }>();
-      if (balanceData) {
-        for (const row of balanceData as any[]) {
-          balanceMap.set(row.purchase_id, {
-            total_allocated: Number(row.total_allocated || 0),
-            outstanding_balance: Number(row.outstanding_balance || 0),
-          });
+        if (filters?.supplier_id && filters.supplier_id !== 'all') {
+          query = query.eq('supplier_id', filters.supplier_id);
         }
+        if (filters?.project_id === 'general') {
+          query = query.is('project_id', null);
+        } else if (filters?.project_id && filters.project_id !== 'all') {
+          query = query.eq('project_id', filters.project_id);
+        }
+
+        const { data, error } = await query;
+
+        // Fetch balances from v_purchase_balance
+        const { data: balanceData } = await (supabase
+          .from('v_purchase_balance') as any)
+          .select('*');
+
+        const balanceMap = new Map<string, { total_allocated: number; outstanding_balance: number }>();
+        if (balanceData) {
+          for (const row of balanceData as any[]) {
+            balanceMap.set(row.purchase_id, {
+              total_allocated: Number(row.total_allocated || 0),
+              outstanding_balance: Number(row.outstanding_balance || 0),
+            });
+          }
+        }
+
+        if (!error && data) {
+          remoteResults = ((data as any[]) || []).map((row) => {
+            const bal = balanceMap.get(row.id);
+            const total_allocated = bal?.total_allocated ?? 0;
+            const outstanding_balance = bal?.outstanding_balance ?? row.total_amount;
+            const payment_status = derivePurchasePaymentStatus(row.total_amount, total_allocated);
+
+            return {
+              ...row,
+              total_allocated,
+              outstanding_balance,
+              payment_status,
+            };
+          });
+        } else if (error) {
+          console.warn('Purchases query error:', error.message);
+        }
+      } catch (err) {
+        console.warn('Purchases query notice:', err);
       }
 
-      if (error) {
-        console.warn('Purchases query error:', error.message);
-        return [];
-      }
+      // Merge remote + local:
+      const remoteIds = new Set(remoteResults.map((p) => p.id));
+      const combined = [
+        ...local.filter((lp) => !remoteIds.has(lp.id)),
+        ...remoteResults.map((rp) => {
+          const localItem = local.find((lp) => lp.id === rp.id);
+          return localItem || rp;
+        }),
+      ];
 
-      let results: Purchase[] = ((data as any[]) || []).map((row) => {
-        const bal = balanceMap.get(row.id);
-        const total_allocated = bal?.total_allocated ?? 0;
-        const outstanding_balance = bal?.outstanding_balance ?? row.total_amount;
-        const payment_status = derivePurchasePaymentStatus(row.total_amount, total_allocated);
+      memoryPurchases = combined;
+      saveStoredPurchases(combined);
 
-        return {
-          ...row,
-          total_allocated,
-          outstanding_balance,
-          payment_status,
-        };
-      });
+      let results = combined;
 
       if (filters?.project_id === 'general') {
         results = results.filter((p) => !p.project_id);
@@ -750,6 +879,7 @@ export function useCreatePurchase() {
         };
 
         memoryPurchases = [createdPurchase, ...memoryPurchases];
+        saveStoredPurchases(memoryPurchases);
 
         // If initial payment was recorded in memory
         if (payload.record_initial_payment && initialPayAmt > 0) {
@@ -790,6 +920,7 @@ export function useCreatePurchase() {
           };
 
           memorySupplierPayments = [createdPayment, ...memorySupplierPayments];
+          saveStoredSupplierPayments(memorySupplierPayments);
         }
 
         return createdPurchase.id;
@@ -1244,6 +1375,7 @@ export function useCreateSimplePurchase() {
       };
 
       memoryPurchases = [newPurchase, ...memoryPurchases];
+      saveStoredPurchases(memoryPurchases);
 
       // If initial payment was made, add to memorySupplierPayments as well
       if (amountPaid > 0) {
@@ -1281,6 +1413,7 @@ export function useCreateSimplePurchase() {
           ],
         };
         memorySupplierPayments = [createdPayment, ...memorySupplierPayments];
+        saveStoredSupplierPayments(memorySupplierPayments);
       }
 
       // In test environment, skip remote network calls
@@ -1439,6 +1572,7 @@ export function useUpdateSimplePurchase() {
           ],
         };
         memoryPurchases[existingIdx] = updatedPurchase;
+        saveStoredPurchases(memoryPurchases);
 
         // In test environment, skip remote network calls
         const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
@@ -1504,6 +1638,7 @@ export function useDeleteSimplePurchase() {
         console.warn('Purchase delete error:', err);
       }
       memoryPurchases = memoryPurchases.filter((p) => p.id !== id);
+      saveStoredPurchases(memoryPurchases);
       return id;
     },
     onSuccess: () => {
