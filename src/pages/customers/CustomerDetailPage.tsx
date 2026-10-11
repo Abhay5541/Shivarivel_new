@@ -16,6 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { useCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import type { Project } from '@/types/projects';
@@ -31,11 +32,21 @@ export const CustomerDetailPage: React.FC = () => {
   const { data: customer, isLoading, isError, error, refetch } = useCustomer(id);
   const { data: allProjects = [] } = useProjects({ customerId: id });
 
-  const handleDeleteCustomer = async () => {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+  const handleDeleteCustomer = () => {
     if (!customer) return;
-    if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!customer) return;
+    try {
       await deleteCustomerMutation.mutateAsync(customer.id);
+      setIsConfirmDeleteOpen(false);
       navigate('/customers');
+    } catch {
+      setIsConfirmDeleteOpen(false);
     }
   };
 
@@ -210,6 +221,15 @@ export const CustomerDetailPage: React.FC = () => {
         preselectedCustomer={customer}
         defaultLocation={customer.address}
         onSuccess={handleSiteCreated}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={handleConfirmDelete}
+        itemName={customer?.name}
+        isLoading={deleteCustomerMutation.isPending}
       />
     </div>
   );

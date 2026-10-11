@@ -4,6 +4,7 @@ import { useCreateSupplier, useUpdateSupplier, useDeleteSupplier } from '@/hooks
 import { indianPhoneRegex } from '@/types/business';
 import type { Supplier } from '@/types/procurement';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 interface SimpleSupplierModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (supplier) {
@@ -36,6 +38,7 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
       setPhone('');
     }
     setErrorMsg(null);
+    setIsDeleteModalOpen(false);
   }, [supplier, isOpen]);
 
   if (!isOpen) return null;
@@ -84,16 +87,16 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const handleConfirmDelete = async () => {
     if (!supplier) return;
-    if (window.confirm(`Are you sure you want to delete supplier "${supplier.name}"? This action cannot be undone.`)) {
-      try {
-        await deleteSupplierMutation.mutateAsync(supplier.id);
-        onClose();
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unable to delete supplier.';
-        setErrorMsg(msg);
-      }
+    try {
+      await deleteSupplierMutation.mutateAsync(supplier.id);
+      setIsDeleteModalOpen(false);
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to delete supplier.';
+      setErrorMsg(msg);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -103,7 +106,8 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
     deleteSupplierMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
+    <>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2DDD5] bg-[#F7F5F0]">
@@ -172,7 +176,7 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
               <Button
                 type="button"
                 variant="ghost"
-                onClick={handleDelete}
+                onClick={() => setIsDeleteModalOpen(true)}
                 disabled={isSaving}
                 className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
               >
@@ -205,5 +209,14 @@ export const SimpleSupplierModal: React.FC<SimpleSupplierModalProps> = ({
         </form>
       </div>
     </div>
+
+    <ConfirmDeleteModal
+      isOpen={isDeleteModalOpen}
+      onClose={() => setIsDeleteModalOpen(false)}
+      onConfirm={handleConfirmDelete}
+      title="Delete Supplier"
+      itemName={supplier?.name || 'this supplier'}
+    />
+  </>
   );
 };

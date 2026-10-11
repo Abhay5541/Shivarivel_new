@@ -33,15 +33,10 @@ const EmployeePaymentsPage = lazy(() => import('@/pages/workforce/EmployeePaymen
 const EmployeePaymentEditorPage = lazy(() => import('@/pages/workforce/EmployeePaymentEditorPage').then(m => ({ default: m.EmployeePaymentEditorPage })));
 
 // 5. Module 4: Procurement & Purchases
-const SuppliersPage = lazy(() => import('@/pages/procurement/SuppliersPage').then(m => ({ default: m.SuppliersPage })));
-const SupplierEditorPage = lazy(() => import('@/pages/procurement/SupplierEditorPage').then(m => ({ default: m.SupplierEditorPage })));
-const SupplierDetailPage = lazy(() => import('@/pages/procurement/SupplierDetailPage').then(m => ({ default: m.SupplierDetailPage })));
 const MaterialsPage = lazy(() => import('@/pages/procurement/MaterialsPage').then(m => ({ default: m.MaterialsPage })));
 const PurchasesPage = lazy(() => import('@/pages/procurement/PurchasesPage').then(m => ({ default: m.PurchasesPage })));
 const PurchaseEditorPage = lazy(() => import('@/pages/procurement/PurchaseEditorPage').then(m => ({ default: m.PurchaseEditorPage })));
 const PurchaseDetailPage = lazy(() => import('@/pages/procurement/PurchaseDetailPage').then(m => ({ default: m.PurchaseDetailPage })));
-const SupplierPaymentsPage = lazy(() => import('@/pages/procurement/SupplierPaymentsPage').then(m => ({ default: m.SupplierPaymentsPage })));
-const SupplierPaymentEditorPage = lazy(() => import('@/pages/procurement/SupplierPaymentEditorPage').then(m => ({ default: m.SupplierPaymentEditorPage })));
 
 // 6. Settings & Administration
 const SettingsOverviewPage = lazy(() => import('@/pages/settings/SettingsOverviewPage').then(m => ({ default: m.SettingsOverviewPage })));
@@ -113,13 +108,11 @@ export function App() {
                   <Route path="/purchases/new" element={<PurchaseEditorPage />} />
                   <Route path="/purchases/:id" element={<PurchaseDetailPage />} />
                   <Route path="/purchases/:id/edit" element={<PurchaseEditorPage />} />
-                  <Route path="/suppliers" element={<SuppliersPage />} />
-                  <Route path="/suppliers/new" element={<SupplierEditorPage />} />
-                  <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
-                  <Route path="/suppliers/:id/edit" element={<SupplierEditorPage />} />
+                  <Route path="/suppliers" element={<Navigate to="/procurement" replace />} />
+                  <Route path="/suppliers/*" element={<Navigate to="/procurement" replace />} />
                   <Route path="/materials" element={<MaterialsPage />} />
-                  <Route path="/supplier-payments" element={<SupplierPaymentsPage />} />
-                  <Route path="/supplier-payments/new" element={<SupplierPaymentEditorPage />} />
+                  <Route path="/supplier-payments" element={<Navigate to="/procurement" replace />} />
+                  <Route path="/supplier-payments/*" element={<Navigate to="/procurement" replace />} />
 
                   {/* 5. SETTINGS */}
                   <Route path="/settings" element={<SettingsOverviewPage />} />

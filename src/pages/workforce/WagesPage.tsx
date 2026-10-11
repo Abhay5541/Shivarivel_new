@@ -23,6 +23,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { LaborersDrawer } from '@/components/business/LaborersDrawer';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import { SplitText } from '@/components/ui/SplitText';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
@@ -94,22 +95,27 @@ export function WagesPage() {
   const { data: employees = [] } = useEmployees();
   const { data: projects = [] } = useProjects();
   const deleteWageMutation = useDeleteDailyWage();
+  const [deletingWageItem, setDeletingWageItem] = useState<{ wage: DailyWage; laborerName: string } | null>(null);
 
   const handleDeleteWage = (wage: DailyWage, laborerName: string) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete this wage entry of ${formatINR(wage.amount || 0)} for ${laborerName}?`
-      )
-    ) {
-      deleteWageMutation.mutate(
-        { wageId: wage.id, attendanceId: wage.attendance_id || undefined },
-        {
-          onSuccess: () => {
-            setToastMessage(`Wage entry for ${laborerName} deleted successfully.`);
-          },
-        }
-      );
-    }
+    setDeletingWageItem({ wage, laborerName });
+  };
+
+  const confirmDeleteWage = () => {
+    if (!deletingWageItem) return;
+    const { wage, laborerName } = deletingWageItem;
+    deleteWageMutation.mutate(
+      { wageId: wage.id, attendanceId: wage.attendance_id || undefined },
+      {
+        onSuccess: () => {
+          setToastMessage(`Wage entry for ${laborerName} deleted successfully.`);
+          setDeletingWageItem(null);
+        },
+        onError: () => {
+          setDeletingWageItem(null);
+        },
+      }
+    );
   };
 
   // ==========================================
@@ -124,7 +130,12 @@ export function WagesPage() {
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
-      setSelectedDate(`${y}-${m}-${day}`);
+      const newDateStr = `${y}-${m}-${day}`;
+      // Do not allow navigating past today
+      if (deltaDays > 0 && newDateStr > todayStr) {
+        return;
+      }
+      setSelectedDate(newDateStr);
     }
   };
 
@@ -456,9 +467,13 @@ export function WagesPage() {
                   {/* Invisible native date picker over container for instant jump */}
                   <input
                     type="date"
+                    max={todayStr}
                     value={selectedDate}
                     onChange={(e) => {
-                      if (e.target.value) setSelectedDate(e.target.value);
+                      if (e.target.value) {
+                        const val = e.target.value;
+                        if (val <= todayStr) setSelectedDate(val);
+                      }
                     }}
                     className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                     title="Choose a specific date"
@@ -483,8 +498,8 @@ export function WagesPage() {
                 </div>
               </div>
 
-              {/* Quick Navigation Buttons (50% / 50% grid) */}
-              <div className="grid grid-cols-2 gap-2">
+              {/* Quick Navigation Buttons */}
+              <div className={isSelectedDateToday ? "grid grid-cols-1" : "grid grid-cols-2 gap-2"}>
                 <Button
                   type="button"
                   variant="outline"
@@ -496,32 +511,18 @@ export function WagesPage() {
                   <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
                 </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigateDate(1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
-                >
-                  <span>{selectedDate === todayStr ? 'Tomorrow' : 'Next Day'}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Add Wage Button on Mobile */}
-              <div className="pt-1 border-t border-[#E2DDD5]/70">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => {
-                    setEditingWage(null);
-                    setIsAddWageModalOpen(true);
-                  }}
-                  className="w-full h-9 bg-[#4A0E0E] text-white text-xs font-bold rounded-lg cursor-pointer"
-                >
-                  + Add Wage Entry for this Day
-                </Button>
+                {!isSelectedDateToday && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateDate(1)}
+                    className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                  >
+                    <span>Next Day</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -547,9 +548,13 @@ export function WagesPage() {
                     </span>
                     <input
                       type="date"
+                      max={todayStr}
                       value={selectedDate}
                       onChange={(e) => {
-                        if (e.target.value) setSelectedDate(e.target.value);
+                        if (e.target.value) {
+                          const val = e.target.value;
+                          if (val <= todayStr) setSelectedDate(val);
+                        }
                       }}
                       className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                       title="Choose a specific date"
@@ -572,16 +577,18 @@ export function WagesPage() {
                   )}
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigateDate(1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-                >
-                  <span>{selectedDate === todayStr ? 'Tomorrow' : 'Next Day'}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+                {!isSelectedDateToday && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigateDate(1)}
+                    className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                  >
+                    <span>Next Day</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -640,21 +647,6 @@ export function WagesPage() {
                 <p className="text-xs sm:text-sm text-[#6B6B6B] max-w-sm mx-auto">
                   Mark attendance and daily cash payments for site laborers who worked on {formattedSelectedDate}.
                 </p>
-              </div>
-              <div className="pt-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => {
-                    setEditingWage(null);
-                    setIsAddWageModalOpen(true);
-                  }}
-                  className="h-10 px-5 bg-[#4A0E0E] hover:bg-[#380A0A] text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer gap-1.5"
-                >
-                  <Plus className="w-4 h-4 text-[#C99A2E]" />
-                  <span>Add Wage Entry</span>
-                </Button>
               </div>
             </div>
           ) : (
@@ -1166,6 +1158,15 @@ export function WagesPage() {
         onSuccess={() => {
           setToastMessage(editingWage ? 'Wage entry updated.' : 'Wage entry saved.');
         }}
+      />
+
+      {/* Delete Wage Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingWageItem)}
+        onClose={() => setDeletingWageItem(null)}
+        onConfirm={confirmDeleteWage}
+        itemName={deletingWageItem ? `${deletingWageItem.laborerName} (${formatINR(deletingWageItem.wage.amount || 0)})` : undefined}
+        isLoading={deleteWageMutation.isPending}
       />
     </PageContainer>
   );

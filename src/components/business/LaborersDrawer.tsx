@@ -4,6 +4,7 @@ import { useEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmployee }
 import { indianPhoneRegex } from '@/types/business';
 import type { Employee } from '@/types/workforce';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 interface LaborersDrawerProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
 
   const [isAddingOrEditing, setIsAddingOrEditing] = useState(false);
   const [editingLaborer, setEditingLaborer] = useState<Employee | null>(null);
+  const [deletingLaborer, setDeletingLaborer] = useState<Employee | null>(null);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -58,19 +60,8 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
     setErrorMsg(null);
   };
 
-  const handleDeleteLaborer = async (laborer: Employee) => {
-    if (window.confirm(`Are you sure you want to delete laborer "${laborer.name}"? This action cannot be undone.`)) {
-      try {
-        await deleteEmployeeMutation.mutateAsync(laborer.id);
-        setSuccessMsg(`Deleted ${laborer.name}`);
-        if (editingLaborer?.id === laborer.id) {
-          setIsAddingOrEditing(false);
-          setEditingLaborer(null);
-        }
-      } catch {
-        setErrorMsg('Failed to delete laborer.');
-      }
-    }
+  const handleDeleteLaborer = (laborer: Employee) => {
+    setDeletingLaborer(laborer);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +116,8 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
   const isSaving = createEmployeeMutation.isPending || updateEmployeeMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end modal-backdrop-spring">
+    <>
+      <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs flex justify-end modal-backdrop-spring">
       {/* Drawer Container */}
       <div className="bg-[#FFFFFF] w-full max-w-md h-full shadow-2xl flex flex-col border-l border-[#E2DDD5] drawer-spring">
         {/* Drawer Header */}
@@ -347,5 +339,28 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
         </div>
       </div>
     </div>
+
+    <ConfirmDeleteModal
+      isOpen={Boolean(deletingLaborer)}
+      onClose={() => setDeletingLaborer(null)}
+      onConfirm={async () => {
+        if (!deletingLaborer) return;
+        try {
+          await deleteEmployeeMutation.mutateAsync(deletingLaborer.id);
+          setSuccessMsg(`Deleted ${deletingLaborer.name}`);
+          if (editingLaborer?.id === deletingLaborer.id) {
+            setIsAddingOrEditing(false);
+            setEditingLaborer(null);
+          }
+          setDeletingLaborer(null);
+        } catch {
+          setErrorMsg('Failed to delete laborer.');
+          setDeletingLaborer(null);
+        }
+      }}
+      title="Delete Laborer"
+      itemName={deletingLaborer?.name || 'this laborer'}
+    />
+  </>
   );
 };

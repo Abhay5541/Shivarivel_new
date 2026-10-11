@@ -293,8 +293,6 @@ export const ProjectsPage: React.FC = () => {
               ? `No project matching "${searchTerm}". Try another search keyword.`
               : undefined
           }
-          actionLabel={searchTerm || activeTab !== 'all' ? undefined : '+ Add Project'}
-          onAction={searchTerm || activeTab !== 'all' ? undefined : handleOpenAddProject}
         />
       ) : activeTab === 'all' ? (
         <div className="space-y-6">

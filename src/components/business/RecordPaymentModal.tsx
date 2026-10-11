@@ -72,7 +72,6 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
   const isSaving = recordPaymentMutation.isPending;
   const productName = purchase.items?.[0]?.description || purchase.items?.[0]?.material?.name || 'Material Item';
-  const supplierName = purchase.supplier?.name || 'Supplier';
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
@@ -103,7 +102,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <div className="p-3.5 bg-[#F7F5F0] rounded-xl border border-[#E2DDD5] space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-[#242424]">{productName}</span>
-              <span className="text-[#6B6B6B] font-medium">{supplierName}</span>
+              <span className="text-[#6B6B6B] font-medium">{purchase.purchase_date}</span>
             </div>
             <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[#E2DDD5]/70 text-center">
               <div>

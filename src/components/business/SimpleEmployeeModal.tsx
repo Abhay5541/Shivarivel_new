@@ -4,6 +4,7 @@ import { useCreateEmployee, useUpdateEmployee, useDeleteEmployee } from '@/hooks
 import { indianPhoneRegex } from '@/types/business';
 import type { Employee } from '@/types/workforce';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 interface SimpleEmployeeModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
   const [phone, setPhone] = useState('');
   const [dailyWage, setDailyWage] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (employee) {
@@ -39,6 +41,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
       setDailyWage('');
     }
     setErrorMsg(null);
+    setIsDeleteModalOpen(false);
   }, [employee, isOpen]);
 
   if (!isOpen) return null;
@@ -93,16 +96,16 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const handleConfirmDelete = async () => {
     if (!employee) return;
-    if (window.confirm(`Are you sure you want to delete employee "${employee.name}"? This action cannot be undone.`)) {
-      try {
-        await deleteEmployeeMutation.mutateAsync(employee.id);
-        onClose();
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unable to delete employee.';
-        setErrorMsg(msg);
-      }
+    try {
+      await deleteEmployeeMutation.mutateAsync(employee.id);
+      setIsDeleteModalOpen(false);
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to delete employee.';
+      setErrorMsg(msg);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -112,7 +115,8 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
     deleteEmployeeMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
+    <>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2DDD5] bg-[#F7F5F0]">
@@ -197,7 +201,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
               <Button
                 type="button"
                 variant="ghost"
-                onClick={handleDelete}
+                onClick={() => setIsDeleteModalOpen(true)}
                 disabled={isSaving}
                 className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
               >
@@ -230,5 +234,14 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
         </form>
       </div>
     </div>
+
+    <ConfirmDeleteModal
+      isOpen={isDeleteModalOpen}
+      onClose={() => setIsDeleteModalOpen(false)}
+      onConfirm={handleConfirmDelete}
+      title="Delete Employee"
+      itemName={employee?.name || 'this employee'}
+    />
+  </>
   );
 };

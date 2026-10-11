@@ -268,7 +268,7 @@ export interface SimplePurchaseInput {
   id?: string;
   project_id: string | null;
   product_name: string;
-  supplier_name: string;
+  supplier_name?: string | null;
   quantity: number;
   unit: string;
   total_value: number;

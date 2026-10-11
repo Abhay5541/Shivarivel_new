@@ -3,6 +3,7 @@ import { X, Calendar, User, Building2, AlertCircle, CheckCircle2, Clock, Ban, Tr
 import { useEmployees, useRecordDailyWage, useWages, useDeleteDailyWage } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
 
 interface SimpleDailyWageModalProps {
@@ -164,20 +165,27 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+  const handleDelete = () => {
     if (!activeWageRecord) return;
-    if (window.confirm('Are you sure you want to delete this wage entry? This action cannot be undone.')) {
-      try {
-        await deleteWageMutation.mutateAsync({
-          wageId: activeWageRecord.id,
-          attendanceId: activeWageRecord.attendance_id || undefined,
-        });
-        if (onSuccess) onSuccess();
-        onClose();
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unable to delete wage entry.';
-        setErrorMsg(msg);
-      }
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!activeWageRecord) return;
+    try {
+      await deleteWageMutation.mutateAsync({
+        wageId: activeWageRecord.id,
+        attendanceId: activeWageRecord.attendance_id || undefined,
+      });
+      setIsConfirmDeleteOpen(false);
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to delete wage entry.';
+      setErrorMsg(msg);
+      setIsConfirmDeleteOpen(false);
     }
   };
 
@@ -422,6 +430,15 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
           </div>
         </form>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Wage Entry"
+        message="This wage entry will be permanently deleted. Are you sure?"
+        isLoading={deleteWageMutation.isPending}
+      />
     </div>
   );
 };

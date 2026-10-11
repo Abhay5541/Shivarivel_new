@@ -19,6 +19,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleSupplierPaymentModal } from '@/components/business/SimpleSupplierPaymentModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { SimpleSupplierModal } from '@/components/business/SimpleSupplierModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 export const SupplierDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,15 +28,19 @@ export const SupplierDetailPage: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [isEditSupplierOpen, setIsEditSupplierOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const deleteSupplierMutation = useDeleteSupplier();
   const { data: supplier, isLoading: isLoadingSupplier, isError, error, refetch } = useSupplier(id);
 
-  const handleDeleteSupplier = async () => {
+  const handleConfirmDelete = async () => {
     if (!supplier) return;
-    if (window.confirm(`Are you sure you want to delete supplier "${supplier.name}"? This action cannot be undone.`)) {
+    try {
       await deleteSupplierMutation.mutateAsync(supplier.id);
-      navigate('/suppliers');
+      setIsDeleteModalOpen(false);
+      navigate('/procurement');
+    } catch {
+      setIsDeleteModalOpen(false);
     }
   };
   const { data: balance, isLoading: isLoadingBalance } = useSupplierBalance(id);
@@ -152,7 +157,7 @@ export const SupplierDetailPage: React.FC = () => {
           <Button
             type="button"
             variant="outline"
-            onClick={handleDeleteSupplier}
+            onClick={() => setIsDeleteModalOpen(true)}
             disabled={deleteSupplierMutation.isPending}
             className="h-10 px-3.5 text-xs font-bold text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200 flex items-center gap-1.5 cursor-pointer"
           >
@@ -270,6 +275,14 @@ export const SupplierDetailPage: React.FC = () => {
         isOpen={isEditSupplierOpen}
         onClose={() => setIsEditSupplierOpen(false)}
         supplier={supplier}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Supplier"
+        itemName={supplier.name}
       />
     </div>
   );

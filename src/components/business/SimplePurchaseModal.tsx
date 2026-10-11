@@ -5,6 +5,7 @@ import { useCreateSimplePurchase, useUpdateSimplePurchase, useDeleteSimplePurcha
 import type { Purchase } from '@/types/procurement';
 import { formatINR } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 interface SimplePurchaseModalProps {
   isOpen: boolean;
@@ -31,13 +32,13 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
 
   const [projectId, setProjectId] = useState('');
   const [productName, setProductName] = useState('');
-  const [supplierName, setSupplierName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('Bags');
   const [totalValue, setTotalValue] = useState('');
   const [amountPaid, setAmountPaid] = useState('0');
   const [notes, setNotes] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const isEdit = Boolean(editPurchase);
   const isProjectPurchase = mode === 'project' || Boolean(editPurchase?.project_id);
@@ -48,7 +49,6 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
         setProjectId(editPurchase.project_id || '');
         const item = editPurchase.items?.[0];
         setProductName(item?.description || item?.material?.name || '');
-        setSupplierName(editPurchase.supplier?.name || '');
         setQuantity(item?.quantity ? String(item.quantity) : '');
         setUnit(item?.unit || 'Bags');
         setTotalValue(editPurchase.total_amount ? String(editPurchase.total_amount) : '');
@@ -60,7 +60,6 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
         const defaultPrj = preselectedProjectId || '';
         setProjectId(isProjectPurchase ? defaultPrj : '');
         setProductName('');
-        setSupplierName('');
         setQuantity('');
         setUnit('Bags');
         setTotalValue('');
@@ -68,6 +67,7 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
         setNotes('');
       }
       setErrorMsg(null);
+      setIsDeleteModalOpen(false);
     }
   }, [isOpen, editPurchase, preselectedProjectId, projects, isProjectPurchase]);
 
@@ -89,11 +89,6 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
 
     if (!productName.trim()) {
       setErrorMsg('Product / Material is required.');
-      return;
-    }
-
-    if (!supplierName.trim()) {
-      setErrorMsg('Supplier / Company is required.');
       return;
     }
 
@@ -128,7 +123,6 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
           id: editPurchase.id,
           project_id: isProjectPurchase ? projectId : null,
           product_name: productName.trim(),
-          supplier_name: supplierName.trim(),
           quantity: numQty,
           unit: unit.trim(),
           total_value: numTotal,
@@ -139,7 +133,6 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
         await createPurchaseMutation.mutateAsync({
           project_id: isProjectPurchase ? projectId : null,
           product_name: productName.trim(),
-          supplier_name: supplierName.trim(),
           quantity: numQty,
           unit: unit.trim(),
           total_value: numTotal,
@@ -156,17 +149,17 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const handleConfirmDelete = async () => {
     if (!editPurchase) return;
-    if (window.confirm(`Are you sure you want to delete purchase "${editPurchase.purchase_number || productName}"? This action cannot be undone.`)) {
-      try {
-        await deletePurchaseMutation.mutateAsync(editPurchase.id);
-        if (onSuccess) onSuccess();
-        onClose();
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unable to delete purchase.';
-        setErrorMsg(msg);
-      }
+    try {
+      await deletePurchaseMutation.mutateAsync(editPurchase.id);
+      setIsDeleteModalOpen(false);
+      if (onSuccess) onSuccess();
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to delete purchase.';
+      setErrorMsg(msg);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -176,98 +169,84 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
     deletePurchaseMutation.isPending;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
-      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2DDD5] bg-[#F7F5F0]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#4A0E0E]/10 flex items-center justify-center text-[#4A0E0E]">
-              <ShoppingCart className="w-5 h-5" />
+    <>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 modal-backdrop-spring">
+        <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-[#E2DDD5] overflow-hidden modal-spring">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2DDD5] bg-[#F7F5F0]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-[#4A0E0E]/10 flex items-center justify-center text-[#4A0E0E]">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-[#242424] font-heading">
+                  {isEdit
+                    ? 'Edit Purchase'
+                    : isProjectPurchase
+                    ? 'Record Project Purchase'
+                    : 'Record General Purchase'}
+                </h2>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base sm:text-lg font-bold text-[#242424] font-heading">
-                {isEdit
-                  ? 'Edit Purchase'
-                  : isProjectPurchase
-                  ? 'Record Project Purchase'
-                  : 'Record General Purchase'}
-              </h2>
-            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-[#6B6B6B] hover:text-[#242424] p-2 rounded-lg hover:bg-black/5 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-[#6B6B6B] hover:text-[#242424] p-2 rounded-lg hover:bg-black/5 transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {errorMsg && (
-            <div className="p-3 text-xs bg-red-50 text-red-700 border border-red-200 rounded-xl font-medium flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
+          {/* Form Body */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {errorMsg && (
+              <div className="p-3 text-xs bg-red-50 text-red-700 border border-red-200 rounded-xl font-medium flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
 
-          {/* 1. Project (ONLY for Project Purchases) */}
-          {isProjectPurchase && (
+            {/* 1. Project (ONLY for Project Purchases) */}
+            {isProjectPurchase && (
+              <div>
+                <label className="block text-xs font-bold text-[#242424] uppercase tracking-wider mb-1.5">
+                  Project <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={projectId}
+                  onChange={(e) => setProjectId(e.target.value)}
+                  required={isProjectPurchase}
+                  className="w-full h-11 px-3 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all cursor-pointer"
+                >
+                  <option value="">
+                    Select Project...
+                  </option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} {p.customer?.name ? `(${p.customer.name})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* 2. Product / Material (Free-text) */}
             <div>
               <label className="block text-xs font-bold text-[#242424] uppercase tracking-wider mb-1.5">
-                Project <span className="text-red-500">*</span>
+                Product / Material <span className="text-red-500">*</span>
               </label>
-              <select
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                required={isProjectPurchase}
-                className="w-full h-11 px-3 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all cursor-pointer"
-              >
-                <option value="">
-                  Select Project...
-                </option>
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} {p.customer?.name ? `(${p.customer.name})` : ''}
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                required
+                autoFocus
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+                placeholder="e.g. Cement, Steel Rod, Sand, Bricks, Tiles"
+                className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
+              />
             </div>
-          )}
 
-          {/* 2. Product / Material (Free-text) */}
-          <div>
-            <label className="block text-xs font-bold text-[#242424] uppercase tracking-wider mb-1.5">
-              Product / Material <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              autoFocus
-              value={productName}
-              onChange={(e) => setProductName(e.target.value)}
-              placeholder="e.g. Cement, Steel Rod, Sand, Bricks, Tiles"
-              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
-            />
-          </div>
-
-          {/* 3. Supplier / Company (Free-text) */}
-          <div>
-            <label className="block text-xs font-bold text-[#242424] uppercase tracking-wider mb-1.5">
-              Supplier / Company <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={supplierName}
-              onChange={(e) => setSupplierName(e.target.value)}
-              placeholder="e.g. ABC Traders, XYZ Building Materials"
-              className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-medium text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
-            />
-          </div>
-
-          {/* 4. Quantity & 5. Unit */}
+            {/* 3. Quantity & Unit */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-[#242424] uppercase tracking-wider mb-1.5">
@@ -360,7 +339,7 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
               <Button
                 type="button"
                 variant="ghost"
-                onClick={handleDelete}
+                onClick={() => setIsDeleteModalOpen(true)}
                 disabled={isSaving}
                 className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-11 px-3 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
@@ -393,5 +372,14 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
         </form>
       </div>
     </div>
+
+    <ConfirmDeleteModal
+      isOpen={isDeleteModalOpen}
+      onClose={() => setIsDeleteModalOpen(false)}
+      onConfirm={handleConfirmDelete}
+      title="Delete Purchase"
+      itemName={editPurchase?.purchase_number || productName || 'this purchase'}
+    />
+  </>
   );
 };

@@ -1292,9 +1292,6 @@ export function useCreateSimplePurchase() {
       if (!payload.product_name?.trim()) {
         throw new Error('Product / Material is required.');
       }
-      if (!payload.supplier_name?.trim()) {
-        throw new Error('Supplier / Company is required.');
-      }
       if (!payload.quantity || payload.quantity <= 0) {
         throw new Error('Quantity must be greater than 0.');
       }
@@ -1311,8 +1308,9 @@ export function useCreateSimplePurchase() {
         throw new Error('Amount paid cannot be greater than total value.');
       }
 
-      // 2. Silently resolve supplier and material
-      const supplier = await resolveOrCreateSupplier(payload.supplier_name);
+      // 2. Silently resolve supplier (if any) and material
+      const supplierName = payload.supplier_name?.trim() || 'Direct Purchase';
+      const supplier = await resolveOrCreateSupplier(supplierName);
       const material = await resolveOrCreateMaterial(payload.product_name, payload.unit);
 
       const totalValue = payload.total_value;
@@ -1502,9 +1500,6 @@ export function useUpdateSimplePurchase() {
       if (!payload.product_name?.trim()) {
         throw new Error('Product / Material is required.');
       }
-      if (!payload.supplier_name?.trim()) {
-        throw new Error('Supplier / Company is required.');
-      }
       if (!payload.quantity || payload.quantity <= 0) {
         throw new Error('Quantity must be greater than 0.');
       }
@@ -1521,8 +1516,9 @@ export function useUpdateSimplePurchase() {
         throw new Error('Amount paid cannot be greater than total value.');
       }
 
-      // 2. Silently resolve supplier and material
-      const supplier = await resolveOrCreateSupplier(payload.supplier_name);
+      // 2. Silently resolve supplier (if any) and material
+      const supplierName = payload.supplier_name?.trim() || 'Direct Purchase';
+      const supplier = await resolveOrCreateSupplier(supplierName);
       const material = await resolveOrCreateMaterial(payload.product_name, payload.unit);
 
       const totalValue = payload.total_value;

@@ -4,7 +4,6 @@ import {
   ShoppingCart,
   Plus,
   Building2,
-  Truck,
   CreditCard,
   Edit2,
   Package,
@@ -12,7 +11,7 @@ import {
 import { Search } from '@/components/ui/Search';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { usePurchases, computeSupplierSummary } from '@/hooks/useProcurement';
+import { usePurchases } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { TableSkeleton } from '@/components/ui/LoadingState';
@@ -24,7 +23,7 @@ import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/Sli
 import { SplitText } from '@/components/ui/SplitText';
 import type { Purchase } from '@/types/procurement';
 
-type ProcurementTab = 'project' | 'general' | 'suppliers';
+type ProcurementTab = 'project' | 'general';
 
 export const PurchasesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -102,11 +101,9 @@ export const PurchasesPage: React.FC = () => {
     const q = search.toLowerCase();
     return allProjectPurchases.filter((p) => {
       const prodName = p.items?.[0]?.description || p.items?.[0]?.material?.name || '';
-      const supName = p.supplier?.name || '';
       const prj = p.project?.name || projectMap.get(p.project_id || '')?.name || '';
       return (
         prodName.toLowerCase().includes(q) ||
-        supName.toLowerCase().includes(q) ||
         prj.toLowerCase().includes(q)
       );
     });
@@ -190,8 +187,7 @@ export const PurchasesPage: React.FC = () => {
     const q = search.toLowerCase();
     return generalPurchases.filter((p) => {
       const prodName = p.items?.[0]?.description || p.items?.[0]?.material?.name || '';
-      const supName = p.supplier?.name || '';
-      return prodName.toLowerCase().includes(q) || supName.toLowerCase().includes(q);
+      return prodName.toLowerCase().includes(q);
     });
   }, [generalPurchases, search]);
 
@@ -263,18 +259,7 @@ export const PurchasesPage: React.FC = () => {
     [filteredGeneralPurchases.length, generalPendingPurchases.length, generalPaidPurchases.length]
   );
 
-  // 3. SUPPLIER SUMMARY DERIVED AGGREGATION
-  const allSupplierSummaries = useMemo(() => {
-    return computeSupplierSummary(purchases);
-  }, [purchases]);
-
-  const filteredSupplierSummaries = useMemo(() => {
-    if (!search.trim()) return allSupplierSummaries;
-    const q = search.toLowerCase();
-    return allSupplierSummaries.filter((s) => s.supplier_name.toLowerCase().includes(q));
-  }, [allSupplierSummaries, search]);
-
-  // Segment options for main Procurement tabs (Project, General, Suppliers)
+  // Segment options for main Procurement tabs (Project, General)
   const procurementTabOptions = useMemo<SegmentOption<ProcurementTab>[]>(
     () => [
       {
@@ -293,16 +278,8 @@ export const PurchasesPage: React.FC = () => {
         count: generalPurchases.length,
         activeColorClass: 'text-[#4A0E0E]',
       },
-      {
-        id: 'suppliers',
-        label: 'Supplier Summary',
-        shortLabel: 'Suppliers',
-        icon: <Truck className="w-4 h-4 text-[#C99A2E]" />,
-        count: allSupplierSummaries.length,
-        activeColorClass: 'text-[#4A0E0E]',
-      },
     ],
-    [allProjectPurchases.length, generalPurchases.length, allSupplierSummaries.length]
+    [allProjectPurchases.length, generalPurchases.length]
   );
 
   // Reusable purchase card rendering with clear payment badge & action
@@ -310,7 +287,6 @@ export const PurchasesPage: React.FC = () => {
     const item = p.items?.[0];
     const productName = item?.description || item?.material?.name || 'Material Item';
     const quantity = item ? `${item.quantity} ${item.unit}` : '1 Unit';
-    const supplierName = p.supplier?.name || 'Supplier';
     const projectName = isProject ? (p.project?.name || projectMap.get(p.project_id || '')?.name) : null;
     const totalVal = p.total_amount;
     const paidAmt = p.total_allocated ?? 0;
@@ -342,11 +318,6 @@ export const PurchasesPage: React.FC = () => {
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-[#6B6B6B]">
-              <span className="flex items-center gap-1 font-semibold text-[#242424]">
-                <Truck className="w-3.5 h-3.5 text-[#C99A2E]" />
-                <span>{supplierName}</span>
-              </span>
-              <span>•</span>
               <span>{p.purchase_date}</span>
             </div>
           </div>
@@ -451,10 +422,8 @@ export const PurchasesPage: React.FC = () => {
             onChange={setSearch}
             placeholder={
               activeTab === 'project'
-                ? 'Search product, supplier, or project...'
-                : activeTab === 'general'
-                ? 'Search general purchases...'
-                : 'Search suppliers...'
+                ? 'Search product or project...'
+                : 'Search general purchases...'
             }
           />
           {activeTab === 'general' ? (
@@ -549,8 +518,6 @@ export const PurchasesPage: React.FC = () => {
                 <EmptyState
                   icon={<ShoppingCart className="w-8 h-8 text-[#6B6B6B]" />}
                   title="No project purchases yet."
-                  actionLabel="Add Purchase"
-                  onAction={() => handleOpenAddPurchase('project')}
                 />
               ) : filteredProjectPurchases.length === 0 ? (
                 <div className="p-8 text-center bg-white border border-[#E2DDD5] rounded-2xl text-xs text-[#6B6B6B]">
@@ -680,8 +647,6 @@ export const PurchasesPage: React.FC = () => {
                 <EmptyState
                   icon={<Package className="w-8 h-8 text-[#6B6B6B]" />}
                   title="No general purchases yet."
-                  actionLabel="Add Purchase"
-                  onAction={() => handleOpenAddPurchase('general')}
                 />
               ) : filteredGeneralPurchases.length === 0 ? (
                 <div className="p-8 text-center bg-white border border-[#E2DDD5] rounded-2xl text-xs text-[#6B6B6B]">
@@ -757,87 +722,6 @@ export const PurchasesPage: React.FC = () => {
             </div>
           )}
 
-          {/* ========================================================= */}
-          {/* TAB 3: SUPPLIER SUMMARY */}
-          {/* ========================================================= */}
-          {activeTab === 'suppliers' && (
-            <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* Header Info & Search */}
-              {/* Header Info */}
-              <div className="flex items-center justify-end pb-1">
-                <span className="text-xs text-[#6B6B6B]">
-                  {filteredSupplierSummaries.length} suppliers
-                </span>
-              </div>
-
-              {/* Suppliers List */}
-              {allSupplierSummaries.length === 0 ? (
-                <EmptyState
-                  icon={<Truck className="w-8 h-8 text-[#6B6B6B]" />}
-                  title="No supplier purchases yet."
-                  actionLabel="Add Purchase"
-                  onAction={() => handleOpenAddPurchase('project')}
-                />
-              ) : filteredSupplierSummaries.length === 0 ? (
-                <div className="p-8 text-center bg-white border border-[#E2DDD5] rounded-2xl text-xs text-[#6B6B6B]">
-                  No suppliers match &ldquo;{search}&rdquo;.
-                </div>
-              ) : (
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden divide-y divide-[#E2DDD5]">
-                  {filteredSupplierSummaries.map((s) => (
-                    <div
-                      key={s.supplier_name}
-                      className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F7F5F0]/50 transition-colors"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-base sm:text-lg font-bold text-[#242424]">
-                            {s.supplier_name}
-                          </span>
-                          <span className="text-[11px] font-semibold bg-[#F7F5F0] text-[#6B6B6B] px-2 py-0.5 rounded-md border border-[#E2DDD5]">
-                            {s.purchase_count} {s.purchase_count === 1 ? 'purchase' : 'purchases'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-5 sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E2DDD5]/70">
-                        <div>
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">
-                            Purchased
-                          </span>
-                          <span className="text-sm sm:text-base font-bold text-[#242424]">
-                            {formatINR(s.total_purchased)}
-                          </span>
-                        </div>
-
-                        <div>
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">
-                            Paid
-                          </span>
-                          <span className="text-sm sm:text-base font-bold text-[#166534]">
-                            {formatINR(s.total_paid)}
-                          </span>
-                        </div>
-
-                        <div>
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">
-                            Outstanding
-                          </span>
-                          <span
-                            className={`text-sm sm:text-base font-bold ${
-                              s.total_outstanding > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
-                            }`}
-                          >
-                            {formatINR(s.total_outstanding)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </>
       )}
 

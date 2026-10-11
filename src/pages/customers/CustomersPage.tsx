@@ -16,6 +16,7 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { useCustomers, useDeleteCustomer } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import type { Customer } from '@/types/business';
@@ -81,9 +82,16 @@ export const CustomersPage: React.FC = () => {
     setIsCustomerModalOpen(true);
   };
 
+  const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null);
+
   const handleDeleteCustomer = (c: Customer) => {
-    if (window.confirm(`Are you sure you want to delete customer "${c.name}"? This action cannot be undone.`)) {
-      deleteCustomerMutation.mutate(c.id);
+    setDeletingCustomer(c);
+  };
+
+  const confirmDeleteCustomer = async () => {
+    if (deletingCustomer) {
+      await deleteCustomerMutation.mutateAsync(deletingCustomer.id);
+      setDeletingCustomer(null);
     }
   };
 
@@ -161,8 +169,6 @@ export const CustomersPage: React.FC = () => {
               ? `No customer matching "${searchTerm}". Try another name or phone number.`
               : undefined
           }
-          actionLabel={searchTerm ? undefined : '+ Add Customer'}
-          onAction={searchTerm ? undefined : handleOpenAddCustomer}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -264,6 +270,15 @@ export const CustomersPage: React.FC = () => {
         }}
         preselectedCustomer={targetCustomerForSite}
         onSuccess={handleSiteCreated}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingCustomer)}
+        onClose={() => setDeletingCustomer(null)}
+        onConfirm={confirmDeleteCustomer}
+        itemName={deletingCustomer?.name}
+        isLoading={deleteCustomerMutation.isPending}
       />
     </PageContainer>
   );

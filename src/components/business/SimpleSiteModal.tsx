@@ -5,6 +5,7 @@ import { useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks/us
 import type { Project } from '@/types/projects';
 import type { Customer } from '@/types/business';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 interface SimpleSiteModalProps {
   isOpen: boolean;
@@ -97,16 +98,23 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
     }
   };
 
-  const handleDeleteSite = async () => {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+  const handleDeleteSite = () => {
     if (!site) return;
-    if (window.confirm(`Are you sure you want to delete project/site "${site.name}"? This action cannot be undone.`)) {
-      try {
-        await deleteProjectMutation.mutateAsync(site.id);
-        onClose();
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unable to delete site.';
-        setErrorMsg(msg);
-      }
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!site) return;
+    try {
+      await deleteProjectMutation.mutateAsync(site.id);
+      setIsConfirmDeleteOpen(false);
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to delete site.';
+      setErrorMsg(msg);
+      setIsConfirmDeleteOpen(false);
     }
   };
 
@@ -268,6 +276,14 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
           </div>
         </form>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={handleConfirmDelete}
+        itemName={site?.name}
+        isLoading={deleteProjectMutation.isPending}
+      />
     </div>
   );
 };

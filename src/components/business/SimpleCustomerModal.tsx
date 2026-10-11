@@ -3,6 +3,7 @@ import { X, UserPlus, Trash2 } from 'lucide-react';
 import { useCreateCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
 import { indianPhoneRegex, type Customer } from '@/types/business';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 
 interface SimpleCustomerModalProps {
   isOpen: boolean;
@@ -88,16 +89,23 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
     }
   };
 
-  const handleDelete = async () => {
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+
+  const handleDelete = () => {
     if (!customer) return;
-    if (window.confirm(`Are you sure you want to delete customer "${customer.name}"? This action cannot be undone.`)) {
-      try {
-        await deleteCustomerMutation.mutateAsync(customer.id);
-        onClose();
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'Unable to delete customer.';
-        setErrorMsg(msg);
-      }
+    setIsConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!customer) return;
+    try {
+      await deleteCustomerMutation.mutateAsync(customer.id);
+      setIsConfirmDeleteOpen(false);
+      onClose();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unable to delete customer.';
+      setErrorMsg(msg);
+      setIsConfirmDeleteOpen(false);
     }
   };
 
@@ -253,6 +261,14 @@ export const SimpleCustomerModal: React.FC<SimpleCustomerModalProps> = ({
               </div>
             </form>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={handleConfirmDelete}
+        itemName={customer?.name}
+        isLoading={deleteCustomerMutation.isPending}
+      />
     </div>
   );
 };
