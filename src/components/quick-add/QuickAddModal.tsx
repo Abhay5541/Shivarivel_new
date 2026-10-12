@@ -5,18 +5,27 @@ import {
   UserPlus,
   Building2,
   ShoppingCart,
-  UserCheck,
+  Calendar,
+  ArrowLeft,
+  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+export type QuickActionType =
+  | 'customer'
+  | 'project'
+  | 'purchase-project'
+  | 'purchase-general'
+  | 'wage';
 
 interface QuickAddModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectAction?: (actionId: 'customer' | 'project' | 'purchase' | 'laborer') => void;
+  onSelectAction?: (actionId: QuickActionType) => void;
 }
 
 interface QuickAction {
-  id: 'customer' | 'project' | 'purchase' | 'laborer';
+  id: 'customer' | 'project' | 'purchase' | 'wage';
   title: string;
   category: string;
   description: string;
@@ -26,7 +35,7 @@ interface QuickAction {
   route: string;
 }
 
-const actions: QuickAction[] = [
+const mainActions: QuickAction[] = [
   {
     id: 'customer',
     title: 'Add Customer',
@@ -51,21 +60,21 @@ const actions: QuickAction[] = [
     id: 'purchase',
     title: 'Add Purchase',
     category: 'Procurement',
-    description: 'Log materials bought for a specific project or general stock',
+    description: 'Log materials bought for a project site or general stock',
     icon: ShoppingCart,
     iconBg: 'bg-[#F9F3E5]',
     iconColor: 'text-[#C99A2E]',
     route: '/procurement?new=1',
   },
   {
-    id: 'laborer',
-    title: 'Add Laborer',
+    id: 'wage',
+    title: 'Add Wage',
     category: 'Workforce',
-    description: 'Register laborer name, phone, and auto-generated ID',
-    icon: UserCheck,
+    description: 'Record daily attendance, site location, and wage payout',
+    icon: Calendar,
     iconBg: 'bg-[#F7EFEF]',
     iconColor: 'text-[#4A0E0E]',
-    route: '/wages?laborer=1',
+    route: '/wages?new=1',
   },
 ];
 
@@ -73,14 +82,17 @@ export function QuickAddModal({ isOpen, onClose, onSelectAction }: QuickAddModal
   const navigate = useNavigate();
   const location = useLocation();
   const [canClick, setCanClick] = useState(false);
+  const [view, setView] = useState<'main' | 'purchase-type'>('main');
 
   // Prevent mobile dock tap ghost clicks from accidentally activating buttons immediately upon open
   useEffect(() => {
     if (isOpen) {
+      setView('main');
       const timer = setTimeout(() => setCanClick(true), 150);
       return () => clearTimeout(timer);
     } else {
       setCanClick(false);
+      setView('main');
     }
   }, [isOpen]);
 
@@ -88,7 +100,11 @@ export function QuickAddModal({ isOpen, onClose, onSelectAction }: QuickAddModal
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        onClose();
+        if (view === 'purchase-type') {
+          setView('main');
+        } else {
+          onClose();
+        }
       }
     }
     if (isOpen) {
@@ -99,11 +115,11 @@ export function QuickAddModal({ isOpen, onClose, onSelectAction }: QuickAddModal
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, view, onClose]);
 
   if (!isOpen) return null;
 
-  const handleSelect = (actionId: 'customer' | 'project' | 'purchase' | 'laborer', route: string) => {
+  const handleSelect = (actionId: QuickActionType, route: string) => {
     if (!canClick) return;
     if (onSelectAction) {
       onSelectAction(actionId);
@@ -138,15 +154,26 @@ export function QuickAddModal({ isOpen, onClose, onSelectAction }: QuickAddModal
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-[#E2DDD5] flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#DFB95E] to-[#C9A24A] text-white flex items-center justify-center font-bold text-sm shadow-[0_2px_8px_rgba(201,162,74,0.35)]">
-              +
-            </div>
+            {view === 'purchase-type' ? (
+              <button
+                type="button"
+                onClick={() => setView('main')}
+                className="w-8 h-8 rounded-lg border border-[#E2DDD5] flex items-center justify-center text-[#6B6B6B] hover:text-[#242424] hover:bg-[#F7F5F0] transition-colors cursor-pointer mr-1"
+                title="Back to Quick Add"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#DFB95E] to-[#C9A24A] text-white flex items-center justify-center font-bold text-sm shadow-[0_2px_8px_rgba(201,162,74,0.35)]">
+                +
+              </div>
+            )}
             <div>
               <h2
                 id="quick-add-title"
                 className="text-base font-bold text-[#242424] font-heading leading-tight"
               >
-                Quick Add Actions
+                {view === 'purchase-type' ? 'Select Purchase Type' : 'Quick Add Actions'}
               </h2>
             </div>
           </div>
@@ -166,43 +193,101 @@ export function QuickAddModal({ isOpen, onClose, onSelectAction }: QuickAddModal
           </div>
         </div>
 
-        {/* Action Grid (Always displays all options directly) */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {actions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.id}
-                type="button"
-                onClick={() => handleSelect(action.id, action.route)}
-                className="flex items-start gap-3.5 p-3.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs min-h-[68px]"
-              >
-                <div
-                  className={cn(
-                    'w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105',
-                    action.iconBg,
-                    action.iconColor
-                  )}
+        {/* Content Body */}
+        {view === 'main' ? (
+          /* Main 4 Action Grid */
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {mainActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <button
+                  key={action.id}
+                  type="button"
+                  onClick={() => {
+                    if (action.id === 'purchase') {
+                      setView('purchase-type');
+                    } else {
+                      handleSelect(action.id as QuickActionType, action.route);
+                    }
+                  }}
+                  className="flex items-start gap-3.5 p-3.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs min-h-[68px]"
                 >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors">
-                      {action.title}
-                    </span>
-                    <span className="text-[10px] uppercase font-semibold tracking-wider text-[#6B6B6B] shrink-0">
-                      {action.category}
-                    </span>
+                  <div
+                    className={cn(
+                      'w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105',
+                      action.iconBg,
+                      action.iconColor
+                    )}
+                  >
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <p className="text-[11px] text-[#6B6B6B] line-clamp-2 mt-0.5 leading-snug">
-                    {action.description}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors">
+                        {action.title}
+                      </span>
+                      <span className="text-[10px] uppercase font-semibold tracking-wider text-[#6B6B6B] shrink-0">
+                        {action.category}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#6B6B6B] line-clamp-2 mt-0.5 leading-snug">
+                      {action.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          /* Sub-View: Choose Project Purchase vs General Purchase */
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-3">
+            <button
+              type="button"
+              onClick={() => handleSelect('purchase-project', '/procurement?tab=project&new=1')}
+              className="w-full flex items-start gap-3.5 p-4 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs"
+            >
+              <div className="w-11 h-11 rounded-xl bg-[#F7EFEF] text-[#4A0E0E] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-sm font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors">
+                    Project Purchase
+                  </span>
+                  <span className="text-[10px] uppercase font-semibold tracking-wider text-[#C99A2E] shrink-0 bg-[#F9F3E5] px-2 py-0.5 rounded-full">
+                    Site Linked
+                  </span>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+                <p className="text-xs text-[#6B6B6B] mt-1 leading-relaxed">
+                  Log materials, concrete, steel, or supplies allocated directly to a specific client project site.
+                </p>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleSelect('purchase-general', '/procurement?tab=general&new=1')}
+              className="w-full flex items-start gap-3.5 p-4 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#F9F3E5]/60 hover:border-[#C99A2E] active:scale-[0.99] transition-all text-left group cursor-pointer shadow-2xs"
+            >
+              <div className="w-11 h-11 rounded-xl bg-[#F9F3E5] text-[#C99A2E] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <Layers className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-sm font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors">
+                    General Purchase
+                  </span>
+                  <span className="text-[10px] uppercase font-semibold tracking-wider text-[#6B6B6B] shrink-0 bg-[#F7F5F0] px-2 py-0.5 rounded-full">
+                    Direct Stock
+                  </span>
+                </div>
+                <p className="text-xs text-[#6B6B6B] mt-1 leading-relaxed">
+                  Log general warehouse inventory, standard stock items, tools, or supplies without linking to a specific project.
+                </p>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,11 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
-import { QuickAddModal } from '@/components/quick-add/QuickAddModal';
+import { QuickAddModal, type QuickActionType } from '@/components/quick-add/QuickAddModal';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
-import { SimpleEmployeeModal } from '@/components/business/SimpleEmployeeModal';
+import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 const TOP_LEVEL_SPOKES = [
   '/customers',
@@ -19,7 +20,8 @@ const TOP_LEVEL_SPOKES = [
 
 export function AppLayout() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
-  const [activeQuickAction, setActiveQuickAction] = useState<'customer' | 'project' | 'purchase' | 'laborer' | null>(null);
+  const [activeQuickAction, setActiveQuickAction] = useState<QuickActionType | null>(null);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
@@ -73,21 +75,38 @@ export function AppLayout() {
       <SimpleCustomerModal
         isOpen={activeQuickAction === 'customer'}
         onClose={() => setActiveQuickAction(null)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['customers'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        }}
       />
 
       <SimpleSiteModal
         isOpen={activeQuickAction === 'project'}
         onClose={() => setActiveQuickAction(null)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['projects'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        }}
       />
 
       <SimplePurchaseModal
-        isOpen={activeQuickAction === 'purchase'}
+        isOpen={activeQuickAction === 'purchase-project' || activeQuickAction === 'purchase-general'}
+        mode={activeQuickAction === 'purchase-general' ? 'general' : 'project'}
         onClose={() => setActiveQuickAction(null)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['purchases'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        }}
       />
 
-      <SimpleEmployeeModal
-        isOpen={activeQuickAction === 'laborer'}
+      <SimpleDailyWageModal
+        isOpen={activeQuickAction === 'wage'}
         onClose={() => setActiveQuickAction(null)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['wages'] });
+          queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        }}
       />
     </div>
   );
