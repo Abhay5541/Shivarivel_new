@@ -297,6 +297,9 @@ export const PurchasesPage: React.FC = () => {
     const bal = p.outstanding_balance ?? Math.max(0, totalVal - paidAmt);
     const isPaid = bal <= 0 || p.payment_status === 'Paid';
 
+    const activeFilter = isProject ? projectPaymentFilter : generalPaymentFilter;
+    const showStatusBadge = activeFilter === 'all';
+
     return (
       <div
         key={p.id}
@@ -318,14 +321,8 @@ export const PurchasesPage: React.FC = () => {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-[#6B6B6B]">
+            <div className="text-xs text-[#6B6B6B]">
               <span>{p.purchase_date}</span>
-              {p.supplier?.name && (
-                <>
-                  <span>•</span>
-                  <span className="font-medium text-[#4A0E0E]">{p.supplier.name}</span>
-                </>
-              )}
             </div>
           </div>
 
@@ -363,12 +360,24 @@ export const PurchasesPage: React.FC = () => {
         </div>
 
         {/* Bottom Actions Bar */}
-        <div className="pt-3 border-t border-[#E2DDD5]/70 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] font-semibold text-[#8F6A18] bg-[#F9F3E5] px-2 py-0.5 rounded-md border border-[#F0EAE1]">
-              {p.purchase_number || 'PUR'}
-            </span>
-          </div>
+        <div
+          className={`pt-3 border-t border-[#E2DDD5]/70 flex items-center ${
+            showStatusBadge ? 'justify-between' : 'justify-end'
+          } gap-3`}
+        >
+          {showStatusBadge && (
+            <div>
+              {isPaid ? (
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#86EFAC]">
+                  ✓ Fully Paid
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                  Pending Payment
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             {!isPaid && (
