@@ -3,13 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users,
   Building2,
-  ArrowUpRight,
   HardHat,
   PackageCheck,
   ArrowRight,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { Button } from '@/components/ui/Button';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import { useEmployees } from '@/hooks/useWorkforce';
@@ -240,83 +238,6 @@ export function DashboardPage() {
             <span>Material Purchases</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </div>
-        </div>
-      </div>
-
-      {/* 3. OPERATIONAL PANEL: ACTIVE PROJECTS */}
-      <div className="mb-8">
-        <div className="bg-white rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD5]/70 mb-4">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#4A0E0E]" />
-              <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wider">
-                Active Projects
-              </h2>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/projects')}
-              className="text-xs text-[#4A0E0E] font-semibold gap-1"
-            >
-              <span>View All ({projects.length})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-          </div>
-
-          {projects.length === 0 ? (
-            <div className="py-10 text-center space-y-2">
-              <Building2 className="w-8 h-8 text-[#E2DDD5] mx-auto" />
-              <p className="text-xs text-[#6B6B6B] font-medium">No projects added yet.</p>
-              <button
-                type="button"
-                onClick={() => navigate('/projects/new')}
-                className="text-xs text-[#4A0E0E] font-bold hover:underline cursor-pointer"
-              >
-                + Add First Project
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {projects.slice(0, 6).map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => navigate(`/projects/${p.id}`)}
-                  className="p-3.5 rounded-xl border border-[#F0EAE1] hover:border-[#4A0E0E]/40 hover:bg-[#FAF8F5] transition-all cursor-pointer flex items-center justify-between gap-3"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold text-[#8F6A18]">
-                        {p.project_code || 'PRJ'}
-                      </span>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7EFEF] text-[#4A0E0E]">
-                        {p.status}
-                      </span>
-                    </div>
-                    <h3 className="text-xs font-bold text-[#242424] truncate mt-0.5">
-                      {p.name}
-                    </h3>
-                    <p className="text-[11px] text-[#6B6B6B] truncate">
-                      {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
-                    </p>
-                  </div>
-
-                  <div className="text-right shrink-0">
-                    {p.contract_value ? (
-                      <div className="text-xs font-bold text-[#242424] font-mono">
-                        ₹{Number(p.contract_value).toLocaleString('en-IN')}
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-[#6B6B6B]">Value unset</div>
-                    )}
-                    <span className="text-[10px] text-[#8F6A18] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
-                      View <ArrowUpRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </PageContainer>

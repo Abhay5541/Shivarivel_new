@@ -67,6 +67,28 @@ export function saveStoredDailyWages(wages: DailyWage[]) {
   }
 }
 
+function getStoredProject(projectId: string): { id: string; name: string; project_code: string } | null {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('shivarivel_projects');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const found = parsed.find((p: any) => p && p.id === projectId);
+          if (found) {
+            return {
+              id: found.id,
+              name: found.name && found.name !== 'Project' ? found.name : 'General Site Work',
+              project_code: found.project_code || 'PRJ',
+            };
+          }
+        }
+      }
+    } catch {}
+  }
+  return null;
+}
+
 export function loadStoredAttendance(): AttendanceRecord[] {
   if (typeof window !== 'undefined') {
     try {
@@ -679,7 +701,9 @@ export function useRecordDailyWage() {
         } catch {
           // Update in-memory fallback
           const idx = memoryDailyWages.findIndex((w) => w.id === payload.wage_id);
-          const proj = payload.project_id ? { id: payload.project_id, name: 'Project', project_code: 'PRJ' } : null;
+          const proj = payload.project_id
+            ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
+            : null;
           if (idx >= 0) {
             const attId = payload.attendance_id || memoryDailyWages[idx].attendance_id;
             memoryDailyWages[idx] = {
@@ -739,7 +763,9 @@ export function useRecordDailyWage() {
           }
           console.warn('Supabase record_attendance RPC notice, updating in memory fallback:', err);
           const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
-          const proj = payload.project_id ? { id: payload.project_id, name: 'Project', project_code: 'PRJ' } : null;
+          const proj = payload.project_id
+            ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
+            : null;
           const existingIdx = memoryDailyWages.findIndex(
             (w) => w.employee_id === payload.employee_id && w.wage_date === payload.wage_date
           );

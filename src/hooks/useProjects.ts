@@ -56,7 +56,7 @@ export function useProjects(options: UseProjectsOptions = {}) {
           .from('projects')
           .select(`
             *,
-            customer:customers!customer_id (id, name, phone, email, address, city),
+            customer:customers!customer_id (id, name, phone, email, address),
             supervisor:profiles!assigned_to (id, full_name, phone, role)
           `)
           .order('created_at', { ascending: false });
@@ -131,7 +131,7 @@ export function useProject(id?: string) {
         .from('projects')
         .select(`
           *,
-          customer:customers!customer_id (id, name, phone, email, address, city),
+          customer:customers!customer_id (id, name, phone, email, address),
           supervisor:profiles!assigned_to (id, full_name, phone, role)
         `)
         .eq('id', id)
@@ -291,7 +291,7 @@ export function useCreateProject() {
         })
         .select(`
           *,
-          customer:customers!customer_id (id, name, phone, email, address, city)
+          customer:customers!customer_id (id, name, phone, email, address)
         `)
         .single();
 
@@ -301,8 +301,20 @@ export function useCreateProject() {
         const nextCodeNum = memoryProjects.length + 1;
         const newCode = `PRJ-${nextCodeNum.toString().padStart(4, '0')}`;
 
-        // Find customer if available from existing project or memory
-        const existingWithCust = memoryProjects.find((p) => p.customer_id === payload.customer_id);
+        // Find customer if available from existing project or memory or Supabase
+        let linkedCustomer = memoryProjects.find((p) => p.customer_id === payload.customer_id)?.customer;
+        if (!linkedCustomer && payload.customer_id) {
+          try {
+            const { data: custData } = await supabase
+              .from('customers')
+              .select('id, name, phone, email, address')
+              .eq('id', payload.customer_id)
+              .single();
+            if (custData) {
+              linkedCustomer = custData as any;
+            }
+          } catch {}
+        }
 
         const createdProject: Project = {
           id: newProjId,
@@ -321,7 +333,7 @@ export function useCreateProject() {
           contract_value: payload.contract_value ?? null,
           assigned_to: payload.assigned_to || null,
           notes: payload.notes?.trim() || null,
-          customer: existingWithCust?.customer,
+          customer: linkedCustomer,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
@@ -375,7 +387,7 @@ export function useUpdateProject() {
         .eq('id', id)
         .select(`
           *,
-          customer:customers!customer_id (id, name, phone, email, address, city)
+          customer:customers!customer_id (id, name, phone, email, address)
         `)
         .single();
 
