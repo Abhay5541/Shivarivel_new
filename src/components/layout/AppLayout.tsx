@@ -1,19 +1,28 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
+import { QuickAddModal } from '@/components/quick-add/QuickAddModal';
+import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
+import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
+import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
+import { SimpleEmployeeModal } from '@/components/business/SimpleEmployeeModal';
 
 const TOP_LEVEL_SPOKES = [
+  '/customers',
   '/projects',
   '/wages',
+  '/procurement',
+  '/purchases',
   '/attendance',
   '/employees',
   '/materials',
-  '/customers',
   '/settings',
 ];
 
 export function AppLayout() {
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [activeQuickAction, setActiveQuickAction] = useState<'customer' | 'project' | 'purchase' | 'laborer' | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
@@ -43,7 +52,7 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-[#F7F5F0] flex flex-col antialiased text-[#242424]">
       {/* Universal Top Header (Both PC & Mobile) */}
-      <Header />
+      <Header onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
 
       {/* Scrollable Main Content Area */}
       <main className="flex-1 overflow-y-auto pb-24 md:pb-10 pt-2 px-4 sm:px-6 lg:px-8 max-w-7xl w-full mx-auto">
@@ -51,8 +60,38 @@ export function AppLayout() {
       </main>
 
       {/* Unified Bottom Navigation */}
-      <MobileBottomNav />
+      <MobileBottomNav onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
+
+      {/* Signature Quick Add Modal */}
+      <QuickAddModal
+        isOpen={isQuickAddOpen}
+        onClose={() => setIsQuickAddOpen(false)}
+        onSelectAction={(actionId) => {
+          setIsQuickAddOpen(false);
+          setActiveQuickAction(actionId);
+        }}
+      />
+
+      {/* In-Place Quick Creation Modals (Direct, no URL redirect) */}
+      <SimpleCustomerModal
+        isOpen={activeQuickAction === 'customer'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+
+      <SimpleSiteModal
+        isOpen={activeQuickAction === 'project'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+
+      <SimplePurchaseModal
+        isOpen={activeQuickAction === 'purchase'}
+        onClose={() => setActiveQuickAction(null)}
+      />
+
+      <SimpleEmployeeModal
+        isOpen={activeQuickAction === 'laborer'}
+        onClose={() => setActiveQuickAction(null)}
+      />
     </div>
   );
 }
-

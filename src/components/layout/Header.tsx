@@ -5,10 +5,11 @@ import {
   Bell,
   ChevronDown,
   LogOut,
+  Plus,
   Users,
   Building2,
+  ShoppingCart,
   Calendar,
-  Layers,
   Settings,
   LayoutDashboard,
 } from 'lucide-react';
@@ -17,16 +18,20 @@ import { useCompanySettings } from '@/hooks/useSettings';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 import logoImg from '@/Asserts/shivarivel_svc_logo.png';
 
+interface HeaderProps {
+  onOpenQuickAdd: () => void;
+}
+
 function resolveActiveKey(pathname: string) {
   if (pathname === '/' || pathname.startsWith('/dashboard')) return '/dashboard';
+  if (pathname.startsWith('/customers')) return '/customers';
   if (pathname.startsWith('/projects')) return '/projects';
-  if (pathname.startsWith('/employees')) return '/employees';
-  if (pathname.startsWith('/materials')) return '/materials';
-  if (pathname.startsWith('/wages')) return '/wages';
+  if (pathname.startsWith('/wages') || pathname.startsWith('/employees') || pathname.startsWith('/attendance')) return '/wages';
+  if (pathname.startsWith('/procurement') || pathname.startsWith('/purchases') || pathname.startsWith('/suppliers')) return '/procurement';
   return '';
 }
 
-export function Header() {
+export function Header({ onOpenQuickAdd }: HeaderProps) {
   const { user, signOut } = useAuth();
   const { data: company } = useCompanySettings();
   const location = useLocation();
@@ -57,28 +62,28 @@ export function Header() {
         onClick: () => navigate('/dashboard'),
       },
       {
+        key: '/customers',
+        label: 'Customers',
+        Icon: Users,
+        onClick: () => navigateTab('/customers'),
+      },
+      {
         key: '/projects',
         label: 'Projects',
         Icon: Building2,
         onClick: () => navigateTab('/projects'),
       },
       {
-        key: '/employees',
-        label: 'Employees',
-        Icon: Users,
-        onClick: () => navigateTab('/employees'),
-      },
-      {
-        key: '/materials',
-        label: 'Materials',
-        Icon: Layers,
-        onClick: () => navigateTab('/materials'),
-      },
-      {
         key: '/wages',
         label: 'Wages',
         Icon: Calendar,
         onClick: () => navigateTab('/wages'),
+      },
+      {
+        key: '/procurement',
+        label: 'Procurement',
+        Icon: ShoppingCart,
+        onClick: () => navigateTab('/procurement'),
       },
     ],
     [navigate, navigateTab]
@@ -144,8 +149,19 @@ export function Header() {
             />
           </div>
 
-          {/* ── Right Utility Suite (Bell, Profile) ────────────────── */}
+          {/* ── Right Utility Suite (Quick Add, Bell, Profile) ────────────────── */}
           <div className="glass-header-actions">
+            {/* Quick Add CTA — shown on desktop screens */}
+            <button
+              type="button"
+              onClick={onOpenQuickAdd}
+              className="glass-action-btn glass-quick-add hidden lg:inline-flex cursor-pointer"
+              aria-label="Open Quick Add Menu (Hotkey: Q)"
+            >
+              <Plus className="w-4 h-4 text-[#4A0E0E]" />
+              <span className="glass-action-label">Quick Add</span>
+              <kbd className="glass-kbd">Q</kbd>
+            </button>
 
             {/* Notifications */}
             <button
