@@ -41,6 +41,28 @@ export function saveStoredPurchases(purchases: Purchase[]) {
   }
 }
 
+function getStoredProject(projectId: string): { id: string; name: string; project_code: string } | null {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('shivarivel_projects');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const found = parsed.find((p: any) => p && p.id === projectId);
+          if (found) {
+            return {
+              id: found.id,
+              name: found.name || 'Project',
+              project_code: found.project_code || 'PRJ',
+            };
+          }
+        }
+      }
+    } catch {}
+  }
+  return null;
+}
+
 export function loadStoredSuppliers(): Supplier[] {
   if (typeof window !== 'undefined') {
     try {
@@ -1323,7 +1345,8 @@ export function useCreateSimplePurchase() {
       // 3. Resolve Project details if tied to project
       let projectInfo: Purchase['project'] = null;
       if (payload.project_id) {
-        projectInfo = { id: payload.project_id, name: 'Project', project_code: 'PRJ' };
+        const storedPrj = getStoredProject(payload.project_id);
+        projectInfo = storedPrj || { id: payload.project_id, name: 'Project', project_code: 'PRJ' };
       }
 
       // 4. Memory purchase creation
@@ -1530,7 +1553,8 @@ export function useUpdateSimplePurchase() {
       // 3. Resolve Project details if changed
       let projectInfo: Purchase['project'] = null;
       if (payload.project_id) {
-        projectInfo = { id: payload.project_id, name: 'Project', project_code: 'PRJ' };
+        const storedPrj = getStoredProject(payload.project_id);
+        projectInfo = storedPrj || { id: payload.project_id, name: 'Project', project_code: 'PRJ' };
       }
 
       // 4. Update memory purchase (No duplicate created)

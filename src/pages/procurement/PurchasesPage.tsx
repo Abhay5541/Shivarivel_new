@@ -286,8 +286,12 @@ export const PurchasesPage: React.FC = () => {
   const renderPurchaseCard = (p: Purchase, isProject: boolean) => {
     const item = p.items?.[0];
     const productName = item?.description || item?.material?.name || 'Material Item';
-    const quantity = item ? `${item.quantity} ${item.unit}` : '1 Unit';
-    const projectName = isProject ? (p.project?.name || projectMap.get(p.project_id || '')?.name) : null;
+    const projectObj = p.project_id ? projectMap.get(p.project_id) : p.project;
+    const rawProjectName = projectObj?.name || p.project?.name || '';
+    const resolvedProjectName =
+      rawProjectName && rawProjectName !== 'Project'
+        ? rawProjectName
+        : projectMap.get(p.project_id || '')?.name || (rawProjectName !== 'Project' ? rawProjectName : '');
     const totalVal = p.total_amount;
     const paidAmt = p.total_allocated ?? 0;
     const bal = p.outstanding_balance ?? Math.max(0, totalVal - paidAmt);
@@ -296,56 +300,59 @@ export const PurchasesPage: React.FC = () => {
     return (
       <div
         key={p.id}
-        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-xs transition-all space-y-3 ${
+        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-xs transition-all space-y-3.5 ${
           isPaid ? 'border-[#E2DDD5] hover:border-[#166534]/40' : 'border-[#E2DDD5] hover:border-[#C99A2E]/50'
         }`}
       >
-        {/* Top: Product, Supplier, Quantity badge, Project badge */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="space-y-1">
+        {/* Top: Product Name, Project Name badge, Financials */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1.5 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-base sm:text-lg font-bold text-[#242424]">
                 {productName}
               </span>
-              <span className="text-xs font-bold bg-[#4A0E0E]/10 text-[#4A0E0E] px-2.5 py-0.5 rounded-lg border border-[#4A0E0E]/15">
-                {quantity}
-              </span>
-              {projectName && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-[#F7F5F0] text-[#4A0E0E] px-2.5 py-0.5 rounded-lg border border-[#E2DDD5]">
-                  <Building2 className="w-3 h-3 text-[#C99A2E]" />
-                  <span>{projectName}</span>
+              {isProject && resolvedProjectName && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#F7F5F0] text-[#4A0E0E] px-2.5 py-0.5 rounded-lg border border-[#E2DDD5]">
+                  <Building2 className="w-3.5 h-3.5 text-[#C99A2E]" />
+                  <span>{resolvedProjectName}</span>
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2 text-xs text-[#6B6B6B]">
               <span>{p.purchase_date}</span>
+              {p.supplier?.name && (
+                <>
+                  <span>•</span>
+                  <span className="font-medium text-[#4A0E0E]">{p.supplier.name}</span>
+                </>
+              )}
             </div>
           </div>
 
           {/* Financials */}
-          <div className="flex items-center gap-4 sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E2DDD5]/70">
+          <div className="flex items-center gap-5 sm:text-right pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E2DDD5]/70 shrink-0">
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">
+              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
                 Total
               </span>
-              <span className="text-sm sm:text-base font-bold text-[#242424]">
+              <span className="text-sm sm:text-base font-bold text-[#242424] font-mono">
                 {formatINR(totalVal)}
               </span>
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">
+              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
                 Paid
               </span>
-              <span className="text-sm sm:text-base font-bold text-[#166534]">
+              <span className="text-sm sm:text-base font-bold text-[#166534] font-mono">
                 {formatINR(paidAmt)}
               </span>
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">
+              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
                 Balance
               </span>
               <span
-                className={`text-sm sm:text-base font-bold ${
+                className={`text-sm sm:text-base font-bold font-mono ${
                   bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
                 }`}
               >
@@ -356,35 +363,29 @@ export const PurchasesPage: React.FC = () => {
         </div>
 
         {/* Bottom Actions Bar */}
-        <div className="pt-2 border-t border-[#E2DDD5]/60 flex items-center justify-between">
-          <span
-            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
-              isPaid
-                ? 'bg-[#DCFCE7] text-[#166534] border border-[#86EFAC]'
-                : p.payment_status === 'Partial'
-                ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                : 'bg-red-100 text-red-800 border border-red-300'
-            }`}
-          >
-            {isPaid ? '✓ Fully Paid' : p.payment_status === 'Partial' ? 'Partial Payment' : 'Pending Payment'}
-          </span>
+        <div className="pt-3 border-t border-[#E2DDD5]/70 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[11px] font-semibold text-[#8F6A18] bg-[#F9F3E5] px-2 py-0.5 rounded-md border border-[#F0EAE1]">
+              {p.purchase_number || 'PUR'}
+            </span>
+          </div>
 
           <div className="flex items-center gap-2">
             {!isPaid && (
               <button
                 type="button"
                 onClick={() => handleOpenRecordPayment(p)}
-                className="h-8 px-3 text-xs font-bold text-[#166534] bg-[#DCFCE7] hover:bg-[#bbf7d0] rounded-lg transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
+                className="h-8 px-3.5 text-xs font-semibold text-white bg-[#4A0E0E] hover:bg-[#380A0A] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
               >
-                <CreditCard className="w-3.5 h-3.5" />
-                <span>Record Payment</span>
+                <CreditCard className="w-3.5 h-3.5 text-[#C9A24A]" />
+                <span>Update Payment</span>
               </button>
             )}
 
             <button
               type="button"
               onClick={() => handleEditPurchase(p)}
-              className="h-8 px-3 text-xs font-bold text-[#242424] bg-[#F7F5F0] hover:bg-[#E2DDD5] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+              className="h-8 px-3 text-xs font-semibold text-[#242424] bg-[#F7F5F0] hover:bg-[#EAE6DF] border border-[#E2DDD5] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
             >
               <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
               <span>Edit</span>

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users,
   Building2,
-  Calendar,
-  ShoppingCart,
   ArrowUpRight,
   HardHat,
   PackageCheck,
@@ -245,190 +243,80 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* 3. DUAL OPERATIONAL PANELS: ACTIVE PROJECTS & RECENT PURCHASES */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Left Panel: Active Projects */}
-        <div className="bg-white rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD5]/70 mb-4">
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#4A0E0E]" />
-                <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wider">
-                  Active Projects
-                </h2>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/projects')}
-                className="text-xs text-[#4A0E0E] font-semibold gap-1"
-              >
-                <span>View All ({projects.length})</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
+      {/* 3. OPERATIONAL PANEL: ACTIVE PROJECTS */}
+      <div className="mb-8">
+        <div className="bg-white rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD5]/70 mb-4">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[#4A0E0E]" />
+              <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wider">
+                Active Projects
+              </h2>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/projects')}
+              className="text-xs text-[#4A0E0E] font-semibold gap-1"
+            >
+              <span>View All ({projects.length})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
 
-            {projects.length === 0 ? (
-              <div className="py-10 text-center space-y-2">
-                <Building2 className="w-8 h-8 text-[#E2DDD5] mx-auto" />
-                <p className="text-xs text-[#6B6B6B] font-medium">No projects added yet.</p>
-                <button
-                  type="button"
-                  onClick={() => navigate('/projects/new')}
-                  className="text-xs text-[#4A0E0E] font-bold hover:underline cursor-pointer"
+          {projects.length === 0 ? (
+            <div className="py-10 text-center space-y-2">
+              <Building2 className="w-8 h-8 text-[#E2DDD5] mx-auto" />
+              <p className="text-xs text-[#6B6B6B] font-medium">No projects added yet.</p>
+              <button
+                type="button"
+                onClick={() => navigate('/projects/new')}
+                className="text-xs text-[#4A0E0E] font-bold hover:underline cursor-pointer"
+              >
+                + Add First Project
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {projects.slice(0, 6).map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => navigate(`/projects/${p.id}`)}
+                  className="p-3.5 rounded-xl border border-[#F0EAE1] hover:border-[#4A0E0E]/40 hover:bg-[#FAF8F5] transition-all cursor-pointer flex items-center justify-between gap-3"
                 >
-                  + Add First Project
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {projects.slice(0, 4).map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => navigate(`/projects/${p.id}`)}
-                    className="p-3.5 rounded-xl border border-[#F0EAE1] hover:border-[#4A0E0E]/40 hover:bg-[#FAF8F5] transition-all cursor-pointer flex items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] font-bold text-[#8F6A18]">
-                          {p.project_code || 'PRJ'}
-                        </span>
-                        <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7EFEF] text-[#4A0E0E]">
-                          {p.status}
-                        </span>
-                      </div>
-                      <h3 className="text-xs font-bold text-[#242424] truncate mt-0.5">
-                        {p.name}
-                      </h3>
-                      <p className="text-[11px] text-[#6B6B6B] truncate">
-                        {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
-                      </p>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      {p.contract_value ? (
-                        <div className="text-xs font-bold text-[#242424] font-mono">
-                          ₹{Number(p.contract_value).toLocaleString('en-IN')}
-                        </div>
-                      ) : (
-                        <div className="text-[11px] text-[#6B6B6B]">Value unset</div>
-                      )}
-                      <span className="text-[10px] text-[#8F6A18] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
-                        View <ArrowUpRight className="w-3 h-3" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[11px] font-bold text-[#8F6A18]">
+                        {p.project_code || 'PRJ'}
+                      </span>
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7EFEF] text-[#4A0E0E]">
+                        {p.status}
                       </span>
                     </div>
+                    <h3 className="text-xs font-bold text-[#242424] truncate mt-0.5">
+                      {p.name}
+                    </h3>
+                    <p className="text-[11px] text-[#6B6B6B] truncate">
+                      {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
+                    </p>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Right Panel: Procurement & Purchases Log */}
-        <div className="bg-white rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD5]/70 mb-4">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-[#8F6A18]" />
-                <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wider">
-                  Recent Material Procurement
-                </h2>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/procurement')}
-                className="text-xs text-[#8F6A18] font-semibold gap-1"
-              >
-                <span>View All ({purchases.length})</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-
-            {purchases.length === 0 ? (
-              <div className="py-10 text-center space-y-2">
-                <ShoppingCart className="w-8 h-8 text-[#E2DDD5] mx-auto" />
-                <p className="text-xs text-[#6B6B6B] font-medium">No material bills logged yet.</p>
-                <button
-                  type="button"
-                  onClick={() => navigate('/procurement?new=1')}
-                  className="text-xs text-[#8F6A18] font-bold hover:underline cursor-pointer"
-                >
-                  + Log First Purchase
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {purchases.slice(0, 4).map((pur) => (
-                  <div
-                    key={pur.id}
-                    onClick={() => navigate(`/procurement/purchases/${pur.id}`)}
-                    className="p-3.5 rounded-xl border border-[#F0EAE1] hover:border-[#C9A24A]/40 hover:bg-[#FAF8F5] transition-all cursor-pointer flex items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] font-bold text-[#6B6B6B]">
-                          {pur.purchase_number || 'PUR'}
-                        </span>
-                        <span
-                          className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            pur.payment_status === 'Paid'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {pur.payment_status || 'Unpaid'}
-                        </span>
-                      </div>
-                      <h3 className="text-xs font-bold text-[#242424] truncate mt-0.5">
-                        {pur.supplier?.name || 'Material Vendor'}
-                      </h3>
-                      <p className="text-[11px] text-[#6B6B6B] truncate">
-                        {pur.project?.name ? `Project: ${pur.project.name}` : pur.purchase_date || 'General Stock'}
-                      </p>
-                    </div>
-
-                    <div className="text-right shrink-0">
+                  <div className="text-right shrink-0">
+                    {p.contract_value ? (
                       <div className="text-xs font-bold text-[#242424] font-mono">
-                        ₹{Number(pur.total_amount || 0).toLocaleString('en-IN')}
+                        ₹{Number(p.contract_value).toLocaleString('en-IN')}
                       </div>
-                      <span className="text-[10px] text-[#8F6A18] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
-                        Details <ArrowUpRight className="w-3 h-3" />
-                      </span>
-                    </div>
+                    ) : (
+                      <div className="text-[11px] text-[#6B6B6B]">Value unset</div>
+                    )}
+                    <span className="text-[10px] text-[#8F6A18] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
+                      View <ArrowUpRight className="w-3 h-3" />
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 4. TODAY'S LABOR WORKFORCE SNAPSHOT */}
-      <div className="bg-[#FAF8F5] rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#4A0E0E] text-[#C9A24A] flex items-center justify-center shrink-0 shadow-md">
-            <Calendar className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-[#242424]">
-              Daily Labor &amp; Wage Register
-            </h3>
-            <p className="text-xs text-[#6B6B6B] mt-0.5">
-              Record morning/evening attendance, calculate wages, and handle advance settlements.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/wages')}
-            className="flex-1 md:flex-none text-xs"
-          >
-            View Attendance &amp; Wages
-          </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </PageContainer>

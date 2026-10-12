@@ -84,7 +84,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-[#242424] font-heading">
-                Record Payment
+                Update Payment
               </h2>
             </div>
           </div>
@@ -194,7 +194,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 disabled={isSaving}
                 className="h-11 px-6 text-xs font-bold bg-[#4A0E0E] hover:bg-[#380A0A] text-white rounded-xl shadow-xs cursor-pointer"
               >
-                {isSaving ? 'Recording...' : 'Record Payment'}
+                {isSaving ? 'Updating...' : 'Update Payment'}
               </Button>
             </div>
           </form>
