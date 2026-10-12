@@ -655,7 +655,18 @@ export function usePurchases(filters?: PurchaseFilters) {
         ...local.filter((lp) => !remoteIds.has(lp.id)),
         ...remoteResults.map((rp) => {
           const localItem = local.find((lp) => lp.id === rp.id);
-          return localItem || rp;
+          if (localItem) {
+            const allocated = Math.max(rp.total_allocated ?? 0, localItem.total_allocated ?? 0);
+            const balance = Math.max(0, rp.total_amount - allocated);
+            return {
+              ...localItem,
+              ...rp,
+              total_allocated: allocated,
+              outstanding_balance: balance,
+              payment_status: derivePurchasePaymentStatus(rp.total_amount, allocated),
+            };
+          }
+          return rp;
         }),
       ];
 
@@ -1685,7 +1696,7 @@ export function useRecordPurchasePayment() {
     mutationFn: async ({
       purchaseId,
       paymentAmount,
-      paymentMethod = 'Bank Transfer (NEFT / RTGS)',
+      paymentMethod = 'Cash',
       referenceNumber,
       notes,
     }: {
@@ -1699,48 +1710,149 @@ export function useRecordPurchasePayment() {
         throw new Error('Payment amount must be greater than 0.');
       }
 
-      // Memory lookup
-      const purchase = memoryPurchases.find((p) => p.id === purchaseId);
-      if (!purchase) {
+      // 1. Locate purchase across all sources (React Query cache, memory, local storage, Supabase)
+      let targetPurchase: Purchase | null = null;
+      const cachedPurchases = queryClient.getQueryData<Purchase[]>(['purchases']);
+      if (cachedPurchases) {
+        targetPurchase = cachedPurchases.find((p) => p.id === purchaseId) || null;
+      }
+      if (!targetPurchase) {
+        targetPurchase = memoryPurchases.find((p) => p.id === purchaseId) || null;
+      }
+      if (!targetPurchase) {
+        const stored = loadStoredPurchases();
+        targetPurchase = stored.find((p) => p.id === purchaseId) || null;
+      }
+      if (!targetPurchase) {
+        try {
+          const { data: dbP } = await supabase
+            .from('purchases')
+            .select(`
+              *,
+              supplier:suppliers!supplier_id (*),
+              project:projects!project_id (id, name, project_code, site_address),
+              items:purchase_items (*, material:materials!material_id (*))
+            `)
+            .eq('id', purchaseId)
+            .maybeSingle();
+          if (dbP) {
+            targetPurchase = dbP as unknown as Purchase;
+          }
+        } catch (e) {
+          console.warn('Supabase purchase fetch notice:', e);
+        }
+      }
+
+      if (!targetPurchase) {
         throw new Error('Purchase not found.');
       }
 
-      const currentAllocated = purchase.total_allocated ?? 0;
+      const currentAllocated = targetPurchase.total_allocated ?? 0;
       const newAllocated = currentAllocated + paymentAmount;
-      if (newAllocated > purchase.total_amount) {
+      if (newAllocated > targetPurchase.total_amount) {
         throw new Error('Amount paid cannot be greater than total value.');
       }
 
-      purchase.total_allocated = newAllocated;
-      purchase.outstanding_balance = Math.max(0, purchase.total_amount - newAllocated);
-      purchase.payment_status = derivePurchasePaymentStatus(purchase.total_amount, newAllocated);
-      purchase.updated_at = new Date().toISOString();
+      // 2. Direct insertion into Supabase supplier_payments & supplier_payment_allocations
+      let insertedPaymentId: string | null = null;
+      if (targetPurchase.supplier_id) {
+        try {
+          const paymentNumber = 'SP-' + Date.now().toString().slice(-6);
+          const paymentDate = new Date().toISOString().split('T')[0];
 
-      // Create payment record in memory
+          let companyId = targetPurchase.company_id;
+          if (!companyId || companyId.startsWith('comp-')) {
+            const { data: supRow } = await (supabase
+              .from('suppliers') as any)
+              .select('company_id')
+              .eq('id', targetPurchase.supplier_id)
+              .maybeSingle();
+            if (supRow?.company_id) {
+              companyId = supRow.company_id;
+            }
+          }
+
+          const { data: payRow, error: payErr } = await (supabase
+            .from('supplier_payments') as any)
+            .insert({
+              company_id: companyId || '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef',
+              supplier_id: targetPurchase.supplier_id,
+              payment_number: paymentNumber,
+              payment_date: paymentDate,
+              amount: paymentAmount,
+              payment_method: paymentMethod || 'Cash',
+              reference_number: referenceNumber || null,
+              notes: notes || null,
+              status: 'Confirmed',
+            })
+            .select('id, company_id')
+            .maybeSingle();
+
+          if (payRow && !payErr) {
+            insertedPaymentId = payRow.id;
+            await (supabase.from('supplier_payment_allocations') as any).insert({
+              company_id: payRow.company_id,
+              payment_id: payRow.id,
+              purchase_id: purchaseId,
+              amount: paymentAmount,
+              notes: notes || null,
+            });
+          } else if (payErr) {
+            console.warn('Direct supplier_payments insert note:', payErr.message);
+          }
+        } catch (e) {
+          console.warn('Supabase payment allocation error; proceeding with local synchronization:', e);
+        }
+      }
+
+      // 3. Update in-memory & local storage state
+      targetPurchase.total_allocated = newAllocated;
+      targetPurchase.outstanding_balance = Math.max(0, targetPurchase.total_amount - newAllocated);
+      targetPurchase.payment_status = derivePurchasePaymentStatus(targetPurchase.total_amount, newAllocated);
+      targetPurchase.updated_at = new Date().toISOString();
+
+      const memIdx = memoryPurchases.findIndex((p) => p.id === purchaseId);
+      if (memIdx >= 0) {
+        memoryPurchases[memIdx] = { ...memoryPurchases[memIdx], ...targetPurchase };
+      } else {
+        memoryPurchases = [targetPurchase, ...memoryPurchases];
+      }
+      saveStoredPurchases(memoryPurchases);
+
+      const storedPurchases = loadStoredPurchases();
+      const stIdx = storedPurchases.findIndex((p) => p.id === purchaseId);
+      if (stIdx >= 0) {
+        storedPurchases[stIdx] = { ...storedPurchases[stIdx], ...targetPurchase };
+      } else {
+        storedPurchases.unshift(targetPurchase);
+      }
+      saveStoredPurchases(storedPurchases);
+
+      // Record local supplier payment
       const spNext = memorySupplierPayments.length + 1;
       const spCode = `SP-${spNext.toString().padStart(4, '0')}`;
-      const newSpId = `sp-${Date.now()}`;
+      const newSpId = insertedPaymentId || `sp-${Date.now()}`;
       const createdPayment: SupplierPayment = {
         id: newSpId,
-        company_id: 'comp-shivarivel-001',
-        supplier_id: purchase.supplier_id,
+        company_id: targetPurchase.company_id || 'comp-shivarivel-001',
+        supplier_id: targetPurchase.supplier_id,
         payment_number: spCode,
         payment_date: new Date().toISOString().split('T')[0],
         amount: paymentAmount,
-        payment_method: paymentMethod,
+        payment_method: paymentMethod || 'Cash',
         reference_number: referenceNumber || null,
         status: 'Confirmed',
-        notes: notes || `Payment towards purchase ${purchase.purchase_number}`,
+        notes: notes || `Payment towards purchase ${targetPurchase.purchase_number}`,
         reversal_of_id: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         total_allocated: paymentAmount,
         unallocated_amount: 0,
-        supplier: purchase.supplier,
+        supplier: targetPurchase.supplier,
         allocations: [
           {
             id: `spa-${newSpId}-1`,
-            company_id: 'comp-shivarivel-001',
+            company_id: targetPurchase.company_id || 'comp-shivarivel-001',
             payment_id: newSpId,
             purchase_id: purchaseId,
             amount: paymentAmount,
@@ -1751,34 +1863,9 @@ export function useRecordPurchasePayment() {
         ],
       };
       memorySupplierPayments = [createdPayment, ...memorySupplierPayments];
+      saveStoredSupplierPayments(memorySupplierPayments);
 
-      // In test environment, skip remote RPC
-      const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
-      if (!isTestEnv) {
-        // Try Supabase RPC
-        try {
-          await (supabase.rpc as any)('record_supplier_payment', {
-            p_supplier_id: purchase.supplier_id,
-            p_amount: paymentAmount,
-            p_payment_date: new Date().toISOString().split('T')[0],
-            p_payment_method: paymentMethod,
-            p_reference_number: referenceNumber || null,
-            p_notes: notes || null,
-            p_status: 'Confirmed',
-            p_allocations: [
-              {
-                purchase_id: purchaseId,
-                amount: paymentAmount,
-                notes: notes || null,
-              },
-            ],
-          });
-        } catch (err) {
-          console.warn('Supabase record_supplier_payment error; applied in local memory:', err);
-        }
-      }
-
-      return purchase;
+      return targetPurchase;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchases'] });

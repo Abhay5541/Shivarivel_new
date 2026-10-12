@@ -20,13 +20,11 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 }) => {
   const recordPaymentMutation = useRecordPurchasePayment();
   const [paymentAmount, setPaymentAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Bank Transfer (NEFT / RTGS)');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setPaymentAmount('');
-      setPaymentMethod('Bank Transfer (NEFT / RTGS)');
       setErrorMsg(null);
     }
   }, [isOpen, purchase]);
@@ -59,7 +57,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
       await recordPaymentMutation.mutateAsync({
         purchaseId: purchase.id,
         paymentAmount: numPayment,
-        paymentMethod,
+        paymentMethod: 'Cash',
       });
 
       if (onSuccess) onSuccess();
@@ -145,23 +143,6 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 placeholder={`Up to ₹${currentBalance}`}
                 className="w-full h-11 px-3.5 bg-white border border-[#E2DDD5] rounded-xl text-sm font-semibold text-[#242424] placeholder:text-[#6B6B6B]/60 focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all"
               />
-            </div>
-
-            {/* Payment Method */}
-            <div>
-              <label className="block text-xs font-bold text-[#242424] uppercase tracking-wider mb-1.5">
-                Payment Mode
-              </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full h-11 px-3 bg-white border border-[#E2DDD5] rounded-xl text-xs font-medium text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/10 transition-all cursor-pointer"
-              >
-                <option value="Bank Transfer (NEFT / RTGS)">Bank Transfer (NEFT / RTGS)</option>
-                <option value="UPI / GPay / PhonePe">UPI / GPay / PhonePe</option>
-                <option value="Cash">Cash</option>
-                <option value="Cheque">Cheque</option>
-              </select>
             </div>
 
             {/* Balance Preview */}
