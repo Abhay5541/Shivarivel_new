@@ -7,6 +7,7 @@ import {
   CreditCard,
   Edit2,
   Package,
+  CheckCircle2,
 } from 'lucide-react';
 import { Search } from '@/components/ui/Search';
 import { ActionButton } from '@/components/ui/ActionButton';
@@ -361,25 +362,27 @@ export const PurchasesPage: React.FC = () => {
 
         {/* Bottom Actions Bar */}
         <div
-          className={`pt-3 border-t border-[#E2DDD5]/70 flex items-center ${
+          className={`pt-3 border-t border-[#E2DDD5]/70 flex flex-wrap items-center ${
             showStatusBadge ? 'justify-between' : 'justify-end'
-          } gap-3`}
+          } gap-2.5`}
         >
           {showStatusBadge && (
-            <div>
+            <div className="flex items-center shrink-0">
               {isPaid ? (
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#86EFAC]">
-                  ✓ Fully Paid
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#86EFAC] shadow-2xs">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
+                  <span>Fully Paid</span>
                 </span>
               ) : (
-                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                  Pending Payment
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]/70 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
+                  <span>Pending Payment</span>
                 </span>
               )}
             </div>
           )}
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {!isPaid && (
               <button
                 type="button"
