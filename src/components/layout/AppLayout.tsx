@@ -14,9 +14,6 @@ const TOP_LEVEL_SPOKES = [
   '/wages',
   '/procurement',
   '/purchases',
-  '/attendance',
-  '/employees',
-  '/materials',
   '/settings',
 ];
 

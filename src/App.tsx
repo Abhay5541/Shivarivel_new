@@ -21,19 +21,10 @@ const ProjectsPage = lazy(() => import('@/pages/projects/ProjectsPage').then(m =
 const ProjectDetailPage = lazy(() => import('@/pages/projects/ProjectDetailPage').then(m => ({ default: m.ProjectDetailPage })));
 const ProjectEditorPage = lazy(() => import('@/pages/projects/ProjectEditorPage').then(m => ({ default: m.ProjectEditorPage })));
 
-// 4. Module 3: Wages, Attendance & Workforce
-const EmployeesPage = lazy(() => import('@/pages/workforce/EmployeesPage').then(m => ({ default: m.EmployeesPage })));
-const EmployeeEditorPage = lazy(() => import('@/pages/workforce/EmployeeEditorPage').then(m => ({ default: m.EmployeeEditorPage })));
-const EmployeeDetailPage = lazy(() => import('@/pages/workforce/EmployeeDetailPage').then(m => ({ default: m.EmployeeDetailPage })));
-const AttendancePage = lazy(() => import('@/pages/workforce/AttendancePage').then(m => ({ default: m.AttendancePage })));
+// 4. Module 3: Wages & Workforce
 const WagesPage = lazy(() => import('@/pages/workforce/WagesPage').then(m => ({ default: m.WagesPage })));
-const AdvancesPage = lazy(() => import('@/pages/workforce/AdvancesPage').then(m => ({ default: m.AdvancesPage })));
-const AdvanceEditorPage = lazy(() => import('@/pages/workforce/AdvanceEditorPage').then(m => ({ default: m.AdvanceEditorPage })));
-const EmployeePaymentsPage = lazy(() => import('@/pages/workforce/EmployeePaymentsPage').then(m => ({ default: m.EmployeePaymentsPage })));
-const EmployeePaymentEditorPage = lazy(() => import('@/pages/workforce/EmployeePaymentEditorPage').then(m => ({ default: m.EmployeePaymentEditorPage })));
 
 // 5. Module 4: Procurement & Purchases
-const MaterialsPage = lazy(() => import('@/pages/procurement/MaterialsPage').then(m => ({ default: m.MaterialsPage })));
 const PurchasesPage = lazy(() => import('@/pages/procurement/PurchasesPage').then(m => ({ default: m.PurchasesPage })));
 const PurchaseEditorPage = lazy(() => import('@/pages/procurement/PurchaseEditorPage').then(m => ({ default: m.PurchaseEditorPage })));
 const PurchaseDetailPage = lazy(() => import('@/pages/procurement/PurchaseDetailPage').then(m => ({ default: m.PurchaseDetailPage })));
@@ -89,18 +80,16 @@ export function App() {
                   <Route path="/projects/:id" element={<ProjectDetailPage />} />
                   <Route path="/projects/:id/edit" element={<ProjectEditorPage />} />
 
-                  {/* 3. WAGES, ATTENDANCE & WORKFORCE MODULE */}
+                  {/* 3. WAGES & WORKFORCE MODULE */}
                   <Route path="/wages" element={<WagesPage />} />
                   <Route path="/daily-wages" element={<Navigate to="/wages" replace />} />
-                  <Route path="/attendance" element={<AttendancePage />} />
-                  <Route path="/employees" element={<EmployeesPage />} />
-                  <Route path="/employees/new" element={<EmployeeEditorPage />} />
-                  <Route path="/employees/:id" element={<EmployeeDetailPage />} />
-                  <Route path="/employees/:id/edit" element={<EmployeeEditorPage />} />
-                  <Route path="/advances" element={<AdvancesPage />} />
-                  <Route path="/advances/new" element={<AdvanceEditorPage />} />
-                  <Route path="/employee-payments" element={<EmployeePaymentsPage />} />
-                  <Route path="/employee-payments/new" element={<EmployeePaymentEditorPage />} />
+                  <Route path="/attendance" element={<Navigate to="/wages" replace />} />
+                  <Route path="/employees" element={<Navigate to="/wages" replace />} />
+                  <Route path="/employees/*" element={<Navigate to="/wages" replace />} />
+                  <Route path="/advances" element={<Navigate to="/wages" replace />} />
+                  <Route path="/advances/*" element={<Navigate to="/wages" replace />} />
+                  <Route path="/employee-payments" element={<Navigate to="/wages" replace />} />
+                  <Route path="/employee-payments/*" element={<Navigate to="/wages" replace />} />
 
                   {/* 4. PROCUREMENT & PURCHASES MODULE */}
                   <Route path="/procurement" element={<PurchasesPage />} />
@@ -110,7 +99,7 @@ export function App() {
                   <Route path="/purchases/:id/edit" element={<PurchaseEditorPage />} />
                   <Route path="/suppliers" element={<Navigate to="/procurement" replace />} />
                   <Route path="/suppliers/*" element={<Navigate to="/procurement" replace />} />
-                  <Route path="/materials" element={<MaterialsPage />} />
+                  <Route path="/materials" element={<Navigate to="/procurement" replace />} />
                   <Route path="/supplier-payments" element={<Navigate to="/procurement" replace />} />
                   <Route path="/supplier-payments/*" element={<Navigate to="/procurement" replace />} />
 
