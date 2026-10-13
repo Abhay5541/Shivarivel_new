@@ -70,6 +70,7 @@ export function DashboardPage() {
       totalPurchases,
       totalPurchaseSpent,
       totalPendingSupplierPayable,
+      unpaidPurchasesCount: unpaidPurchases.length,
     };
   }, [projects, customers, employees, purchases]);
 
@@ -134,18 +135,6 @@ export function DashboardPage() {
           <p className="text-xs text-[#E2DDD5]/85 font-normal mt-1.5">
             Keep building. Every project matters.
           </p>
-
-          {/* Quick Stats Pill Strip */}
-          <div className="flex items-center gap-2 flex-wrap pt-3.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-[#F7F5F0]">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span><strong className="text-white font-semibold">{kpis.activeProjectsCount}</strong> Active Sites</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-[#F7F5F0]">
-              <span className="w-2 h-2 rounded-full bg-[#E5C378]" />
-              <span><strong className="text-white font-semibold">{kpis.activeEmployeesCount}</strong> Site Laborers</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -166,9 +155,14 @@ export function DashboardPage() {
             <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.totalCustomers}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              <span className="font-semibold text-emerald-700">{kpis.activeCustomersCount} Active</span> clients
-            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="font-semibold text-emerald-950">{kpis.activeCustomersCount}</strong> Active Clients
+                </span>
+              </span>
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Clients →</span>
@@ -189,11 +183,16 @@ export function DashboardPage() {
               PROJECTS
             </div>
             <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
-              {kpis.activeProjectsCount}
+              {kpis.totalProjects}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              <span className="font-semibold text-[#4A0E0E]">{kpis.totalProjects}</span> total sites
-            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="font-semibold text-emerald-950">{kpis.activeProjectsCount}</strong> Active Sites
+                </span>
+              </span>
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Projects →</span>
@@ -216,9 +215,14 @@ export function DashboardPage() {
             <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.totalEmployees}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              <span className="font-semibold text-emerald-700">{kpis.activeEmployeesCount} active</span> laborers
-            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="font-semibold text-emerald-950">{kpis.activeEmployeesCount}</strong> Active Laborers
+                </span>
+              </span>
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Wages →</span>
@@ -241,9 +245,23 @@ export function DashboardPage() {
             <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.totalPurchases}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              Material purchase bills
-            </p>
+            <div className="mt-2">
+              {kpis.unpaidPurchasesCount > 0 ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FEF9EE] border border-[#FDE68A] text-[10.5px] font-medium text-[#92400E]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="truncate">
+                    <strong className="font-semibold text-amber-950">{kpis.unpaidPurchasesCount}</strong> Pending Bills
+                  </span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">
+                    <strong className="font-semibold text-emerald-950">{kpis.totalPurchases > 0 ? 'All Bills Paid' : '0 Bills'}</strong>
+                  </span>
+                </span>
+              )}
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Purchases →</span>
