@@ -6,6 +6,7 @@ import {
   HardHat,
   ShoppingCart,
   ArrowRight,
+  ArrowUpRight,
   ChevronRight,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
