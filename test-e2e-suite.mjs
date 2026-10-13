@@ -267,6 +267,7 @@ async function runE2ETests() {
   console.log(bold('\n━━━ STEP 5: WORKFORCE & LABOUR DAILY WAGES ━━━'));
   // Create Worker
   const empPayload = {
+    employee_code: `EMP-${timestamp.slice(-4)}`,
     name: `Muthu Kumar (Head Mason) ${timestamp}`,
     phone: '9841122334',
     worker_type: 'Mason',
