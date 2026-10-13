@@ -6,7 +6,6 @@ import {
   HardHat,
   ShoppingCart,
   ArrowRight,
-  ArrowUpRight,
   ChevronRight,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -152,7 +151,7 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               CLIENTS
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalCustomers}
             </div>
             <div className="mt-2">
@@ -182,7 +181,7 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               PROJECTS
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalProjects}
             </div>
             <div className="mt-2">
@@ -212,7 +211,7 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               LABORERS
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalEmployees}
             </div>
             <div className="mt-2">
@@ -242,7 +241,7 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               PURCHASES
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalPurchases}
             </div>
             <div className="mt-2">
@@ -308,43 +307,32 @@ export function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-2.5">
-              {projects.slice(0, 4).map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => navigate(`/projects/${p.id}`)}
-                  className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98]"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold text-[#E5C378]">
-                        {p.project_code || 'PRJ'}
-                      </span>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300">
-                        {p.status}
-                      </span>
+              {(projects.filter((p) => p.status === 'Active' || p.status === 'Planning').length > 0
+                ? projects.filter((p) => p.status === 'Active' || p.status === 'Planning')
+                : projects
+              )
+                .slice(0, 4)
+                .map((p) => (
+                  <div
+                    key={p.id}
+                    onClick={() => navigate(`/projects/${p.id}`)}
+                    className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98] group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-[#E5C378] transition-colors">
+                        {p.name}
+                      </h3>
+                      <p className="text-[11px] text-white/60 truncate mt-0.5">
+                        {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
+                      </p>
                     </div>
-                    <h3 className="text-xs font-bold text-white truncate mt-1">
-                      {p.name}
-                    </h3>
-                    <p className="text-[11px] text-white/60 truncate">
-                      {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
-                    </p>
-                  </div>
 
-                  <div className="text-right shrink-0">
-                    {p.contract_value ? (
-                      <div className="text-xs font-bold text-white font-mono">
-                        ₹{Number(p.contract_value).toLocaleString('en-IN')}
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-white/50">Value unset</div>
-                    )}
-                    <span className="text-[10px] text-[#E5C378] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
-                      View <ArrowUpRight className="w-3 h-3" />
-                    </span>
+                    <div className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-[#E5C378] group-hover:text-white transition-colors">
+                      <span>View</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>
