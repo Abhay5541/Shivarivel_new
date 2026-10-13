@@ -8,9 +8,8 @@ import {
   Edit2,
   Package,
   CheckCircle2,
+  Search as SearchIcon,
 } from 'lucide-react';
-import { Search } from '@/components/ui/Search';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
@@ -21,7 +20,6 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { RecordPaymentModal } from '@/components/business/RecordPaymentModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { SplitText } from '@/components/ui/SplitText';
 import type { Purchase } from '@/types/procurement';
 
 type ProcurementTab = 'project' | 'general';
@@ -304,8 +302,8 @@ export const PurchasesPage: React.FC = () => {
     return (
       <div
         key={p.id}
-        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-xs transition-all space-y-3.5 ${
-          isPaid ? 'border-[#E2DDD5] hover:border-[#166534]/40' : 'border-[#E2DDD5] hover:border-[#C99A2E]/50'
+        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all space-y-3.5 ${
+          isPaid ? 'border-[#E8E4DC] hover:border-[#166534]/40' : 'border-[#E8E4DC] hover:border-[#C99A2E]/50'
         }`}
       >
         {/* Top: Product Name, Project Name badge, Financials */}
@@ -410,48 +408,44 @@ export const PurchasesPage: React.FC = () => {
 
   return (
     <PageContainer className="pb-24 select-none">
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* 1. TOP PAGE HEADER & ADD BUTTON */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <SplitText
-            text="Procurement"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+            Procurement
+          </h1>
+          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
+            Track materials bought for projects and general inventory
+          </p>
         </div>
 
-        {/* Search & Action Button side-by-side */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          <Search
-            size="sm"
+        <button
+          type="button"
+          onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
+          className="h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Purchase</span>
+        </button>
+      </div>
+
+      {/* 2. SEARCH ROW */}
+      <div className="mb-3.5">
+        <div className="relative">
+          <SearchIcon className="w-4 h-4 text-[#8C867E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
             value={search}
-            onChange={setSearch}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={
               activeTab === 'project'
                 ? 'Search product or project...'
                 : 'Search general purchases...'
             }
+            className="w-full h-11 pl-10 pr-3.5 bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#4A0E0E] focus:bg-white transition-all"
           />
-          {activeTab === 'general' ? (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Purchase"
-              onClick={() => handleOpenAddPurchase('general')}
-            />
-          ) : activeTab === 'project' ? (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Purchase"
-              onClick={() => handleOpenAddPurchase('project')}
-            />
-          ) : null}
         </div>
       </div>
 

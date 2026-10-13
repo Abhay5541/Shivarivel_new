@@ -16,7 +16,6 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { useWages, useEmployees, useDeleteDailyWage } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
@@ -25,7 +24,6 @@ import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal
 import { LaborersDrawer } from '@/components/business/LaborersDrawer';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { SplitText } from '@/components/ui/SplitText';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
 
 function getTodayISO() {
@@ -400,45 +398,43 @@ export function WagesPage() {
         </div>
       )}
 
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* 1. TOP PAGE HEADER & ACTION BUTTONS */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <SplitText
-            text="Wages"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+            Wages
+          </h1>
+          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
+            Record daily muster, site labor, and wage payouts
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          {/* Laborers Directory Trigger */}
-          <ActionButton
-            variant="outline"
-            icon={<Users className="w-4 h-4 text-[#4A0E0E]" />}
-            label="Laborers Directory"
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
             onClick={() => {
               setOpenInAddMode(false);
               setIsLaborersDrawerOpen(true);
             }}
-          />
+            className="h-9 px-3 rounded-xl border border-[#E8E4DC] bg-white text-[#4A0E0E] text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:bg-[#FAF7F0] active:scale-95 transition-all cursor-pointer"
+          >
+            <Users className="w-4 h-4 text-[#4A0E0E]" />
+            <span className="hidden sm:inline">Laborers Directory</span>
+            <span className="sm:hidden">Laborers</span>
+          </button>
 
-          {/* Primary Action Button */}
           {activeTab === 'daily' && (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Wage Entry"
+            <button
+              type="button"
               onClick={() => {
                 setEditingWage(null);
                 setIsAddWageModalOpen(true);
               }}
-            />
+              className="h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add Wage</span>
+            </button>
           )}
         </div>
       </div>
@@ -747,7 +743,7 @@ export function WagesPage() {
                   return (
                     <div
                       key={wage.id}
-                      className="bg-white border border-[#E2DDD5] rounded-xl p-4 shadow-xs space-y-3"
+                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all space-y-3"
                     >
                       <div className="flex items-start justify-between">
                         <div>
