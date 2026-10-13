@@ -634,24 +634,34 @@ export function useWages(filters?: {
         console.warn('Daily wages query notice:', err);
       }
 
-      // KEY FIX: Merge remote results INTO the full local dataset.
-      // A filtered Supabase query (e.g. by projectId) only returns a subset.
-      // We must NOT overwrite unrelated local records that were outside the filter scope.
+      // KEY FIX: Merge remote results with local dataset, eliminating duplicates.
+      // Remote results from Supabase are the authoritative source of truth.
       const remoteIds = new Set(remote.map((w) => w.id));
-      const localIds = new Set(allLocal.map((lw) => lw.id));
+      const remoteKeys = new Set(remote.map((rw) => `${rw.employee_id}_${rw.wage_date}`));
 
-      // Update existing local records with fresher remote data
-      const updatedLocal = allLocal.map((lw) =>
-        remoteIds.has(lw.id)
-          ? (remote.find((rw) => rw.id === lw.id) ?? lw)
-          : lw
-      );
+      // Filter out any local temporary records that match remote by ID or (employee_id + wage_date)
+      const nonDuplicateLocal = allLocal.filter((lw) => {
+        if (remoteIds.has(lw.id)) return false; // Handled by remote
+        if (lw.employee_id && lw.wage_date && remoteKeys.has(`${lw.employee_id}_${lw.wage_date}`)) {
+          return false; // Duplicate of remote
+        }
+        return true;
+      });
 
-      // Append brand-new remote records not yet in local storage
-      const newFromRemote = remote.filter((rw) => !localIds.has(rw.id));
-      const merged = [...newFromRemote, ...updatedLocal];
+      const rawMerged = [...remote, ...nonDuplicateLocal];
 
-      // Persist the FULL merged set — safe for any filter scope
+      // Final uniqueness guarantee: strictly one wage entry per (employee_id, wage_date)
+      const seen = new Set<string>();
+      const merged: DailyWage[] = [];
+      for (const w of rawMerged) {
+        const uniqueKey = `${w.employee_id}_${w.wage_date}`;
+        if (!seen.has(uniqueKey)) {
+          seen.add(uniqueKey);
+          merged.push(w);
+        }
+      }
+
+      // Persist the deduplicated merged set
       memoryDailyWages = merged;
       saveStoredDailyWages(merged);
 

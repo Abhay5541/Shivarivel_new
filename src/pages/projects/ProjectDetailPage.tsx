@@ -11,9 +11,7 @@ import {
   RefreshCw,
   ShoppingCart,
   Package,
-  IndianRupee,
   Calendar,
-  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
@@ -485,104 +483,74 @@ export const ProjectDetailPage: React.FC = () => {
             </Link>
           </div>
         ) : (
-          <>
-            {/* Per-labourer summary rows */}
-            <div className="divide-y divide-[#E8E4DC]">
-              {siteWageBreakdown.items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="px-5 py-3.5 flex items-center justify-between"
-                >
-                  <div>
-                    <span className="text-sm font-bold text-[#242424] block">
-                      {item.employeeName}
-                    </span>
-                    <span className="text-[11px] text-[#6B6B6B]">
-                      {item.days} {item.days === 1 ? 'day' : 'days'} recorded
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm font-bold text-[#1E6B37]">
-                      {formatINR(item.total)}
-                    </span>
-                    {siteWages.some(
-                      (w) =>
-                        (employees.find((e) => e.id === w.employee_id)?.name === item.employeeName ||
-                          (w as any).employee?.name === item.employeeName) &&
-                        w.status !== 'Confirmed'
-                    ) && (
-                      <div className="flex items-center gap-1 justify-end mt-0.5">
-                        <AlertCircle className="w-3 h-3 text-amber-500" />
-                        <span className="text-[10px] text-amber-600 font-medium">Pending</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="divide-y divide-[#E8E4DC]">
+            {siteWages.slice(0, 10).map((wage) => {
+              const emp = employees.find((e) => e.id === wage.employee_id);
+              const name = (wage as any).employee?.name || emp?.name || 'Employee';
+              const role = emp?.worker_type || 'Laborer';
+              const amount = Number((wage as any).amount || (wage as any).rate || 0);
+              const isConfirmed = wage.status === 'Confirmed';
+              const wageDate = (wage as any).wage_date || wage.created_at;
 
-            {/* Individual wage entries (recent 5) */}
-            <div className="border-t border-[#E8E4DC] bg-[#FAFAF8]">
-              <div className="px-5 py-2 flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wide">
-                  Recent Entries
-                </span>
-                <IndianRupee className="w-3 h-3 text-[#6B6B6B]" />
-              </div>
-              <div className="divide-y divide-[#E8E4DC]">
-                {siteWages.slice(0, 5).map((wage) => {
-                  const emp = employees.find((e) => e.id === wage.employee_id);
-                  const name = (wage as any).employee?.name || emp?.name || 'Employee';
-                  const amount = Number((wage as any).amount || (wage as any).rate || 0);
-                  const isConfirmed = wage.status === 'Confirmed';
-                  return (
-                    <div
-                      key={wage.id}
-                      className="px-5 py-2.5 flex items-center justify-between"
-                    >
-                      <div>
-                        <span className="text-xs font-semibold text-[#242424]">{name}</span>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[11px] text-[#6B6B6B]">
-                            {new Date((wage as any).wage_date || wage.created_at).toLocaleDateString(
-                              'en-IN',
-                              { day: 'numeric', month: 'short' }
-                            )}
-                          </span>
-                          <span
-                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                              isConfirmed
-                                ? 'bg-[#E8F8EE] text-[#1E7E34]'
-                                : 'bg-amber-50 text-amber-700'
-                            }`}
-                          >
-                            {wage.status}
-                          </span>
-                        </div>
-                      </div>
-                      <span
-                        className={`text-sm font-bold ${
-                          isConfirmed ? 'text-[#1E6B37]' : 'text-amber-700'
-                        }`}
-                      >
-                        {formatINR(amount)}
+              return (
+                <div
+                  key={wage.id}
+                  className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-[#242424] font-display truncate">
+                        {name}
+                      </span>
+                      <span className="text-[10px] font-semibold text-[#6B6B6B] bg-[#EFECE6] px-1.5 py-0.5 rounded-sm shrink-0">
+                        {role}
                       </span>
                     </div>
-                  );
-                })}
-              </div>
-              {siteWages.length > 5 && (
-                <div className="px-5 py-3 text-center border-t border-[#E8E4DC]">
-                  <Link
-                    to="/wages"
-                    className="text-xs font-bold text-[#4A0E0E] cursor-pointer"
-                  >
-                    View all {siteWages.length} wage entries →
-                  </Link>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[11px] text-[#6B6B6B]">
+                        {new Date(wageDate).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                          isConfirmed
+                            ? 'bg-[#E8F8EE] text-[#1E7E34]'
+                            : 'bg-amber-50 text-amber-700'
+                        }`}
+                      >
+                        {wage.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span
+                      className={`text-sm font-bold block ${
+                        isConfirmed ? 'text-[#1E6B37]' : 'text-amber-700'
+                      }`}
+                    >
+                      {formatINR(amount)}
+                    </span>
+                    <span className="text-[10px] text-[#8C867E]">
+                      {wage.payable_units ? `${wage.payable_units} day` : '1 day'}
+                    </span>
+                  </div>
                 </div>
-              )}
-            </div>
-          </>
+              );
+            })}
+            {siteWages.length > 10 && (
+              <div className="px-5 py-3 text-center bg-[#FAFAF8]">
+                <Link
+                  to="/wages"
+                  className="text-xs font-bold text-[#4A0E0E] hover:underline cursor-pointer"
+                >
+                  View all {siteWages.length} wage entries →
+                </Link>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
