@@ -8,6 +8,7 @@ import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { useQueryClient } from '@tanstack/react-query';
+import appBg from '@/Asserts/app_background.jpg';
 
 const TOP_LEVEL_SPOKES = [
   '/customers',
@@ -49,7 +50,15 @@ export function AppLayout() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-[#F7F5F0] flex flex-col antialiased text-[#242424]">
+    <div className="min-h-screen flex flex-col antialiased text-[#242424] relative">
+      {/* Universal Textured Architectural Background */}
+      <div
+        className="fixed inset-0 pointer-events-none -z-10 bg-repeat"
+        style={{
+          backgroundImage: `url(${appBg})`,
+          backgroundSize: '480px auto',
+        }}
+      />
       {/* Universal Top Header (Both PC & Mobile) */}
       <Header onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
 

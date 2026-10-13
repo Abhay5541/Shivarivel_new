@@ -52,6 +52,9 @@
 body {
   font-family: var(--font-body, 'Inter', sans-serif);
   background-color: #F7F5F0;
+  background-image: url('./Asserts/app_background.jpg');
+  background-repeat: repeat;
+  background-size: 500px auto;
   color: #242424;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
