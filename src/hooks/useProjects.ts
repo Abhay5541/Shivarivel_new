@@ -84,16 +84,22 @@ export function useProjects(options: UseProjectsOptions = {}) {
         console.warn('Supabase projects query notice:', err);
       }
 
-      // Merge remote and local projects:
-      // Local projects not in remote are preserved, and local overrides take precedence.
+      // KEY FIX: Merge remote results INTO the full local dataset.
+      // When filtered by customerId or status, Supabase only returns a subset.
+      // We must NOT overwrite unrelated local records outside this filter scope.
       const remoteIds = new Set(remoteProjects.map((p) => p.id));
-      const combined = [
-        ...local.filter((lp) => !remoteIds.has(lp.id)),
-        ...remoteProjects.map((rp) => {
-          const localItem = local.find((lp) => lp.id === rp.id);
-          return localItem || rp;
-        }),
-      ];
+      const localIds = new Set(local.map((lp) => lp.id));
+
+      // Update existing local records with fresher remote data
+      const updatedLocal = local.map((lp) =>
+        remoteIds.has(lp.id)
+          ? (remoteProjects.find((rp) => rp.id === lp.id) ?? lp)
+          : lp
+      );
+
+      // Append brand-new remote records not yet in local storage
+      const newFromRemote = remoteProjects.filter((rp) => !localIds.has(rp.id));
+      const combined = [...newFromRemote, ...updatedLocal];
 
       memoryProjects = combined;
       saveStoredProjects(combined);

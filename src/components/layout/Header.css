@@ -1,36 +1,29 @@
-/* ══ Floating Glass Header ═════════════════════════════════
-   A frosted-glass pill that floats over the content area,
-   adapted from Lime Green Studio's floating navbar aesthetic
-   to the Shivarivel ERP brand palette.
+/* ══ Flat Executive Header ═════════════════════════════════
+   Direct flat architectural header blending seamlessly into the app canvas.
+   No curved pill border, prominent round gold-bordered SVC emblem,
+   bold classical typography, and crisp tactile utility actions. */
 
-   The pill is not stuck to the viewport edges — it breathes
-   with a 12px margin, rounds fully, and blurs the page
-   content behind it. Every interaction is a small thing:
-   underlines appear from the centre, the brand mark lifts on
-   hover, the CTA has a shimmer sweep. */
-
-/* ── wrapper: the positioning context ──────────────────── */
+/* ── wrapper: sticky context with safe-area top ──────────────────── */
 .glass-header-wrapper {
   position: sticky;
   top: 0;
   z-index: 40;
-  padding: 10px 12px 0;
-  pointer-events: none;
+  padding: max(10px, env(safe-area-inset-top, 0px)) 16px 8px;
+  background: rgba(247, 245, 240, 0.94);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(226, 221, 213, 0.45);
 }
 
-/* ── the pill ──────────────────────────────────────────── */
+/* ── the header bar: flat, no enclosing curved pill border ──────────────────── */
 .glass-header {
-  pointer-events: auto;
-  border-radius: 9999px;
-  border: 1px solid rgba(201, 162, 74, 0.28);
-  background: rgba(255, 255, 255, 0.78);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow:
-    0 1px 3px rgba(74, 14, 14, 0.04),
-    0 8px 30px rgba(10, 24, 19, 0.06),
-    0 0 0 1px rgba(201, 162, 74, 0.12);
-  transition: all 500ms cubic-bezier(0.32, 0.72, 0, 1);
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .glass-header-inner {
@@ -38,48 +31,50 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 14px;
-  gap: 8px;
+  padding: 2px 0;
+  gap: 12px;
 }
 
-/* ── brand mark ────────────────────────────────────────── */
+/* ── brand mark & identity ────────────────────────────── */
 .glass-header-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px 4px 6px;
-  margin-right: 4px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  gap: 10px;
+  padding: 2px 0;
+  background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 300ms ease;
+  transition: opacity 200ms ease;
 }
 .glass-header-brand:hover {
-  background: rgba(255, 255, 255, 0.95);
-  transform: scale(1.03);
+  opacity: 0.9;
 }
 .glass-header-brand:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .glass-brand-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 46px;
+  height: 46px;
+  border-radius: 9999px;
   background: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  border: 1px solid rgba(201, 162, 74, 0.55);
-  box-shadow: 0 2px 10px rgba(201, 162, 74, 0.25);
+  border: 2px solid #C9A24A;
+  box-shadow: 0 2px 8px rgba(201, 162, 74, 0.3);
 }
 
-/* ── nav links ─────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .glass-brand-mark {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ── desktop center nav (Magnifying Dock) ─────────────────────────── */
 .glass-nav {
   display: none;
   align-items: center;
@@ -91,62 +86,15 @@
   }
 }
 
-.glass-nav-link {
-  position: relative;
-  padding: 6px 16px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: all 1000ms cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.glass-nav-label {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
-  font-weight: 500;
-  font-size: 14px;
-  color: #6B6B6B;
-  transition: color 300ms ease;
-}
-.glass-nav-link:hover .glass-nav-label,
-.glass-nav-link.active .glass-nav-label {
-  color: #242424;
-}
-.glass-nav-link.active .glass-nav-label {
-  font-weight: 600;
-  color: #4A0E0E;
-}
-
-/* the underline: grows from the centre on hover */
-.glass-nav-underline {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 2px;
-  background: #4A0E0E;
-  border-radius: 9999px;
-  transition: width 300ms ease-out;
-}
-.glass-nav-link:hover .glass-nav-underline {
-  width: 55%;
-}
-.glass-nav-link.active .glass-nav-underline {
-  width: 60%;
-  background: #C99A2E;
-}
-
 /* ── action buttons (right side) ───────────────────────── */
 .glass-header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-left: auto;
 }
 
-/* Quick Add CTA — shimmer sweep on hover */
+/* Quick Add CTA — shown on desktop screens */
 .glass-quick-add {
   position: relative;
   overflow: hidden;
@@ -155,8 +103,8 @@
   gap: 6px;
   padding: 6px 18px;
   border-radius: 9999px;
-  border: 1px solid rgba(201, 154, 46, 0.3);
-  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(201, 154, 46, 0.35);
+  background: rgba(255, 255, 255, 0.6);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
@@ -172,31 +120,9 @@
   }
 }
 .glass-quick-add:hover {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.9);
   transform: scale(1.04);
   border-color: rgba(201, 154, 46, 0.5);
-}
-.glass-quick-add:active {
-  transform: scale(0.96);
-}
-
-/* shimmer sweep */
-.glass-quick-add::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 35%,
-    rgba(201, 154, 46, 0.12) 50%,
-    transparent 65%
-  );
-  transform: translateX(-100%);
-  transition: transform 700ms ease;
-  pointer-events: none;
-}
-.glass-quick-add:hover::after {
-  transform: translateX(100%);
 }
 
 .glass-action-label {
@@ -224,87 +150,86 @@
   }
 }
 
-/* Icon-only action buttons */
+/* Circular Notification button */
 .glass-action-icon {
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 9999px;
-  border: 1px solid rgba(226, 221, 213, 0.6);
-  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(226, 221, 213, 0.7);
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6B6B6B;
+  color: #242424;
   cursor: pointer;
-  transition: all 250ms ease;
+  transition: all 200ms ease;
 }
 .glass-action-icon:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: #242424;
-  transform: scale(1.06);
+  background: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 .glass-action-icon:active {
-  transform: scale(0.94);
+  transform: scale(0.95);
 }
 
 .glass-notif-dot {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 6px;
-  height: 6px;
+  top: 9px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 9999px;
-  background: #C9A24A;
-  box-shadow: 0 0 6px rgba(201, 162, 74, 0.6);
+  background: #DC2626;
+  border: 2px solid #FFFFFF;
 }
 
-/* ── user button ───────────────────────────────────────── */
+/* User Profile button */
 .glass-user-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px 4px 4px;
-  border-radius: 9999px;
-  border: 1px solid rgba(201, 162, 74, 0.35);
-  background: rgba(255, 255, 255, 0.55);
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  transition: all 250ms ease;
+  transition: opacity 200ms ease;
 }
 .glass-user-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(201, 162, 74, 0.6);
+  opacity: 0.9;
 }
 .glass-user-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 .glass-user-avatar {
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   border-radius: 9999px;
   background: #4A0E0E;
   color: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
-  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
-  border: 1.5px solid #C9A24A;
-  box-shadow: 0 0 8px rgba(201, 162, 74, 0.35);
+  font-family: var(--font-playfair, 'Playfair Display', serif);
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 1px 4px rgba(74, 14, 14, 0.2), 0 0 0 1px rgba(226, 221, 213, 0.6);
 }
 
-/* ── user dropdown ─────────────────────────────────────── */
+/* User Dropdown Popover */
 .glass-user-dropdown {
   position: absolute;
   right: 0;
+  top: 100%;
   margin-top: 8px;
   width: 224px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.96);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(226, 221, 213, 0.6);
+  border: 1px solid rgba(226, 221, 213, 0.8);
   border-radius: 16px;
   box-shadow:
     0 4px 16px rgba(74, 14, 14, 0.08),
@@ -324,20 +249,13 @@
   }
 }
 
-/* ── reduced motion ────────────────────────────────────── */
+/* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   .glass-header,
   .glass-header-brand,
-  .glass-nav-link,
   .glass-quick-add,
   .glass-action-icon,
   .glass-user-btn {
-    transition: none;
-  }
-  .glass-quick-add::after {
-    display: none;
-  }
-  .glass-nav-underline {
     transition: none;
   }
 }

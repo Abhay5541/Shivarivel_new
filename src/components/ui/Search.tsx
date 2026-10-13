@@ -237,25 +237,12 @@ export function Search({
     () => typeof window !== "undefined"
       && window.matchMedia("(max-width: 760px)").matches,
   );
-  /* ── and whether the screen has a keyboard of its own ────
-     A different question from `snug` and it needs its own
-     query: `snug` is about how much ROOM there is, and this is
-     about what opening the field costs. A narrow desktop
-     window is snug and types fine; a tablet is roomy and still
-     throws half its screen away to a keyboard. */
-  const [touch, setTouch] = useState(
-    () => typeof window !== "undefined"
-      && window.matchMedia("(pointer: coarse)").matches,
-  );
   useEffect(() => {
     const room = window.matchMedia("(max-width: 760px)");
-    const coarse = window.matchMedia("(pointer: coarse)");
-    const read = () => { setSnug(room.matches); setTouch(coarse.matches); };
+    const read = () => { setSnug(room.matches); };
     room.addEventListener("change", read);
-    coarse.addEventListener("change", read);
     return () => {
       room.removeEventListener("change", read);
-      coarse.removeEventListener("change", read);
     };
   }, []);
   const span = width ?? (snug ? defaultSnug : defaultWide);
@@ -425,8 +412,8 @@ export function Search({
           type="text"
           value={value}
           placeholder={placeholder}
-          aria-label={placeholder}
-          inputMode={touch ? "none" : undefined}
+          inputMode="search"
+          enterKeyHint="search"
           tabIndex={open ? 0 : -1}
           autoFocus={autoFocus}
           onChange={(e) => {
