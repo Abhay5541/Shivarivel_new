@@ -19,7 +19,8 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
   onSelectLaborer,
   initialAddMode = false,
 }) => {
-  const { data: employees = [], isLoading } = useEmployees();
+  const { data: allEmployees = [], isLoading } = useEmployees();
+  const employees = allEmployees.filter((emp) => emp.status !== 'inactive');
   const createEmployeeMutation = useCreateEmployee();
 
   const [isAddingOrEditing, setIsAddingOrEditing] = useState(false);

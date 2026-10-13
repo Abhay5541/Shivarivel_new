@@ -150,13 +150,21 @@ export function useEmployees(filters?: {
       }
 
       const remoteIds = new Set(remote.map((e) => e.id));
-      const merged = [
-        ...local.filter((le) => !remoteIds.has(le.id)),
-        ...remote.map((re) => {
-          const localItem = local.find((le) => le.id === re.id);
-          return localItem ? { ...localItem, ...re } : re;
-        }),
-      ];
+      let merged: Employee[];
+      if (remote.length > 0) {
+        // Remote query succeeded: Remote is source of truth.
+        // Keep only local-only un-synced items (emp-local-) that don't exist in remote yet.
+        // Do NOT resurrect deleted remote employees from stale localStorage!
+        const unsyncedLocal = local.filter((le) => le.id.startsWith('emp-local-') && !remoteIds.has(le.id));
+        merged = [...remote, ...unsyncedLocal];
+      } else {
+        merged = local;
+      }
+
+      // Exclude inactive employees unless explicitly requested
+      if (filters?.status !== 'all' && filters?.status !== 'inactive') {
+        merged = merged.filter((e) => e.status !== 'inactive');
+      }
 
       memoryEmployees = merged;
       saveStoredEmployees(merged);
@@ -357,16 +365,22 @@ export function useDeleteEmployee() {
       try {
         const { error } = await (supabase as any).from('employees').delete().eq('id', id);
         if (error) {
+          // If foreign key constraint exists, mark inactive
           await (supabase as any).from('employees').update({ status: 'inactive' }).eq('id', id);
         }
       } catch {
         // Local fallback
       }
-      memoryEmployees = memoryEmployees.filter((e) => e.id !== id);
-      saveStoredEmployees(memoryEmployees);
+      const stored = loadStoredEmployees();
+      const updated = stored.filter((e) => e.id !== id);
+      memoryEmployees = updated;
+      saveStoredEmployees(updated);
       return id;
     },
     onSuccess: (id) => {
+      queryClient.setQueryData(['employees'], (old: Employee[] | undefined) => {
+        return (old || []).filter((e) => e.id !== id);
+      });
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       queryClient.invalidateQueries({ queryKey: ['employee', id] });
       queryClient.invalidateQueries({ queryKey: ['wages'] });

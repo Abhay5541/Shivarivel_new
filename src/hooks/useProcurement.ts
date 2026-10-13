@@ -649,32 +649,26 @@ export function usePurchases(filters?: PurchaseFilters) {
         console.warn('Purchases query notice:', err);
       }
 
-      // KEY FIX: Merge remote results INTO the full local dataset.
-      // A filtered Supabase query (e.g. by project_id) only returns a subset.
-      // We must NOT overwrite unrelated local records outside this filter scope.
+      // KEY FIX: Merge remote results with local dataset, eliminating duplicates.
+      // Remote results from Supabase are the source of truth.
       const remoteIds = new Set(remoteResults.map((p) => p.id));
-      const localIds = new Set(local.map((lp) => lp.id));
+      const remoteNumbers = new Set(remoteResults.map((p) => p.purchase_number).filter(Boolean));
 
-      // Update existing local records with fresher remote data
-      const updatedLocal = local.map((lp) => {
-        if (remoteIds.has(lp.id)) {
-          const rp = remoteResults.find((r) => r.id === lp.id)!;
-          const allocated = Math.max(rp.total_allocated ?? 0, lp.total_allocated ?? 0);
-          const balance = Math.max(0, rp.total_amount - allocated);
-          return {
-            ...lp,
-            ...rp,
-            total_allocated: allocated,
-            outstanding_balance: balance,
-            payment_status: derivePurchasePaymentStatus(rp.total_amount, allocated),
-          };
-        }
-        return lp;
+      // Filter out any local temporary records (pur-) that already exist in remoteResults
+      const nonDuplicateLocal = local.filter((lp) => {
+        if (remoteIds.has(lp.id)) return false; // Handled by remoteResults
+        if (lp.id.startsWith('pur-') && lp.purchase_number && remoteNumbers.has(lp.purchase_number)) return false;
+        const isDuplicate = remoteResults.some(
+          (rp) =>
+            rp.purchase_date === lp.purchase_date &&
+            Math.abs(rp.total_amount - lp.total_amount) < 0.01 &&
+            rp.supplier_id === lp.supplier_id
+        );
+        if (lp.id.startsWith('pur-') && isDuplicate) return false;
+        return true;
       });
 
-      // Append brand-new remote records not yet in local storage
-      const newFromRemote = remoteResults.filter((rp) => !localIds.has(rp.id));
-      const combined = [...newFromRemote, ...updatedLocal];
+      const combined = [...remoteResults, ...nonDuplicateLocal];
 
       memoryPurchases = combined;
       saveStoredPurchases(combined);
@@ -1506,6 +1500,15 @@ export function useCreateSimplePurchase() {
               ],
             });
           }
+
+          // Reconcile newPurchase with the actual Supabase record ID to avoid double entries
+          newPurchase.id = purchaseData.id;
+          newPurchase.purchase_number = purchaseData.purchase_number || purchaseNumber;
+          memoryPurchases = [
+            newPurchase,
+            ...memoryPurchases.filter((p) => p.id !== newPurchaseId && p.id !== purchaseData.id),
+          ];
+          saveStoredPurchases(memoryPurchases);
         }
       } catch (dbErr) {
         console.warn('Supabase simple purchase creation error; saved in local memory:', dbErr);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, ShoppingCart, AlertCircle, Trash2 } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 import { useCreateSimplePurchase, useUpdateSimplePurchase, useDeleteSimplePurchase } from '@/hooks/useProcurement';
@@ -29,6 +29,8 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
   const createPurchaseMutation = useCreateSimplePurchase();
   const updatePurchaseMutation = useUpdateSimplePurchase();
   const deletePurchaseMutation = useDeleteSimplePurchase();
+
+  const isSubmittingRef = useRef(false);
 
   const [projectId, setProjectId] = useState('');
   const [productName, setProductName] = useState('');
@@ -117,6 +119,9 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
       return;
     }
 
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     try {
       if (isEdit && editPurchase) {
         await updatePurchaseMutation.mutateAsync({
@@ -146,6 +151,8 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to save purchase. Please try again.';
       setErrorMsg(msg);
+    } finally {
+      isSubmittingRef.current = false;
     }
   };
 
