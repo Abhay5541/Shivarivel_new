@@ -8,7 +8,7 @@ import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { useQueryClient } from '@tanstack/react-query';
-import appBg from '@/Asserts/app_background2.jpg';
+import appBg from '@/Asserts/backgroundUI1.jpg';
 
 const TOP_LEVEL_SPOKES = [
   '/customers',
@@ -53,10 +53,10 @@ export function AppLayout() {
     <div className="min-h-screen flex flex-col antialiased text-[#242424] relative">
       {/* Universal Textured Architectural Background */}
       <div
-        className="fixed inset-0 pointer-events-none -z-10 bg-repeat"
+        className="fixed inset-0 pointer-events-none -z-10 bg-repeat bg-center"
         style={{
           backgroundImage: `url(${appBg})`,
-          backgroundSize: '480px auto',
+          backgroundSize: '600px auto',
         }}
       />
       {/* Universal Top Header (Both PC & Mobile) */}
