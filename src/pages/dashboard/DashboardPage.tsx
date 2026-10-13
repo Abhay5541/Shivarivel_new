@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users,
   Building2,
-  ArrowUpRight,
   HardHat,
   ShoppingCart,
   ArrowRight,

@@ -304,7 +304,9 @@ export function WagesPage() {
         wage.payable_units === 0.5 ? 'Half Day' : wage.payable_units === 0 ? 'Absent' : 'Present';
 
       const proj = projects.find((p) => p.id === wage.project_id);
-      const projectName = wage.project?.name || proj?.name || 'Site Work';
+      const projectName = (wage.project?.name && wage.project.name !== 'Project')
+        ? wage.project.name
+        : proj?.name || 'General Site Work';
 
       let row = map.get(empId);
       if (!row) {
@@ -678,19 +680,15 @@ export function WagesPage() {
                     {dayEntries.map((wage) => {
                       const emp = employees.find((e) => e.id === wage.employee_id);
                       const laborerName = wage.employee?.name || emp?.name || 'Laborer';
-                      const laborerCode = wage.employee?.employee_code || emp?.employee_code || 'EMP';
                       const proj = projects.find((p) => p.id === wage.project_id);
-                      const projectName = wage.project?.name || proj?.name || 'General Site Work';
+                      const projectName = (wage.project?.name && wage.project.name !== 'Project')
+                        ? wage.project.name
+                        : proj?.name || 'General Site Work';
 
                       return (
                         <tr key={wage.id} className="hover:bg-[#F7F5F0]/60 transition-colors">
                           <td className="py-3.5 px-5">
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-[#242424] font-display">{laborerName}</span>
-                              <span className="px-1.5 py-0.5 rounded-sm bg-[#F3EFEA] text-[10px] font-semibold text-[#4A0E0E] tabular-nums">
-                                {laborerCode}
-                              </span>
-                            </div>
+                            <span className="font-bold text-[#242424] font-display">{laborerName}</span>
                           </td>
 
                           <td className="py-3.5 px-4">
@@ -741,9 +739,10 @@ export function WagesPage() {
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
-                  const laborerCode = wage.employee?.employee_code || emp?.employee_code || 'EMP';
                   const proj = projects.find((p) => p.id === wage.project_id);
-                  const projectName = wage.project?.name || proj?.name || 'General Site Work';
+                  const projectName = (wage.project?.name && wage.project.name !== 'Project')
+                    ? wage.project.name
+                    : proj?.name || 'General Site Work';
 
                   return (
                     <div
@@ -752,12 +751,7 @@ export function WagesPage() {
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-sm text-[#242424] font-display">{laborerName}</h4>
-                            <span className="px-1.5 py-0.5 rounded-sm bg-[#F3EFEA] text-[10px] font-semibold text-[#4A0E0E] tabular-nums">
-                              {laborerCode}
-                            </span>
-                          </div>
+                          <h4 className="font-bold text-sm text-[#242424] font-display">{laborerName}</h4>
                           <div className="flex items-center gap-1 text-xs text-[#6B6B6B] mt-0.5">
                             <Building2 className="w-3.5 h-3.5" />
                             <span>{projectName}</span>
@@ -972,7 +966,6 @@ export function WagesPage() {
                         <tr key={row.employeeId} className="hover:bg-[#F7F5F0]/60 transition-colors">
                           <td className="py-3 px-4">
                             <div className="font-bold text-sm text-[#242424] font-display">{row.name}</div>
-                            <div className="text-[11px] text-[#6B6B6B] font-mono">{row.code}</div>
                           </td>
 
                           {/* 7 Days columns */}
@@ -1059,12 +1052,7 @@ export function WagesPage() {
                     >
                       <div className="flex items-start justify-between">
                         <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-sm text-[#242424] font-display">{row.name}</h4>
-                            <span className="px-1.5 py-0.5 rounded-sm bg-[#F3EFEA] text-[10px] font-semibold text-[#4A0E0E] tabular-nums">
-                              {row.code}
-                            </span>
-                          </div>
+                          <h4 className="font-bold text-sm text-[#242424] font-display">{row.name}</h4>
                           <p className="text-xs text-[#6B6B6B] mt-0.5">
                             {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'No sites recorded'}
                           </p>

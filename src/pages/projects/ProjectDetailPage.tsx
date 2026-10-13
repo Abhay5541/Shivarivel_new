@@ -25,6 +25,7 @@ import { useWages, useEmployees } from '@/hooks/useWorkforce';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useCustomer } from '@/hooks/useCustomers';
 import { formatINR } from '@/lib/utils';
+import type { Purchase } from '@/types/procurement';
 
 // Payment status badge color helper
 function paymentStatusStyle(status: string | undefined) {
@@ -41,6 +42,8 @@ export const ProjectDetailPage: React.FC = () => {
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
 
   const { data: site, isLoading: isLoadingSite, isError, error, refetch } = useProject(id);
+  const { data: customers = [] } = useCustomers();
+  const { data: allPurchases = [], isLoading: isLoadingPurchases } = usePurchases();
   const { data: siteWages = [], isLoading: isLoadingWages } = useWages({ projectId: id });
   const { data: employees = [] } = useEmployees();
   const { data: projectPurchases = [], isLoading: isLoadingPurchases } = usePurchases({
