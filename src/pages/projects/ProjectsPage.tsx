@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
+import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import { useProjects, useUpdateProject } from '@/hooks/useProjects';
 import type { Project, ProjectStatus } from '@/types/projects';
 
@@ -51,6 +52,35 @@ export const ProjectsPage: React.FC = () => {
   const allCount = sites.length;
   const activeCount = sites.filter((s) => s.status !== 'Completed').length;
   const completedCount = sites.filter((s) => s.status === 'Completed').length;
+
+  const projectFilterOptions = useMemo<SegmentOption<'all' | 'active' | 'completed'>[]>(
+    () => [
+      {
+        id: 'all',
+        label: 'All Projects',
+        shortLabel: 'All',
+        count: allCount,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+      {
+        id: 'active',
+        label: 'Active',
+        shortLabel: 'Active',
+        count: activeCount,
+        dotColor: '#166534',
+        activeColorClass: 'text-[#166534]',
+      },
+      {
+        id: 'completed',
+        label: 'Completed',
+        shortLabel: 'Done',
+        count: completedCount,
+        dotColor: '#7A7265',
+        activeColorClass: 'text-[#6B6B6B]',
+      },
+    ],
+    [allCount, activeCount, completedCount]
+  );
 
   // Search & status filtering
   const filteredSites = useMemo(() => {
@@ -272,43 +302,15 @@ export const ProjectsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 3. SEGMENTED FILTER PILLS: [ All (X) ] [ Active (Y) ] [ Completed (Z) ] */}
-      <div className="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar">
-        <button
-          type="button"
-          onClick={() => setStatusFilter('all')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            statusFilter === 'all'
-              ? 'bg-[#4A0E0E] text-white shadow-xs'
-              : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-          }`}
-        >
-          All ({allCount})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setStatusFilter('active')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            statusFilter === 'active'
-              ? 'bg-[#4A0E0E] text-white shadow-xs'
-              : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-          }`}
-        >
-          Active ({activeCount})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setStatusFilter('completed')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            statusFilter === 'completed'
-              ? 'bg-[#4A0E0E] text-white shadow-xs'
-              : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-          }`}
-        >
-          Completed ({completedCount})
-        </button>
+      {/* 3. SLIDING SEGMENTED FILTER: [ All Projects (X) ] [ Active (Y) ] [ Completed (Z) ] */}
+      <div className="mb-4">
+        <SlidingSegmentedControl
+          options={projectFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          fullWidth
+          ariaLabel="Filter projects"
+        />
       </div>
 
       {/* 4. PROJECT LIST */}
