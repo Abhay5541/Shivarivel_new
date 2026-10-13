@@ -8,7 +8,7 @@ import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { useQueryClient } from '@tanstack/react-query';
-import appBg from '@/Asserts/app_background.jpg';
+import appBg from '@/Asserts/app_background2.jpg';
 
 const TOP_LEVEL_SPOKES = [
   '/customers',
