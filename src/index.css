@@ -17,24 +17,32 @@
   --color-border-subtle: #E2DDD5;
   --color-surface-subtle: #EFECE6;
 
-  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-cinzel: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .font-cinzel {
-  font-family: 'Cinzel', 'Trajan Pro', Georgia, serif;
+  font-family: 'Cinzel', 'Trajan Pro', Georgia, serif !important;
 }
 
 .font-playfair {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif !important;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', Georgia, serif !important;
 }
 
 .font-cursive {
-  font-family: 'Great Vibes', 'Alex Brush', cursive;
+  font-family: 'Great Vibes', 'Alex Brush', cursive !important;
 }
 
 .font-inter {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
 :root {
@@ -49,8 +57,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+h1, h2 {
+  font-family: var(--font-playfair, 'Playfair Display', serif);
+}
+
+h3, h4, h5, h6 {
+  font-family: var(--font-body, 'Inter', sans-serif);
 }
 
 /* Browser Surface Theming (Impeccable Craft Floor) */
@@ -301,20 +313,6 @@ body {
 
 /* Small Handheld Mobile Screens (<= 480px) */
 @media (max-width: 480px) {
-  /* Header padding refinement for narrow phones */
-  .glass-header-wrapper {
-    padding: 6px 8px 0;
-  }
-
-  .glass-header-inner {
-    padding: 6px 10px;
-    gap: 6px;
-  }
-
-  .glass-header-brand {
-    padding: 2px 8px 2px 4px;
-    gap: 6px;
-  }
 
   /* Dock refinement for ultra-compact viewports (320px–380px) */
   .gdock {

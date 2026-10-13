@@ -5,17 +5,18 @@ import {
   Building2,
   ArrowUpRight,
   HardHat,
-  PackageCheck,
+  ShoppingCart,
   ArrowRight,
+  ChevronRight,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { Button } from '@/components/ui/Button';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import { useEmployees } from '@/hooks/useWorkforce';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useCompanySettings } from '@/hooks/useSettings';
 import { useAuth } from '@/context/AuthContext';
+import heroBg from '@/Asserts/Background_UI.jpg';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -94,222 +95,233 @@ export function DashboardPage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <div className="animate-pulse space-y-6">
-          <div className="h-44 rounded-2xl bg-[#E2DDD5]/40" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="h-32 rounded-2xl bg-[#E2DDD5]/40" />
-            <div className="h-32 rounded-2xl bg-[#E2DDD5]/40" />
-            <div className="h-32 rounded-2xl bg-[#E2DDD5]/40" />
-            <div className="h-32 rounded-2xl bg-[#E2DDD5]/40" />
+        <div className="animate-pulse space-y-4 max-w-md mx-auto">
+          <div className="h-44 rounded-3xl bg-[#E2DDD5]/40" />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
+            <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
+            <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
+            <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="h-64 rounded-2xl bg-[#E2DDD5]/40" />
-            <div className="h-64 rounded-2xl bg-[#E2DDD5]/40" />
-          </div>
+          <div className="h-48 rounded-3xl bg-[#E2DDD5]/40" />
         </div>
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer>
-      {/* 1. HERO BANNER */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#071510] via-[#0D241C] to-[#071510] border border-[#C9A24A]/30 p-6 sm:p-8 text-white shadow-xl mb-6">
-        {/* Subtle geometric pattern & gold ambient glow */}
-        <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-[#C9A24A]/10 blur-3xl pointer-events-none" />
-        <div className="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-[#152B23]/40 blur-3xl pointer-events-none" />
+    <PageContainer className="max-w-md mx-auto">
+      {/* 1. HERO BANNER with Architecture Background */}
+      <div className="relative overflow-hidden rounded-3xl bg-[#081812] border border-[#C9A24A]/25 text-white shadow-xl mb-4">
+        {/* Background Architectural Photo with Smooth Dark Gradient */}
+        <div
+          className="absolute inset-0 bg-cover bg-right opacity-35 mix-blend-luminosity pointer-events-none"
+          style={{ backgroundImage: `url(${heroBg})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#071711] via-[#071711]/90 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <span className="text-xs text-[#E5C378]/80 font-medium block">
-              {todayFormatted}
-            </span>
+        <div className="relative z-10 p-5 sm:p-6">
+          <div className="flex items-center gap-1.5 text-[#C9A24A] text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2">
+            <span className="w-3 h-0.5 bg-[#C9A24A] rounded-full inline-block" />
+            <span>{todayFormatted}</span>
+          </div>
 
-            <h1 className="font-playfair text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
-              {greeting}, <span className="font-semibold text-[#E5C378]">{ownerName}</span>
-            </h1>
+          <h1 className="font-playfair text-2xl sm:text-3xl text-white font-normal tracking-tight leading-tight">
+            {greeting},<br />
+            <span className="font-semibold text-[#E5C378]">{ownerName}</span>
+          </h1>
+
+          <p className="text-xs text-[#E2DDD5]/85 font-normal mt-1.5">
+            Keep building. Every project matters.
+          </p>
+
+          {/* Quick Stats Pill Strip */}
+          <div className="flex items-center gap-2 flex-wrap pt-3.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-[#F7F5F0]">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span><strong className="text-white font-semibold">{kpis.activeProjectsCount}</strong> Active Sites</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-[#F7F5F0]">
+              <span className="w-2 h-2 rounded-full bg-[#E5C378]" />
+              <span><strong className="text-white font-semibold">{kpis.activeEmployeesCount}</strong> Site Laborers</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 2. CORE EXECUTIVE KPI CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* 2. CORE EXECUTIVE KPI CARDS (2x2 Grid) */}
+      <div className="grid grid-cols-2 gap-3 mb-4">
         {/* Module 1: Clients */}
         <div
           onClick={() => navigate('/customers')}
-          className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-[#C9A24A] transition-all duration-200 cursor-pointer flex flex-col justify-between"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
         >
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Clients
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#F9F3E5] text-[#8F6A18] flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Users className="w-4 h-4" />
-              </div>
+            <div className="w-10 h-10 rounded-2xl bg-[#FBF3E6] text-[#A67C24] flex items-center justify-center">
+              <Users className="w-5 h-5" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-heading text-[#242424]">
+            <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
+              CLIENTS
+            </div>
+            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.totalCustomers}
             </div>
-            <p className="text-xs text-[#6B6B6B] mt-1">
-              <span className="font-semibold text-emerald-700">{kpis.activeCustomersCount} Active</span> registered client profiles
+            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
+              <span className="font-semibold text-emerald-700">{kpis.activeCustomersCount} Active</span> clients
             </p>
           </div>
-          <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-[#8F6A18] group-hover:translate-x-0.5 transition-transform">
-            <span>Manage Clients</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+          <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
+            <span>View Clients →</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#6B6B6B]" />
           </div>
         </div>
 
         {/* Module 2: Projects */}
         <div
           onClick={() => navigate('/projects')}
-          className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-[#4A0E0E] transition-all duration-200 cursor-pointer flex flex-col justify-between"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
         >
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Projects
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#F7EFEF] text-[#4A0E0E] flex items-center justify-center group-hover:scale-105 transition-transform">
-                <Building2 className="w-4 h-4" />
-              </div>
+            <div className="w-10 h-10 rounded-2xl bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-heading text-[#242424]">
+            <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
+              PROJECTS
+            </div>
+            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.activeProjectsCount}
             </div>
-            <p className="text-xs text-[#6B6B6B] mt-1">
-              Active projects out of <span className="font-semibold">{kpis.totalProjects} total</span>
+            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
+              <span className="font-semibold text-[#4A0E0E]">{kpis.totalProjects}</span> total sites
             </p>
           </div>
-          <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-[#4A0E0E] group-hover:translate-x-0.5 transition-transform">
-            <span>View Projects</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+          <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
+            <span>View Projects →</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#6B6B6B]" />
           </div>
         </div>
 
         {/* Module 3: Daily Laborers */}
         <div
           onClick={() => navigate('/wages')}
-          className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-emerald-600 transition-all duration-200 cursor-pointer flex flex-col justify-between"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
         >
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Daily Laborers
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <HardHat className="w-4 h-4" />
-              </div>
+            <div className="w-10 h-10 rounded-2xl bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center">
+              <HardHat className="w-5 h-5" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-heading text-[#242424]">
+            <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
+              LABORERS
+            </div>
+            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.totalEmployees}
             </div>
-            <p className="text-xs text-[#6B6B6B] mt-1">
-              <span className="font-semibold text-emerald-700">{kpis.activeEmployeesCount} active</span> registered site laborers
+            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
+              <span className="font-semibold text-emerald-700">{kpis.activeEmployeesCount} active</span> laborers
             </p>
           </div>
-          <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-emerald-800 group-hover:translate-x-0.5 transition-transform">
-            <span>Daily Wages &amp; Attendance</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+          <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
+            <span>View Wages →</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#6B6B6B]" />
           </div>
         </div>
 
         {/* Module 4: Procurement */}
         <div
           onClick={() => navigate('/procurement')}
-          className="group bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-xs hover:shadow-md hover:border-[#8F6A18] transition-all duration-200 cursor-pointer flex flex-col justify-between"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
         >
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                Procurement
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#F9F3E5] text-[#8F6A18] flex items-center justify-center group-hover:scale-105 transition-transform">
-                <PackageCheck className="w-4 h-4" />
-              </div>
+            <div className="w-10 h-10 rounded-2xl bg-[#FBF3E6] text-[#A67C24] flex items-center justify-center">
+              <ShoppingCart className="w-5 h-5" />
             </div>
-            <div className="text-2xl sm:text-3xl font-bold font-heading text-[#242424]">
+            <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
+              PURCHASES
+            </div>
+            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
               {kpis.totalPurchases}
             </div>
-            <p className="text-xs text-[#6B6B6B] mt-1">
-              Material purchase bills logged
+            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
+              Material purchase bills
             </p>
           </div>
-          <div className="mt-4 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs font-semibold text-[#8F6A18] group-hover:translate-x-0.5 transition-transform">
-            <span>Material Purchases</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+          <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
+            <span>View Purchases →</span>
+            <ChevronRight className="w-3.5 h-3.5 text-[#6B6B6B]" />
           </div>
         </div>
       </div>
 
       {/* 3. OPERATIONAL PANEL: ACTIVE PROJECTS */}
-      <div className="mb-8">
-        <div className="bg-white rounded-2xl border border-[#E2DDD5] p-5 sm:p-6 shadow-xs">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E2DDD5]/70 mb-4">
+      <div className="mb-6">
+        <div className="bg-[#081812] border border-[#C9A24A]/25 rounded-3xl p-5 text-white shadow-md">
+          <div className="flex items-center justify-between pb-3.5 border-b border-white/10 mb-4">
             <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#4A0E0E]" />
-              <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wider">
+              <div className="w-7 h-7 rounded-lg bg-white/10 border border-[#C9A24A]/40 flex items-center justify-center text-[#E5C378]">
+                <Building2 className="w-4 h-4" />
+              </div>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-white">
                 Active Projects
               </h2>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
+              type="button"
               onClick={() => navigate('/projects')}
-              className="text-xs text-[#4A0E0E] font-semibold gap-1"
+              className="text-xs text-[#E5C378] hover:text-white font-semibold flex items-center gap-1 transition-colors cursor-pointer"
             >
               <span>View All ({projects.length})</span>
               <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
+            </button>
           </div>
 
           {projects.length === 0 ? (
-            <div className="py-10 text-center space-y-2">
-              <Building2 className="w-8 h-8 text-[#E2DDD5] mx-auto" />
-              <p className="text-xs text-[#6B6B6B] font-medium">No projects added yet.</p>
+            <div className="py-8 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-white/5 border border-[#C9A24A]/30 flex items-center justify-center text-[#C9A24A] mx-auto">
+                <Building2 className="w-6 h-6 stroke-[1.75]" />
+              </div>
+              <p className="text-xs text-white/70 font-medium">No projects added yet.</p>
               <button
                 type="button"
                 onClick={() => navigate('/projects/new')}
-                className="text-xs text-[#4A0E0E] font-bold hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#C9A24A] text-xs font-semibold text-[#E5C378] hover:bg-[#C9A24A]/10 active:scale-95 transition-all cursor-pointer"
               >
-                + Add First Project
+                <span>+ Add First Project</span>
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {projects.slice(0, 6).map((p) => (
+            <div className="space-y-2.5">
+              {projects.slice(0, 4).map((p) => (
                 <div
                   key={p.id}
                   onClick={() => navigate(`/projects/${p.id}`)}
-                  className="p-3.5 rounded-xl border border-[#F0EAE1] hover:border-[#4A0E0E]/40 hover:bg-[#FAF8F5] transition-all cursor-pointer flex items-center justify-between gap-3"
+                  className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98]"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold text-[#8F6A18]">
+                      <span className="font-mono text-[11px] font-bold text-[#E5C378]">
                         {p.project_code || 'PRJ'}
                       </span>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F7EFEF] text-[#4A0E0E]">
+                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300">
                         {p.status}
                       </span>
                     </div>
-                    <h3 className="text-xs font-bold text-[#242424] truncate mt-0.5">
+                    <h3 className="text-xs font-bold text-white truncate mt-1">
                       {p.name}
                     </h3>
-                    <p className="text-[11px] text-[#6B6B6B] truncate">
+                    <p className="text-[11px] text-white/60 truncate">
                       {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
                     </p>
                   </div>
 
                   <div className="text-right shrink-0">
                     {p.contract_value ? (
-                      <div className="text-xs font-bold text-[#242424] font-mono">
+                      <div className="text-xs font-bold text-white font-mono">
                         ₹{Number(p.contract_value).toLocaleString('en-IN')}
                       </div>
                     ) : (
-                      <div className="text-[11px] text-[#6B6B6B]">Value unset</div>
+                      <div className="text-[11px] text-white/50">Value unset</div>
                     )}
-                    <span className="text-[10px] text-[#8F6A18] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
+                    <span className="text-[10px] text-[#E5C378] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
                       View <ArrowUpRight className="w-3 h-3" />
                     </span>
                   </div>

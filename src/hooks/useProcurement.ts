@@ -598,7 +598,7 @@ export function usePurchases(filters?: PurchaseFilters) {
             *,
             supplier:suppliers!supplier_id (*),
             project:projects!project_id (id, name, project_code, site_address),
-            items:purchase_items (*, material:materials!material_id (*))
+            items:purchase_items!purchase_id (*, material:materials!material_id (*))
           `)
           .order('purchase_date', { ascending: false });
 
@@ -649,26 +649,32 @@ export function usePurchases(filters?: PurchaseFilters) {
         console.warn('Purchases query notice:', err);
       }
 
-      // Merge remote + local:
+      // KEY FIX: Merge remote results INTO the full local dataset.
+      // A filtered Supabase query (e.g. by project_id) only returns a subset.
+      // We must NOT overwrite unrelated local records outside this filter scope.
       const remoteIds = new Set(remoteResults.map((p) => p.id));
-      const combined = [
-        ...local.filter((lp) => !remoteIds.has(lp.id)),
-        ...remoteResults.map((rp) => {
-          const localItem = local.find((lp) => lp.id === rp.id);
-          if (localItem) {
-            const allocated = Math.max(rp.total_allocated ?? 0, localItem.total_allocated ?? 0);
-            const balance = Math.max(0, rp.total_amount - allocated);
-            return {
-              ...localItem,
-              ...rp,
-              total_allocated: allocated,
-              outstanding_balance: balance,
-              payment_status: derivePurchasePaymentStatus(rp.total_amount, allocated),
-            };
-          }
-          return rp;
-        }),
-      ];
+      const localIds = new Set(local.map((lp) => lp.id));
+
+      // Update existing local records with fresher remote data
+      const updatedLocal = local.map((lp) => {
+        if (remoteIds.has(lp.id)) {
+          const rp = remoteResults.find((r) => r.id === lp.id)!;
+          const allocated = Math.max(rp.total_allocated ?? 0, lp.total_allocated ?? 0);
+          const balance = Math.max(0, rp.total_amount - allocated);
+          return {
+            ...lp,
+            ...rp,
+            total_allocated: allocated,
+            outstanding_balance: balance,
+            payment_status: derivePurchasePaymentStatus(rp.total_amount, allocated),
+          };
+        }
+        return lp;
+      });
+
+      // Append brand-new remote records not yet in local storage
+      const newFromRemote = remoteResults.filter((rp) => !localIds.has(rp.id));
+      const combined = [...newFromRemote, ...updatedLocal];
 
       memoryPurchases = combined;
       saveStoredPurchases(combined);
@@ -715,7 +721,7 @@ export function usePurchase(id?: string) {
           *,
           supplier:suppliers!supplier_id (*),
           project:projects!project_id (id, name, project_code, site_address),
-          items:purchase_items (*, material:materials!material_id (*))
+          items:purchase_items!purchase_id (*, material:materials!material_id (*))
         `)
         .eq('id', id)
         .maybeSingle();
@@ -1731,7 +1737,7 @@ export function useRecordPurchasePayment() {
               *,
               supplier:suppliers!supplier_id (*),
               project:projects!project_id (id, name, project_code, site_address),
-              items:purchase_items (*, material:materials!material_id (*))
+              items:purchase_items!purchase_id (*, material:materials!material_id (*))
             `)
             .eq('id', purchaseId)
             .maybeSingle();

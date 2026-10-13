@@ -7,44 +7,110 @@ import {
   Edit2,
   Users2,
   ArrowRight,
+  CheckCircle2,
+  RefreshCw,
+  ShoppingCart,
+  Package,
+  IndianRupee,
+  Calendar,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
-import { useProject } from '@/hooks/useProjects';
+import { ProjectCompletionModal } from '@/components/business/ProjectCompletionModal';
+import { useProject, useUpdateProject } from '@/hooks/useProjects';
 import { useWages, useEmployees } from '@/hooks/useWorkforce';
+import { usePurchases } from '@/hooks/useProcurement';
+import { useCustomer } from '@/hooks/useCustomers';
 import { formatINR } from '@/lib/utils';
+
+// Payment status badge color helper
+function paymentStatusStyle(status: string | undefined) {
+  if (status === 'Paid') return 'bg-[#E8F8EE] text-[#1E7E34]';
+  if (status === 'Partial') return 'bg-amber-50 text-amber-700';
+  return 'bg-rose-50 text-rose-600';
+}
 
 export const ProjectDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [isEditSiteOpen, setIsEditSiteOpen] = useState(false);
+  const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
 
   const { data: site, isLoading: isLoadingSite, isError, error, refetch } = useProject(id);
   const { data: siteWages = [], isLoading: isLoadingWages } = useWages({ projectId: id });
   const { data: employees = [] } = useEmployees();
+  const { data: projectPurchases = [], isLoading: isLoadingPurchases } = usePurchases({
+    project_id: id,
+  });
+  const updateProjectMutation = useUpdateProject();
 
-  // Calculate site wage breakdown
+  // Fallback: load customer directly if project join didn't include it
+  const { data: fallbackCustomer } = useCustomer(
+    !site?.customer && site?.customer_id ? site.customer_id : undefined
+  );
+
+  const resolvedCustomer = site?.customer || fallbackCustomer;
+  const isCompleted = site?.status === 'Completed';
+
+  // Calculate site wage breakdown (all wages, not just confirmed)
   const siteWageBreakdown = React.useMemo(() => {
-    const map = new Map<string, { employeeName: string; total: number; days: number }>();
+    const map = new Map<string, { employeeName: string; total: number; days: number; status: string }>();
     for (const w of siteWages) {
-      if (w.status !== 'Confirmed') continue;
       const empId = w.employee_id;
       const emp = employees.find((e) => e.id === empId);
-      const name = w.employee?.name || emp?.name || 'Employee';
-      const amount = Number(w.amount || w.rate || 0);
+      const name = (w as any).employee?.name || emp?.name || 'Employee';
+      const amount = Number((w as any).amount || (w as any).rate || 0);
+      const wStatus = w.status || 'Pending';
 
-      const existing = map.get(empId) || { employeeName: name, total: 0, days: 0 };
+      const existing = map.get(empId) || { employeeName: name, total: 0, days: 0, status: wStatus };
       existing.total += amount;
       existing.days += 1;
       map.set(empId, existing);
     }
     const items = Array.from(map.values()).sort((a, b) => b.total - a.total);
     const totalSiteWages = items.reduce((sum, item) => sum + item.total, 0);
-    return { items, totalSiteWages };
+    const confirmedWages = siteWages.filter((w) => w.status === 'Confirmed')
+      .reduce((sum, w) => sum + Number((w as any).amount || (w as any).rate || 0), 0);
+    return { items, totalSiteWages, confirmedWages };
   }, [siteWages, employees]);
+
+  // Purchase totals
+  const purchaseTotals = React.useMemo(() => {
+    const confirmed = projectPurchases.filter((p) => p.status === 'Confirmed');
+    const total = confirmed.reduce((sum, p) => sum + p.total_amount, 0);
+    const paid = confirmed.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
+    const outstanding = Math.max(0, total - paid);
+    return { total, paid, outstanding, count: confirmed.length };
+  }, [projectPurchases]);
+
+  const handleConfirmComplete = async () => {
+    if (!site) return;
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: site.id,
+        payload: { status: 'Completed' },
+      });
+      setIsCompletionModalOpen(false);
+    } catch (err) {
+      console.warn('Failed to mark project complete:', err);
+    }
+  };
+
+  const handleReopenProject = async () => {
+    if (!site) return;
+    try {
+      await updateProjectMutation.mutateAsync({
+        id: site.id,
+        payload: { status: 'Active' },
+      });
+    } catch (err) {
+      console.warn('Failed to reopen project:', err);
+    }
+  };
 
   if (isLoadingSite) {
     return (
@@ -67,7 +133,7 @@ export const ProjectDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-20 select-none">
+    <div className="space-y-5 max-w-4xl mx-auto pb-24 select-none">
       {/* Back button */}
       <div>
         <button
@@ -80,139 +146,443 @@ export const ProjectDetailPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Main Project Header Card */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-start justify-between gap-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#242424] font-heading uppercase">
-            {site.name}
-          </h1>
+      {/* ── Main Project Header Card ─────────────────────────────── */}
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-5 shadow-xs">
+        {/* Status Badge */}
+        <div className="mb-2">
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+              isCompleted
+                ? 'bg-[#E8F8EE] text-[#1E7E34]'
+                : site.status === 'Active'
+                ? 'bg-blue-50 text-blue-700'
+                : 'bg-[#EFECE6] text-[#6B6B6B]'
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                isCompleted
+                  ? 'bg-[#1E7E34]'
+                  : site.status === 'Active'
+                  ? 'bg-blue-500'
+                  : 'bg-gray-400'
+              }`}
+            />
+            {site.status}
+          </span>
+        </div>
 
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            {/* Customer Link */}
-            <div>
-              <span className="text-xs font-bold text-[#6B6B6B] block mb-1">
-                Client
-              </span>
-              {site.customer ? (
-                <Link
-                  to={`/customers/${site.customer.id}`}
-                  className="font-bold text-[#4A0E0E] hover:underline flex items-center gap-1.5"
-                >
-                  <User className="w-4 h-4 text-[#C99A2E]" />
-                  <span>{site.customer.name}</span>
-                </Link>
-              ) : (
-                <span className="text-[#6B6B6B] italic">No client linked</span>
-              )}
-            </div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#242424] font-heading uppercase mb-4">
+          {site.name}
+        </h1>
 
-            {/* Location */}
-            <div>
-              <span className="text-xs font-bold text-[#6B6B6B] block mb-1">
-                Location
-              </span>
-              <div className="flex items-center gap-1.5 text-[#242424]">
-                <MapPin className="w-4 h-4 text-[#C99A2E] shrink-0" />
-                <span>{site.site_address || 'Not specified'}</span>
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          {/* Customer */}
+          <div>
+            <span className="text-xs font-bold text-[#6B6B6B] block mb-1">Client</span>
+            {resolvedCustomer ? (
+              <Link
+                to={`/customers/${resolvedCustomer.id}`}
+                className="font-bold text-[#4A0E0E] hover:underline flex items-center gap-1.5"
+              >
+                <User className="w-4 h-4 text-[#C99A2E]" />
+                <span>{resolvedCustomer.name}</span>
+              </Link>
+            ) : site.customer_id ? (
+              <span className="text-[#6B6B6B] text-xs italic">Loading client...</span>
+            ) : (
+              <span className="text-[#6B6B6B] italic">No client linked</span>
+            )}
+          </div>
+
+          {/* Location */}
+          <div>
+            <span className="text-xs font-bold text-[#6B6B6B] block mb-1">Location</span>
+            <div className="flex items-center gap-1.5 text-[#242424]">
+              <MapPin className="w-4 h-4 text-[#C99A2E] shrink-0" />
+              <span>{site.site_address || 'Not specified'}</span>
             </div>
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => setIsEditSiteOpen(true)}
-          className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 self-start md:self-auto cursor-pointer"
-        >
-          <Edit2 className="w-3.5 h-3.5" />
-          <span>Edit Project</span>
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2 mt-5 pt-4 border-t border-[#E8E4DC]">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setIsEditSiteOpen(true)}
+            className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+          >
+            <Edit2 className="w-3.5 h-3.5" />
+            <span>Edit Project</span>
+          </Button>
+
+          {isCompleted ? (
+            <button
+              type="button"
+              onClick={handleReopenProject}
+              disabled={updateProjectMutation.isPending}
+              className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8] rounded-xl transition-colors cursor-pointer disabled:opacity-60"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Reopen Project</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setIsCompletionModalOpen(true)}
+              disabled={updateProjectMutation.isPending}
+              className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 bg-[#1E6B37] text-white hover:bg-[#176130] rounded-xl transition-colors cursor-pointer disabled:opacity-60 shadow-sm"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Mark Complete</span>
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Project Purchases Link */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-base font-bold text-[#242424] font-heading uppercase">
-            Project Purchases
-          </h2>
+      {/* ── Completed Summary Banner ─────────────────────────────── */}
+      {isCompleted && (
+        <div className="bg-gradient-to-r from-[#E8F8EE] to-[#F0FAF4] border border-[#1E7E34]/20 rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <CheckCircle2 className="w-5 h-5 text-[#1E7E34]" />
+            <h2 className="text-sm font-bold text-[#1E7E34] uppercase tracking-wide">
+              Project Completed — Summary
+            </h2>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div>
+              <span className="text-2xl font-bold text-[#242424] block">
+                {siteWageBreakdown.items.length}
+              </span>
+              <span className="text-[11px] text-[#6B6B6B]">Labourers</span>
+            </div>
+            <div>
+              <span className="text-2xl font-bold text-[#242424] block">
+                {siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
+              </span>
+              <span className="text-[11px] text-[#6B6B6B]">Man-days</span>
+            </div>
+            <div>
+              <span className="text-base font-bold text-[#1E6B37] block">
+                {formatINR(siteWageBreakdown.totalSiteWages)}
+              </span>
+              <span className="text-[11px] text-[#6B6B6B]">Total Wages</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Project Purchases ────────────────────────────────────── */}
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden">
+        {/* Section Header */}
+        <div className="px-5 py-4 border-b border-[#E8E4DC] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <ShoppingCart className="w-4 h-4 text-[#4A0E0E]" />
+            <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wide">
+              Project Purchases
+            </h2>
+            {!isLoadingPurchases && (
+              <span className="text-xs bg-[#4A0E0E]/10 text-[#4A0E0E] px-2 py-0.5 rounded-full font-bold">
+                {projectPurchases.filter((p) => p.status === 'Confirmed').length}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
+            className="text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] flex items-center gap-1 cursor-pointer"
+          >
+            <span>View All</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
-          className="h-10 px-4 text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] bg-[#F7F5F0] hover:bg-[#E2DDD5] border border-[#E2DDD5] rounded-xl flex items-center gap-1.5 cursor-pointer shrink-0 self-start sm:self-auto"
-        >
-          <span>View in Procurement</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Button>
+        {/* Purchase Total Summary */}
+        {purchaseTotals.count > 0 && (
+          <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] bg-[#FAFAF8] border-b border-[#E8E4DC]">
+            <div className="px-4 py-3 text-center">
+              <span className="text-base font-bold text-[#242424] block">
+                {formatINR(purchaseTotals.total)}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B]">Total Purchased</span>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <span className="text-base font-bold text-[#1E6B37] block">
+                {formatINR(purchaseTotals.paid)}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B]">Paid</span>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <span className="text-base font-bold text-rose-600 block">
+                {formatINR(purchaseTotals.outstanding)}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B]">Outstanding</span>
+            </div>
+          </div>
+        )}
+
+        {/* Purchase List */}
+        {isLoadingPurchases ? (
+          <div className="py-8 text-center text-xs text-[#6B6B6B]">Loading purchases...</div>
+        ) : projectPurchases.filter((p) => p.status === 'Confirmed').length === 0 ? (
+          <div className="p-8 text-center space-y-2">
+            <Package className="w-8 h-8 text-[#6B6B6B] mx-auto opacity-40" />
+            <p className="text-xs font-semibold text-[#6B6B6B]">
+              No confirmed purchases for this project.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
+              className="text-xs font-bold text-[#4A0E0E] underline cursor-pointer"
+            >
+              Go to Procurement →
+            </button>
+          </div>
+        ) : (
+          <div className="divide-y divide-[#E8E4DC]">
+            {projectPurchases
+              .filter((p) => p.status === 'Confirmed')
+              .slice(0, 10)
+              .map((purchase) => (
+                <div
+                  key={purchase.id}
+                  onClick={() => navigate(`/procurement/purchases/${purchase.id}`)}
+                  className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors cursor-pointer group"
+                >
+                  <div className="min-w-0 flex-1">
+                    {/* Main title: item/material names */}
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors leading-snug">
+                        {purchase.items && purchase.items.length > 0
+                          ? purchase.items
+                              .map(
+                                (item) =>
+                                  item.material?.name || item.description || 'Item'
+                              )
+                              .join(', ')
+                          : purchase.notes || purchase.purchase_number}
+                      </span>
+                    </div>
+                    {/* Subtitle: purchase number + supplier + date */}
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="text-[11px] text-[#8C867E] font-mono">
+                        {purchase.purchase_number}
+                      </span>
+                      {purchase.supplier?.name && (
+                        <span className="text-[11px] text-[#6B6B6B]">
+                          · {purchase.supplier.name}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1 text-[11px] text-[#6B6B6B]">
+                        <Calendar className="w-3 h-3" />
+                        <span>
+                          {new Date(purchase.purchase_date).toLocaleDateString('en-IN', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 ml-3">
+                    <div className="text-right">
+                      <span className="text-sm font-bold text-[#242424] block">
+                        {formatINR(purchase.total_amount)}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${paymentStatusStyle(
+                          purchase.payment_status
+                        )}`}
+                      >
+                        {purchase.payment_status || 'Unpaid'}
+                      </span>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#C9C4BB] group-hover:text-[#4A0E0E] transition-colors" />
+                  </div>
+                </div>
+              ))}
+            {projectPurchases.filter((p) => p.status === 'Confirmed').length > 10 && (
+              <div className="px-5 py-3 text-center">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
+                  className="text-xs font-bold text-[#4A0E0E] cursor-pointer"
+                >
+                  View all {projectPurchases.filter((p) => p.status === 'Confirmed').length}{' '}
+                  purchases →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Labor / Daily Wages Section (Strictly Read-Only) */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-[#242424] font-heading uppercase">
-                Labor / Daily Wages
-              </h2>
+      {/* ── Labour / Daily Wages ─────────────────────────────────── */}
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden">
+        {/* Section Header */}
+        <div className="px-5 py-4 border-b border-[#E8E4DC] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Users2 className="w-4 h-4 text-[#4A0E0E]" />
+            <h2 className="text-sm font-bold text-[#242424] uppercase tracking-wide">
+              Labour / Daily Wages
+            </h2>
+            {!isLoadingWages && (
               <span className="text-xs bg-[#4A0E0E]/10 text-[#4A0E0E] px-2 py-0.5 rounded-full font-bold">
                 {siteWages.length}
               </span>
-            </div>
+            )}
           </div>
-
           <Link
             to="/wages"
-            className="h-10 px-4 text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] bg-[#F7EFEF] hover:bg-[#F3E5E5] border border-[#4A0E0E]/20 rounded-lg flex items-center gap-1.5 self-start sm:self-auto transition-colors"
+            className="text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] flex items-center gap-1 transition-colors"
           >
-            <span>View in Wages</span>
+            <span>View All</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        {/* Total Daily Wages Card */}
-        <div className="bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl p-4 flex items-center justify-between">
-          <span className="text-xs sm:text-sm font-bold text-[#6B6B6B] uppercase tracking-wider">
-            Total Daily Wages
-          </span>
-          <span className="text-xl sm:text-2xl font-bold text-[#1E6B37] font-heading">
-            {formatINR(siteWageBreakdown.totalSiteWages)}
-          </span>
-        </div>
+        {/* Wages Total Summary */}
+        {siteWages.length > 0 && (
+          <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] bg-[#FAFAF8] border-b border-[#E8E4DC]">
+            <div className="px-4 py-3 text-center">
+              <span className="text-base font-bold text-[#242424] block">
+                {siteWageBreakdown.items.length}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B]">Labourers</span>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <span className="text-base font-bold text-[#242424] block">
+                {siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B]">Man-days</span>
+            </div>
+            <div className="px-4 py-3 text-center">
+              <span className="text-base font-bold text-[#1E6B37] block">
+                {formatINR(siteWageBreakdown.totalSiteWages)}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B]">Total Wages</span>
+            </div>
+          </div>
+        )}
 
-        {/* Employee-wise Wage Breakdown */}
+        {/* Wage Entries List (individual records) */}
         {isLoadingWages ? (
-          <div className="py-6 text-center text-xs text-[#6B6B6B]">Loading site wages...</div>
-        ) : siteWageBreakdown.items.length === 0 ? (
-          <div className="p-8 text-center bg-[#F7F5F0] rounded-xl border border-dashed border-[#E2DDD5] space-y-2">
-            <Users2 className="w-8 h-8 text-[#6B6B6B] mx-auto opacity-50" />
-            <p className="text-sm font-semibold text-[#242424]">No daily wages recorded yet for this project.</p>
+          <div className="py-8 text-center text-xs text-[#6B6B6B]">Loading wages...</div>
+        ) : siteWages.length === 0 ? (
+          <div className="p-8 text-center space-y-2">
+            <Users2 className="w-8 h-8 text-[#6B6B6B] mx-auto opacity-40" />
+            <p className="text-xs font-semibold text-[#6B6B6B]">
+              No daily wages recorded for this project.
+            </p>
+            <Link
+              to="/wages"
+              className="text-xs font-bold text-[#4A0E0E] underline"
+            >
+              Add wages →
+            </Link>
           </div>
         ) : (
-          <div className="divide-y divide-[#E2DDD5] border border-[#E2DDD5] rounded-xl overflow-hidden">
-            {siteWageBreakdown.items.map((item) => (
-              <div
-                key={item.employeeName}
-                className="p-4 flex items-center justify-between hover:bg-[#F7F5F0]/50 transition-colors"
-              >
-                <div>
-                  <span className="text-sm font-bold text-[#242424] font-heading block">
-                    {item.employeeName}
-                  </span>
-                  <span className="text-xs text-[#6B6B6B]">
-                    {item.days} {item.days === 1 ? 'day recorded' : 'days recorded'}
-                  </span>
+          <>
+            {/* Per-labourer summary rows */}
+            <div className="divide-y divide-[#E8E4DC]">
+              {siteWageBreakdown.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="px-5 py-3.5 flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-sm font-bold text-[#242424] block">
+                      {item.employeeName}
+                    </span>
+                    <span className="text-[11px] text-[#6B6B6B]">
+                      {item.days} {item.days === 1 ? 'day' : 'days'} recorded
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-sm font-bold text-[#1E6B37]">
+                      {formatINR(item.total)}
+                    </span>
+                    {siteWages.some(
+                      (w) =>
+                        (employees.find((e) => e.id === w.employee_id)?.name === item.employeeName ||
+                          (w as any).employee?.name === item.employeeName) &&
+                        w.status !== 'Confirmed'
+                    ) && (
+                      <div className="flex items-center gap-1 justify-end mt-0.5">
+                        <AlertCircle className="w-3 h-3 text-amber-500" />
+                        <span className="text-[10px] text-amber-600 font-medium">Pending</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-base font-bold text-[#1E6B37] font-heading">
-                    {formatINR(item.total)}
-                  </span>
-                </div>
+              ))}
+            </div>
+
+            {/* Individual wage entries (recent 5) */}
+            <div className="border-t border-[#E8E4DC] bg-[#FAFAF8]">
+              <div className="px-5 py-2 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wide">
+                  Recent Entries
+                </span>
+                <IndianRupee className="w-3 h-3 text-[#6B6B6B]" />
               </div>
-            ))}
-          </div>
+              <div className="divide-y divide-[#E8E4DC]">
+                {siteWages.slice(0, 5).map((wage) => {
+                  const emp = employees.find((e) => e.id === wage.employee_id);
+                  const name = (wage as any).employee?.name || emp?.name || 'Employee';
+                  const amount = Number((wage as any).amount || (wage as any).rate || 0);
+                  const isConfirmed = wage.status === 'Confirmed';
+                  return (
+                    <div
+                      key={wage.id}
+                      className="px-5 py-2.5 flex items-center justify-between"
+                    >
+                      <div>
+                        <span className="text-xs font-semibold text-[#242424]">{name}</span>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] text-[#6B6B6B]">
+                            {new Date((wage as any).wage_date || wage.created_at).toLocaleDateString(
+                              'en-IN',
+                              { day: 'numeric', month: 'short' }
+                            )}
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                              isConfirmed
+                                ? 'bg-[#E8F8EE] text-[#1E7E34]'
+                                : 'bg-amber-50 text-amber-700'
+                            }`}
+                          >
+                            {wage.status}
+                          </span>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-sm font-bold ${
+                          isConfirmed ? 'text-[#1E6B37]' : 'text-amber-700'
+                        }`}
+                      >
+                        {formatINR(amount)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {siteWages.length > 5 && (
+                <div className="px-5 py-3 text-center border-t border-[#E8E4DC]">
+                  <Link
+                    to="/wages"
+                    className="text-xs font-bold text-[#4A0E0E] cursor-pointer"
+                  >
+                    View all {siteWages.length} wage entries →
+                  </Link>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
 
@@ -221,6 +591,15 @@ export const ProjectDetailPage: React.FC = () => {
         isOpen={isEditSiteOpen}
         onClose={() => setIsEditSiteOpen(false)}
         site={site}
+      />
+
+      {/* Project Completion Modal */}
+      <ProjectCompletionModal
+        isOpen={isCompletionModalOpen}
+        onClose={() => setIsCompletionModalOpen(false)}
+        project={site}
+        onConfirmComplete={handleConfirmComplete}
+        isLoading={updateProjectMutation.isPending}
       />
     </div>
   );

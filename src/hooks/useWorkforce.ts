@@ -568,7 +568,8 @@ export function useWages(filters?: {
   return useQuery({
     queryKey: ['wages', filters],
     queryFn: async (): Promise<DailyWage[]> => {
-      const local = loadStoredDailyWages();
+      // Always load the FULL local store — never just the filtered slice
+      const allLocal = loadStoredDailyWages();
       let remote: DailyWage[] = [];
 
       try {
@@ -597,20 +598,28 @@ export function useWages(filters?: {
         console.warn('Daily wages query notice:', err);
       }
 
-      // Merge remote + local:
-      // Local wages not found in remote are kept. Local edits take precedence.
+      // KEY FIX: Merge remote results INTO the full local dataset.
+      // A filtered Supabase query (e.g. by projectId) only returns a subset.
+      // We must NOT overwrite unrelated local records that were outside the filter scope.
       const remoteIds = new Set(remote.map((w) => w.id));
-      const merged = [
-        ...local.filter((lw) => !remoteIds.has(lw.id)),
-        ...remote.map((rw) => {
-          const localItem = local.find((lw) => lw.id === rw.id);
-          return localItem || rw;
-        }),
-      ];
+      const localIds = new Set(allLocal.map((lw) => lw.id));
 
+      // Update existing local records with fresher remote data
+      const updatedLocal = allLocal.map((lw) =>
+        remoteIds.has(lw.id)
+          ? (remote.find((rw) => rw.id === lw.id) ?? lw)
+          : lw
+      );
+
+      // Append brand-new remote records not yet in local storage
+      const newFromRemote = remote.filter((rw) => !localIds.has(rw.id));
+      const merged = [...newFromRemote, ...updatedLocal];
+
+      // Persist the FULL merged set — safe for any filter scope
       memoryDailyWages = merged;
       saveStoredDailyWages(merged);
 
+      // Return only the filtered view for this query
       let filtered = merged;
       if (filters?.employeeId && filters.employeeId !== 'all') {
         filtered = filtered.filter((w) => w.employee_id === filters.employeeId);

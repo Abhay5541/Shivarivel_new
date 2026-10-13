@@ -248,7 +248,7 @@ export const ProjectsPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <Search
             size="sm"
             value={searchTerm}

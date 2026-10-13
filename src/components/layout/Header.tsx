@@ -4,6 +4,7 @@ import './Header.css';
 import {
   Bell,
   ChevronDown,
+  ChevronLeft,
   LogOut,
   Plus,
   Users,
@@ -111,29 +112,42 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
     <header className="glass-header-wrapper">
       <div className="glass-header">
         <div className="glass-header-inner">
-          {/* ── Brand Mark (Left Zone) ──────────────────────────── */}
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="glass-header-brand"
-            aria-label="Go to dashboard"
-          >
-            <div className="glass-brand-mark">
-              <img
-                src={logoImg}
-                alt="Shivarivel Official Logo"
-                className="w-full h-full object-cover scale-[1.15]"
-              />
-            </div>
-            <div className="hidden sm:flex flex-col text-left leading-none">
-              <span className="font-cinzel font-bold text-[13px] tracking-[0.14em] text-[#242424] uppercase">
-                SHIVARIVEL
-              </span>
-              <span className="font-inter text-[8.5px] font-bold tracking-[0.22em] text-[#C9A24A] uppercase mt-0.5 hidden lg:block">
-                Construction &amp; Interiors
-              </span>
-            </div>
-          </button>
+          {/* ── Brand Mark (Left Zone) with Back button on subpages ──────────────────────────── */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {location.pathname !== '/' && location.pathname !== '/dashboard' && (
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard')}
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#E2DDD5] bg-white/90 flex items-center justify-center text-[#242424] hover:bg-white active:scale-95 transition-all cursor-pointer shadow-2xs"
+                aria-label="Back to dashboard"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="glass-header-brand"
+              aria-label="Go to dashboard"
+            >
+              <div className="glass-brand-mark">
+                <img
+                  src={logoImg}
+                  alt="Shivarivel Official Logo"
+                  className="w-full h-full object-cover scale-[1.08]"
+                />
+              </div>
+              <div className="flex flex-col text-left leading-tight">
+                <span className="font-cinzel font-bold text-[15px] sm:text-[18px] tracking-[0.14em] text-[#1F1F1F] uppercase leading-none">
+                  SHIVARIVEL
+                </span>
+                <span className="font-inter font-bold text-[8px] sm:text-[9.5px] tracking-[0.22em] text-[#96742A] uppercase leading-none mt-1">
+                  CONSTRUCTION &amp; INTERIORS
+                </span>
+              </div>
+            </button>
+          </div>
 
           {/* ── Desktop Center Nav: The Magnifying Dock ───── */}
           <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center pointer-events-auto">
@@ -169,7 +183,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               aria-label="View notifications"
               className="glass-action-icon"
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="w-4 h-4 text-[#242424]" />
               <span className="glass-notif-dot" />
             </button>
 
@@ -186,7 +200,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                 <div className="glass-user-avatar">
                   {userName.charAt(0).toUpperCase()}
                 </div>
-                <ChevronDown className="w-3 h-3 text-[#6B6B6B] hidden md:block" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#4A0E0E] stroke-[2.5]" />
               </button>
 
               {/* User Dropdown Popover */}

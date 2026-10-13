@@ -428,7 +428,7 @@ export const PurchasesPage: React.FC = () => {
         </div>
 
         {/* Search & Action Button side-by-side */}
-        <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           <Search
             size="sm"
             value={search}
