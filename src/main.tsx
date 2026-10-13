@@ -3,6 +3,28 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 
+// Purge legacy local mock/test cache so the application purely reflects Supabase cloud data
+try {
+  const isPurged = localStorage.getItem('shivarivel_test_cache_purged_v3');
+  if (!isPurged) {
+    const legacyKeys = [
+      'shivarivel_projects',
+      'shivarivel_purchases',
+      'shivarivel_employees',
+      'shivarivel_suppliers',
+      'shivarivel_daily_wages',
+      'shivarivel_attendance',
+      'shivarivel_advances',
+      'shivarivel_materials',
+      'shivarivel_supplier_payments',
+    ];
+    legacyKeys.forEach((key) => localStorage.removeItem(key));
+    localStorage.setItem('shivarivel_test_cache_purged_v3', 'true');
+  }
+} catch (e) {
+  console.warn('Cache purge notice:', e);
+}
+
 // Automatic recovery for stale Vite dynamic chunk imports across deployments/reloads
 window.addEventListener('vite:preloadError', (event) => {
   console.warn('Vite preload error encountered, reloading page...', event);
