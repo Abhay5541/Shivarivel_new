@@ -227,7 +227,7 @@ export const ProjectsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-4 max-w-md mx-auto">
+      <div className="space-y-4">
         <div className="h-10 w-48 bg-[#E2DDD5]/60 rounded-xl animate-pulse" />
         <TableSkeleton rows={5} />
       </div>
@@ -236,7 +236,7 @@ export const ProjectsPage: React.FC = () => {
 
   if (isError) {
     return (
-      <PageContainer className="py-8 max-w-md mx-auto">
+      <PageContainer className="py-8">
         <ErrorState
           title="Could not load projects"
           description={error?.message || 'Unable to retrieve projects.'}
@@ -247,7 +247,7 @@ export const ProjectsPage: React.FC = () => {
   }
 
   return (
-    <PageContainer className="pb-24 max-w-md mx-auto">
+    <PageContainer className="pb-24">
       {/* 1. TOP HEADER & ADD BUTTON */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
@@ -328,7 +328,7 @@ export const ProjectsPage: React.FC = () => {
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {filteredSites.map(renderProjectCard)}
         </div>
       )}

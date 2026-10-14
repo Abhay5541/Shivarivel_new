@@ -95,9 +95,9 @@ export function DashboardPage() {
   if (isLoading) {
     return (
       <PageContainer>
-        <div className="animate-pulse space-y-4 max-w-md mx-auto">
+        <div className="animate-pulse space-y-4">
           <div className="h-44 rounded-3xl bg-[#E2DDD5]/40" />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
             <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
             <div className="h-32 rounded-3xl bg-[#E2DDD5]/40" />
@@ -110,9 +110,9 @@ export function DashboardPage() {
   }
 
   return (
-    <PageContainer className="max-w-md mx-auto">
+    <PageContainer>
       {/* 1. HERO BANNER with Architecture Background */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#081812] border border-[#C9A24A]/25 text-white shadow-xl mb-4">
+      <div className="relative overflow-hidden rounded-3xl bg-[#081812] border border-[#C9A24A]/25 text-white shadow-xl mb-4 sm:mb-6">
         {/* Background Architectural Photo with Smooth Dark Gradient */}
         <div
           className="absolute inset-0 bg-cover bg-right opacity-35 mix-blend-luminosity pointer-events-none"
@@ -120,25 +120,25 @@ export function DashboardPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#071711] via-[#071711]/90 to-transparent pointer-events-none" />
 
-        <div className="relative z-10 p-5 sm:p-6">
+        <div className="relative z-10 p-5 sm:p-7 lg:p-8">
           <div className="flex items-center gap-1.5 text-[#C9A24A] text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2">
             <span className="w-3 h-0.5 bg-[#C9A24A] rounded-full inline-block" />
             <span>{todayFormatted}</span>
           </div>
 
-          <h1 className="font-playfair text-2xl sm:text-3xl text-white font-normal tracking-tight leading-tight">
+          <h1 className="font-playfair text-2xl sm:text-3xl lg:text-4xl text-white font-normal tracking-tight leading-tight">
             {greeting},<br />
             <span className="font-semibold text-[#E5C378]">{ownerName}</span>
           </h1>
 
-          <p className="text-xs text-[#E2DDD5]/85 font-normal mt-1.5">
+          <p className="text-xs sm:text-sm text-[#E2DDD5]/85 font-normal mt-1.5">
             Keep building. Every project matters.
           </p>
         </div>
       </div>
 
-      {/* 2. CORE EXECUTIVE KPI CARDS (2x2 Grid) */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      {/* 2. CORE EXECUTIVE KPI CARDS (2x2 on mobile, 4-col on desktop) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
         {/* Module 1: Clients */}
         <div
           onClick={() => navigate('/customers')}
@@ -306,7 +306,7 @@ export function DashboardPage() {
               </button>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
               {(projects.filter((p) => p.status === 'Active' || p.status === 'Planning').length > 0
                 ? projects.filter((p) => p.status === 'Active' || p.status === 'Planning')
                 : projects
