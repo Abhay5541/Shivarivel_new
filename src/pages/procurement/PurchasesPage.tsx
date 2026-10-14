@@ -9,9 +9,10 @@ import {
   Package,
   CheckCircle2,
   Search as SearchIcon,
+  Trash2,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { usePurchases } from '@/hooks/useProcurement';
+import { usePurchases, useDeleteSimplePurchase } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { TableSkeleton } from '@/components/ui/LoadingState';
@@ -19,6 +20,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { RecordPaymentModal } from '@/components/business/RecordPaymentModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import type { Purchase } from '@/types/procurement';
 
@@ -88,6 +90,27 @@ export const PurchasesPage: React.FC = () => {
   const handleOpenRecordPayment = (purchase: Purchase) => {
     setPaymentTargetPurchase(purchase);
     setIsPaymentModalOpen(true);
+  };
+
+  // Delete purchase state & handler
+  const deletePurchaseMutation = useDeleteSimplePurchase();
+  const [deletingPurchase, setDeletingPurchase] = useState<Purchase | null>(null);
+
+  const handleDeletePurchase = (purchase: Purchase) => {
+    setDeletingPurchase(purchase);
+  };
+
+  const confirmDeletePurchase = () => {
+    if (!deletingPurchase) return;
+    deletePurchaseMutation.mutate(deletingPurchase.id, {
+      onSuccess: () => {
+        setDeletingPurchase(null);
+        refetch();
+      },
+      onError: () => {
+        setDeletingPurchase(null);
+      },
+    });
   };
 
   // 1. PROJECT PURCHASES DATA & TOTALS
@@ -296,110 +319,124 @@ export const PurchasesPage: React.FC = () => {
     const bal = p.outstanding_balance ?? Math.max(0, totalVal - paidAmt);
     const isPaid = bal <= 0 || p.payment_status === 'Paid';
 
-    const activeFilter = isProject ? projectPaymentFilter : generalPaymentFilter;
-    const showStatusBadge = activeFilter === 'all';
-
     return (
       <div
         key={p.id}
-        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all space-y-3.5 ${
-          isPaid ? 'border-[#E8E4DC] hover:border-[#166534]/40' : 'border-[#E8E4DC] hover:border-[#C99A2E]/50'
-        }`}
+        className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
       >
-        {/* Top: Product Name, Project Name badge, Financials */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1.5 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base sm:text-lg font-bold text-[#242424]">
-                {productName}
-              </span>
-              {isProject && resolvedProjectName && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#F7F5F0] text-[#4A0E0E] px-2.5 py-0.5 rounded-lg border border-[#E2DDD5]">
-                  <Building2 className="w-3.5 h-3.5 text-[#C99A2E]" />
-                  <span>{resolvedProjectName}</span>
-                </span>
-              )}
+        <div>
+          {/* Header: Avatar, Name, Status Badge */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                  {productName}
+                </h4>
+                <div className="text-xs text-[#6B6B6B] mt-0.5">
+                  {p.purchase_date}
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-[#6B6B6B]">
-              <span>{p.purchase_date}</span>
-            </div>
+
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
+                isPaid ? 'bg-[#E8F8EE] text-[#1E7E34]' : 'bg-[#FEE2E2] text-[#991B1B]'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isPaid ? 'bg-[#1E7E34]' : 'bg-[#DC2626]'
+                }`}
+              />
+              <span>{isPaid ? 'Fully Paid' : 'Pending'}</span>
+            </span>
           </div>
 
-          {/* Financials */}
-          <div className="flex items-center gap-5 sm:text-right pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E2DDD5]/70 shrink-0">
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
-                Total
-              </span>
-              <span className="text-sm sm:text-base font-bold text-[#242424] font-mono">
-                {formatINR(totalVal)}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
-                Paid
-              </span>
-              <span className="text-sm sm:text-base font-bold text-[#166534] font-mono">
-                {formatINR(paidAmt)}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
-                Balance
-              </span>
-              <span
-                className={`text-sm sm:text-base font-bold font-mono ${
-                  bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
-                }`}
-              >
-                {formatINR(bal)}
-              </span>
+          {/* Details: Project Name & Financials */}
+          <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
+            {isProject && resolvedProjectName && (
+              <div className="flex items-center gap-2">
+                <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                <span className="truncate">{resolvedProjectName}</span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-5 pt-1 text-xs">
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+                  Total
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-[#242424] font-mono tabular-nums">
+                  {formatINR(totalVal)}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+                  Paid
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-[#166534] font-mono tabular-nums">
+                  {formatINR(paidAmt)}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+                  Balance
+                </span>
+                <span
+                  className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${
+                    bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
+                  }`}
+                >
+                  {formatINR(bal)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Actions Bar */}
-        <div
-          className={`pt-3 border-t border-[#E2DDD5]/70 flex flex-wrap items-center ${
-            showStatusBadge ? 'justify-between' : 'justify-end'
-          } gap-2.5`}
-        >
-          {showStatusBadge && (
-            <div className="flex items-center shrink-0">
-              {isPaid ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#86EFAC] shadow-2xs">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
-                  <span>Fully Paid</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]/70 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
-                  <span>Pending Payment</span>
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 shrink-0">
-            {!isPaid && (
-              <button
-                type="button"
-                onClick={() => handleOpenRecordPayment(p)}
-                className="h-8 px-3.5 text-xs font-semibold text-white bg-[#4A0E0E] hover:bg-[#380A0A] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
-              >
-                <CreditCard className="w-3.5 h-3.5 text-[#C9A24A]" />
-                <span>Update Payment</span>
-              </button>
-            )}
-
+        {/* Bottom Action Bar: Edit, Delete, Payment Action */}
+        <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => handleEditPurchase(p)}
-              className="h-8 px-3 text-xs font-semibold text-[#242424] bg-[#F7F5F0] hover:bg-[#EAE6DF] border border-[#E2DDD5] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+              className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
               <span>Edit</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => handleDeletePurchase(p)}
+              disabled={deletePurchaseMutation.isPending}
+              className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+              title={`Delete purchase ${productName}`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
+            </button>
+          </div>
+
+          <div>
+            {!isPaid ? (
+              <button
+                type="button"
+                onClick={() => handleOpenRecordPayment(p)}
+                className="h-7.5 px-3 text-xs font-semibold text-white bg-[#4A0E0E] hover:bg-[#380A0A] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-[#C9A24A]" />
+                <span>Update Payment</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-1 text-xs font-semibold text-[#166534]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
+                <span>Paid in full</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -756,6 +793,17 @@ export const PurchasesPage: React.FC = () => {
         onClose={() => setIsPaymentModalOpen(false)}
         purchase={paymentTargetPurchase}
         onSuccess={() => refetch()}
+      />
+
+      {/* Confirm Delete Purchase Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingPurchase)}
+        onClose={() => setDeletingPurchase(null)}
+        onConfirm={confirmDeletePurchase}
+        title="Delete Purchase"
+        itemName={deletingPurchase?.items?.[0]?.description || deletingPurchase?.items?.[0]?.material?.name || 'this purchase'}
+        message="This purchase record will be deleted. Are you sure you want to proceed?"
+        isLoading={deletePurchaseMutation.isPending}
       />
     </PageContainer>
   );

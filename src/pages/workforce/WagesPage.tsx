@@ -14,6 +14,7 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  HardHat,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/Button';
@@ -409,16 +410,16 @@ export function WagesPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={() => {
               setOpenInAddMode(false);
               setIsLaborersDrawerOpen(true);
             }}
-            className="h-9 px-3 rounded-xl border border-[#E8E4DC] bg-white text-[#4A0E0E] text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:bg-[#FAF7F0] active:scale-95 transition-all cursor-pointer"
+            className="h-8 sm:h-9 px-3 rounded-xl border border-[#E8E4DC] bg-white text-[#4A0E0E] text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:bg-[#FAF7F0] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
           >
-            <Users className="w-4 h-4 text-[#4A0E0E]" />
+            <Users className="w-3.5 h-3.5 text-[#4A0E0E]" />
             <span className="hidden sm:inline">Laborers Directory</span>
             <span className="sm:hidden">Laborers</span>
           </button>
@@ -430,9 +431,9 @@ export function WagesPage() {
                 setEditingWage(null);
                 setIsAddWageModalOpen(true);
               }}
-              className="h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all cursor-pointer"
+              className="h-8 sm:h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto justify-center"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Add Wage</span>
             </button>
           )}
@@ -731,7 +732,7 @@ export function WagesPage() {
               </div>
 
               {/* MOBILE STACKED CARDS (< 768px) */}
-              <div className="md:hidden space-y-2.5">
+              <div className="md:hidden space-y-3">
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -743,43 +744,68 @@ export function WagesPage() {
                   return (
                     <div
                       key={wage.id}
-                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all space-y-3"
+                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
                     >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-bold text-sm text-[#242424] font-display">{laborerName}</h4>
-                          <div className="flex items-center gap-1 text-xs text-[#6B6B6B] mt-0.5">
-                            <Building2 className="w-3.5 h-3.5" />
-                            <span>{projectName}</span>
+                      <div>
+                        {/* Header: Laborer Avatar/Icon, Name, Attendance Badge */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                              <HardHat className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                                {laborerName}
+                              </h4>
+                              {emp?.employee_code && (
+                                <span className="font-mono text-[10.5px] font-bold text-[#A67C24]">
+                                  {emp.employee_code}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            {renderAttendancePill(wage.payable_units)}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        {/* Details: Project Name */}
+                        <div className="mt-3 space-y-1.5 text-xs text-[#6B6B6B] pl-1">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                            <span className="truncate">{projectName}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Bar: Edit, Delete, Amount Paid */}
+                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(wage)}
-                            className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] rounded-md transition-colors cursor-pointer"
-                            aria-label={`Edit ${laborerName}`}
+                            className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                            <span>Edit</span>
                           </button>
+
                           <button
                             type="button"
                             onClick={() => handleDeleteWage(wage, laborerName)}
                             disabled={deleteWageMutation.isPending}
-                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                            aria-label={`Delete wage for ${laborerName}`}
+                            className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                            title={`Delete wage for ${laborerName}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
                           </button>
                         </div>
-                      </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#E2DDD5]">
-                        <div>{renderAttendancePill(wage.payable_units)}</div>
                         <div className="text-right">
-                          <span className="block text-[10px] font-semibold text-[#6B6B6B] uppercase">Amount Paid</span>
-                          <span className="font-bold text-base tabular-nums text-[#242424]">
+                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm sm:text-base text-[#242424] font-mono tabular-nums">
                             {formatINR(wage.amount || 0)}
                           </span>
                         </div>
