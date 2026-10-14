@@ -757,11 +757,6 @@ export function WagesPage() {
                               <h4 className="font-bold text-sm text-[#242424] font-display truncate">
                                 {laborerName}
                               </h4>
-                              {emp?.employee_code && (
-                                <span className="font-mono text-[10.5px] font-bold text-[#A67C24]">
-                                  {emp.employee_code}
-                                </span>
-                              )}
                             </div>
                           </div>
 
