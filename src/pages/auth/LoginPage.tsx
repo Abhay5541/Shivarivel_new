@@ -92,12 +92,12 @@ export function LoginPage() {
 
       {/* 2. MAIN CONTENT AREA — Fits 100% within viewport height on desktop */}
       <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-6 lg:py-4 max-w-[1360px] mx-auto w-full min-h-0">
-        {/* DESKTOP SPLIT LAYOUT: LEFT BRANDING & SERVICES + RIGHT LOGIN CARD */}
+        {/* RESPONSIVE LAYOUT: LOGIN CARD ABOVE SERVICES ON MOBILE, SIDE-BY-SIDE ON DESKTOP */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center my-auto py-3 lg:py-0">
-          {/* LEFT PANEL: BRAND HEADER, HERO STATEMENT & SERVICES GRID */}
-          <div className="lg:col-span-7 space-y-3.5 lg:space-y-4 text-left">
-            {/* BRAND HEADER & LOGO */}
-            <div className="flex items-center gap-3.5">
+          {/* SERVICES PANEL: DISPLAYED BELOW LOGIN CARD ON MOBILE (order-2 lg:order-1) */}
+          <div className="order-2 lg:order-1 lg:col-span-7 space-y-3.5 lg:space-y-4 text-left">
+            {/* BRAND HEADER & LOGO (VISIBLE ON DESKTOP SIDE PANEL) */}
+            <div className="hidden lg:flex items-center gap-3.5">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-lg">
                 <img
                   src={logoImg}
@@ -116,7 +116,7 @@ export function LoginPage() {
             </div>
 
             {/* HERO STATEMENT */}
-            <div className="space-y-1.5 pt-0.5">
+            <div className="space-y-1.5 pt-2 lg:pt-0.5">
               <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]">
                 BUILDING DREAMS
               </p>
@@ -167,8 +167,8 @@ export function LoginPage() {
             </div>
           </div>
 
-          {/* RIGHT PANEL: FLOATING CREAM LOGIN CARD (COMPACT VIEWPORT FIT) */}
-          <div className="lg:col-span-5 w-full flex justify-center lg:justify-end">
+          {/* RIGHT/TOP PANEL: FLOATING CREAM LOGIN CARD (ABOVE SERVICES ON MOBILE) */}
+          <div className="order-1 lg:order-2 lg:col-span-5 w-full flex justify-center lg:justify-end">
             <div className="w-full max-w-[420px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 lg:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] text-[#0A1813] border border-white/60 relative overflow-hidden transition-all">
               {/* Card Header with Centered Official Logo */}
               <div className="text-center space-y-1">
