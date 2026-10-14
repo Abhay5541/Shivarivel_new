@@ -1361,7 +1361,11 @@ export function useCreateSimplePurchase() {
       }
 
       // 4. Memory purchase creation
-      const nextNum = memoryPurchases.length + 1;
+      const maxExistingNum = memoryPurchases.reduce((max, p) => {
+        const match = p.purchase_number?.match(/PUR-(\d+)/i);
+        return match ? Math.max(max, parseInt(match[1], 10)) : max;
+      }, 0);
+      const nextNum = Math.max(memoryPurchases.length, maxExistingNum) + 1;
       const purchaseNumber = `PUR-${nextNum.toString().padStart(4, '0')}`;
       const newPurchaseId = `pur-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -1451,14 +1455,13 @@ export function useCreateSimplePurchase() {
       // In test environment, skip remote network calls
       const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
       if (!isTestEnv) {
-        // Try Supabase insert
+        // Try Supabase insert (omit purchase_number so Supabase trigger auto-generates next unique number)
         try {
           const { data: purchaseData, error: pErr } = await (supabase as any)
             .from('purchases')
             .insert({
               supplier_id: supplier.id,
               project_id: payload.project_id || null,
-              purchase_number: purchaseNumber,
               purchase_date: purchaseDate,
               status: 'Confirmed',
               discount: 0,
