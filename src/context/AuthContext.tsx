@@ -32,6 +32,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
+    // Purge any stale tokens from previous Supabase projects to prevent CORS/Bearer conflicts
+    if (typeof window !== 'undefined') {
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('sb-') && !key.includes('uhetqkmskopooqsprfic')) {
+            console.log('Clearing old project auth token from localStorage:', key);
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (e) {
+        console.warn('Storage cleanup notice:', e);
+      }
+    }
+
     // 1. Initial session check & real-time server validation
     async function initSession() {
       try {
@@ -98,15 +113,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // 3. Re-verify user existence when mobile browser tab becomes active
+    // 3. Re-verify user existence only when an active session exists
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        const { data, error } = await supabase.auth.getUser();
-        if (error || !data?.user) {
-          await supabase.auth.signOut().catch(() => {});
-          if (isMounted) {
-            setUser(null);
-            setSession(null);
+        const { data: currentSession } = await supabase.auth.getSession();
+        if (currentSession?.session) {
+          const { data, error } = await supabase.auth.getUser();
+          if (error || !data?.user) {
+            await supabase.auth.signOut().catch(() => {});
+            if (isMounted) {
+              setUser(null);
+              setSession(null);
+            }
           }
         }
       }
@@ -122,10 +140,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithPassword = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return { error };
+      if (data?.session) {
+        setSession(data.session);
+        setUser(data.user);
+      }
       return { error: null };
-    } catch (err) {
+    } catch (err: unknown) {
       return { error: err as Error };
     }
   };
@@ -138,7 +160,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       if (error) return { error };
       return { error: null };
-    } catch (err) {
+    } catch (err: unknown) {
       return { error: err as Error };
     }
   };

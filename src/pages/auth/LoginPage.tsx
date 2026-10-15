@@ -13,7 +13,6 @@ import {
   Phone,
   MapPin,
   Globe,
-  Info,
   Mail,
   Lock,
   Eye,
