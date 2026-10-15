@@ -13,8 +13,11 @@ import {
   Calendar,
   Settings,
   LayoutDashboard,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useCompanySettings } from '@/hooks/useSettings';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 import logoImg from '@/Asserts/shivarivel_svc_logo.png';
@@ -34,6 +37,7 @@ function resolveActiveKey(pathname: string) {
 
 export function Header({ onOpenQuickAdd }: HeaderProps) {
   const { user, signOut } = useAuth();
+  const { isDark, setTheme } = useTheme();
   const { data: company } = useCompanySettings();
   const location = useLocation();
   const navigate = useNavigate();
@@ -118,7 +122,11 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#E2DDD5] bg-white/90 flex items-center justify-center text-[#242424] hover:bg-white active:scale-95 transition-all cursor-pointer shadow-2xs"
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
+                  isDark
+                    ? 'border-white/15 bg-white/10 text-white hover:bg-white/20'
+                    : 'border-[#E2DDD5] bg-white text-[#242424] hover:bg-white'
+                }`}
                 aria-label="Back to dashboard"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -139,10 +147,14 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                 />
               </div>
               <div className="flex flex-col text-left leading-tight">
-                <span className="font-cinzel font-bold text-[15px] sm:text-[18px] tracking-[0.14em] text-[#1F1F1F] uppercase leading-none">
+                <span className={`font-cinzel font-bold text-[15px] sm:text-[18px] tracking-[0.14em] uppercase leading-none transition-colors ${
+                  isDark ? 'text-white' : 'text-[#1F1F1F]'
+                }`}>
                   SHIVARIVEL
                 </span>
-                <span className="font-inter font-bold text-[8px] sm:text-[9.5px] tracking-[0.22em] text-[#96742A] uppercase leading-none mt-1">
+                <span className={`font-inter font-bold text-[8px] sm:text-[9.5px] tracking-[0.22em] uppercase leading-none mt-1 transition-colors ${
+                  isDark ? 'text-[#E2A855]' : 'text-[#96742A]'
+                }`}>
                   CONSTRUCTION &amp; INTERIORS
                 </span>
               </div>
@@ -183,7 +195,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               aria-label="View notifications"
               className="glass-action-icon"
             >
-              <Bell className="w-4 h-4 text-[#242424]" />
+              <Bell className={`w-4 h-4 ${isDark ? 'text-white' : 'text-[#242424]'}`} />
               <span className="glass-notif-dot" />
             </button>
 
@@ -200,7 +212,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                 <div className="glass-user-avatar">
                   {userName.charAt(0).toUpperCase()}
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-[#4A0E0E] stroke-[2.5]" />
+                <ChevronDown className={`w-3.5 h-3.5 stroke-[2.5] ${isDark ? 'text-[#E2A855]' : 'text-[#4A0E0E]'}`} />
               </button>
 
               {/* User Dropdown Popover */}
@@ -219,6 +231,44 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                     <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#F9F3E5] text-[#8C6514]">
                       {userRole}
                     </span>
+                  </div>
+
+                  {/* Dark / White Theme Toggle Bar */}
+                  <div className="px-3.5 py-2.5 border-b border-[#E2DDD5]/60">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                        Theme
+                      </span>
+                      <span className="text-[10px] font-bold text-[#4A0E0E]">
+                        {isDark ? 'Dark Mode' : 'White Mode'}
+                      </span>
+                    </div>
+                    <div className="flex p-0.5 bg-[#EFECE6] rounded-xl border border-[#E2DDD5]/70">
+                      <button
+                        type="button"
+                        onClick={() => setTheme('light')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          !isDark
+                            ? 'bg-white text-[#4A0E0E] shadow-2xs font-bold'
+                            : 'text-[#6B6B6B] hover:text-[#242424]'
+                        }`}
+                      >
+                        <Sun className="w-3.5 h-3.5 text-[#D97706]" />
+                        <span>White</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTheme('dark')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          isDark
+                            ? 'bg-[#1C1A17] text-white shadow-2xs font-bold'
+                            : 'text-[#6B6B6B] hover:text-[#242424]'
+                        }`}
+                      >
+                        <Moon className="w-3.5 h-3.5 text-[#C9A24A]" />
+                        <span>Dark</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Settings & Master Data */}

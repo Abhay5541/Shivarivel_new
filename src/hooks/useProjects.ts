@@ -77,9 +77,6 @@ export function useProjects(options: UseProjectsOptions = {}) {
         const { data, error } = await query;
         if (!error && data) {
           remoteProjects = (data as unknown as Project[]) || [];
-          memoryProjects = remoteProjects;
-          saveStoredProjects(remoteProjects);
-          return remoteProjects;
         } else if (error) {
           console.warn('Supabase projects query returned error; using local fallback:', error.message);
         }
@@ -87,9 +84,25 @@ export function useProjects(options: UseProjectsOptions = {}) {
         console.warn('Supabase projects query notice:', err);
       }
 
-      // Offline / network failure fallback only:
-      memoryProjects = local;
-      let combined = local;
+      // KEY FIX: Merge remote results INTO the full local dataset.
+      // When filtered by customerId or status, Supabase only returns a subset.
+      // We must NOT overwrite unrelated local records outside this filter scope.
+      const remoteIds = new Set(remoteProjects.map((p) => p.id));
+      const localIds = new Set(local.map((lp) => lp.id));
+
+      // Update existing local records with fresher remote data
+      const updatedLocal = local.map((lp) =>
+        remoteIds.has(lp.id)
+          ? (remoteProjects.find((rp) => rp.id === lp.id) ?? lp)
+          : lp
+      );
+
+      // Append brand-new remote records not yet in local storage
+      const newFromRemote = remoteProjects.filter((rp) => !localIds.has(rp.id));
+      const combined = [...newFromRemote, ...updatedLocal];
+
+      memoryProjects = combined;
+      saveStoredProjects(combined);
 
       let filtered = [...combined];
       if (customerId) {

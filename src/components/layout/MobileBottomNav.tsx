@@ -37,21 +37,21 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
       aria-label="Mobile Navigation"
       className="fixed bottom-0 inset-x-0 z-30 flex justify-center px-4 pb-[max(10px,env(safe-area-inset-bottom,0px))] pointer-events-none select-none md:hidden"
     >
-      <div className="w-full max-w-sm bg-white/95 backdrop-blur-2xl border border-[#E8E4DC] rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-2 py-2 grid grid-cols-5 items-end pointer-events-auto">
+      <div className="w-full max-w-sm bg-white/95 dark:bg-[#1C1A17]/95 backdrop-blur-2xl border border-[#E8E4DC] dark:border-white/10 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] px-2 py-2 grid grid-cols-5 items-end pointer-events-auto">
         {/* Clients */}
         <button
           type="button"
           onClick={() => navigateTab('/customers')}
           className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isCustomers
-              ? 'text-[#4A0E0E] font-bold'
-              : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
+              ? 'text-[#4A0E0E] dark:text-[#E2A855] font-bold'
+              : 'text-[#6B6B6B] hover:text-[#242424] dark:text-[#A8A29E] dark:hover:text-white font-medium'
           }`}
         >
-          <Users className={`w-5 h-5 transition-transform ${isCustomers ? 'text-[#4A0E0E]' : ''}`} />
+          <Users className={`w-5 h-5 transition-transform ${isCustomers ? 'text-[#4A0E0E] dark:text-[#E2A855]' : ''}`} />
           <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-semibold">Clients</span>
           {isCustomers ? (
-            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] mt-1" />
+            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] dark:bg-[#E2A855] mt-1" />
           ) : (
             <span className="w-5 h-0.5 rounded-full bg-transparent mt-1" />
           )}
@@ -63,14 +63,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
           onClick={() => navigateTab('/projects')}
           className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isProjects
-              ? 'text-[#4A0E0E] font-bold'
-              : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
+              ? 'text-[#4A0E0E] dark:text-[#E2A855] font-bold'
+              : 'text-[#6B6B6B] hover:text-[#242424] dark:text-[#A8A29E] dark:hover:text-white font-medium'
           }`}
         >
-          <Building2 className={`w-5 h-5 transition-transform ${isProjects ? 'text-[#4A0E0E]' : ''}`} />
+          <Building2 className={`w-5 h-5 transition-transform ${isProjects ? 'text-[#4A0E0E] dark:text-[#E2A855]' : ''}`} />
           <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-semibold">Projects</span>
           {isProjects ? (
-            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] mt-1" />
+            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] dark:bg-[#E2A855] mt-1" />
           ) : (
             <span className="w-5 h-0.5 rounded-full bg-transparent mt-1" />
           )}
@@ -83,10 +83,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
           aria-label="Open Quick Add Menu"
           className="flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full group focus:outline-none"
         >
-          <div className="-mt-5 w-11 h-11 rounded-full bg-gradient-to-br from-[#DFB95E] via-[#C9A24A] to-[#B88E35] text-white flex items-center justify-center shadow-[0_4px_16px_rgba(201,162,74,0.45)] border-2 border-white group-active:scale-90 transition-transform shrink-0">
+          <div className="-mt-5 w-11 h-11 rounded-full bg-gradient-to-br from-[#DFB95E] via-[#C9A24A] to-[#B88E35] text-white flex items-center justify-center shadow-[0_4px_16px_rgba(201,162,74,0.45)] border-2 border-white dark:border-[#1C1A17] group-active:scale-90 transition-transform shrink-0">
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </div>
-          <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-bold text-[#8F6A18]">
+          <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-bold text-[#8F6A18] dark:text-[#E2A855]">
             Add
           </span>
           <span className="w-5 h-0.5 rounded-full bg-transparent mt-1" />
@@ -98,14 +98,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
           onClick={() => navigateTab('/wages')}
           className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isWages
-              ? 'text-[#4A0E0E] font-bold'
-              : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
+              ? 'text-[#4A0E0E] dark:text-[#E2A855] font-bold'
+              : 'text-[#6B6B6B] hover:text-[#242424] dark:text-[#A8A29E] dark:hover:text-white font-medium'
           }`}
         >
-          <Calendar className={`w-5 h-5 transition-transform ${isWages ? 'text-[#4A0E0E]' : ''}`} />
+          <Calendar className={`w-5 h-5 transition-transform ${isWages ? 'text-[#4A0E0E] dark:text-[#E2A855]' : ''}`} />
           <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-semibold">Wages</span>
           {isWages ? (
-            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] mt-1" />
+            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] dark:bg-[#E2A855] mt-1" />
           ) : (
             <span className="w-5 h-0.5 rounded-full bg-transparent mt-1" />
           )}
@@ -117,14 +117,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
           onClick={() => navigateTab('/procurement')}
           className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isProcurement
-              ? 'text-[#4A0E0E] font-bold'
-              : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
+              ? 'text-[#4A0E0E] dark:text-[#E2A855] font-bold'
+              : 'text-[#6B6B6B] hover:text-[#242424] dark:text-[#A8A29E] dark:hover:text-white font-medium'
           }`}
         >
-          <ShoppingCart className={`w-5 h-5 transition-transform ${isProcurement ? 'text-[#4A0E0E]' : ''}`} />
+          <ShoppingCart className={`w-5 h-5 transition-transform ${isProcurement ? 'text-[#4A0E0E] dark:text-[#E2A855]' : ''}`} />
           <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-semibold">Purchases</span>
           {isProcurement ? (
-            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] mt-1" />
+            <span className="w-5 h-0.5 rounded-full bg-[#4A0E0E] dark:bg-[#E2A855] mt-1" />
           ) : (
             <span className="w-5 h-0.5 rounded-full bg-transparent mt-1" />
           )}

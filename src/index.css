@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @import "./components/ui/Search.css";
 @import "./components/ui/ActionButton.css";
 
@@ -333,3 +334,149 @@ body {
     height: 40px;
   }
 }
+
+/* ══ Dark Mode Theme System ══════════════════════════════════ */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0E0D0B !important;
+  background-image: none !important;
+  color: #F5F5F4 !important;
+}
+
+/* Glass Header in Dark Mode */
+html.dark .glass-header-wrapper {
+  background: rgba(14, 13, 11, 0.96) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .glass-header {
+  background: transparent !important;
+  border: none !important;
+}
+
+html.dark .glass-brand-title {
+  color: #FFFFFF !important;
+}
+
+html.dark .glass-action-icon {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F5F5F4 !important;
+}
+
+html.dark .glass-action-icon svg {
+  color: #F5F5F4 !important;
+}
+
+html.dark .glass-user-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+html.dark .glass-user-btn svg {
+  color: #E2DDD5 !important;
+}
+
+html.dark .glass-user-dropdown {
+  background: rgba(24, 21, 18, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark .glass-user-dropdown p.text-\[\#242424\],
+html.dark .glass-user-dropdown span.text-\[\#242424\] {
+  color: #F5F5F4 !important;
+}
+
+html.dark .glass-user-dropdown .border-b {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .glass-user-dropdown button[role="menuitem"]:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: #FFFFFF !important;
+}
+
+/* Cards & Surfaces in Dark Mode */
+html.dark .bg-white,
+html.dark .bg-white\/95 {
+  background-color: #1A1714 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark .bg-\[\#FAF7F0\],
+html.dark .bg-\[\#F7F5F0\],
+html.dark .bg-\[\#FAF8F5\],
+html.dark .bg-\[\#F5EDE2\],
+html.dark .bg-\[\#FAF4ED\] {
+  background-color: #231F1B !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .text-\[\#242424\] {
+  color: #F5F5F4 !important;
+}
+
+html.dark .text-\[\#0F172A\] {
+  color: #FFFFFF !important;
+}
+
+html.dark .text-\[\#6B6B6B\],
+html.dark .text-\[\#8C867E\] {
+  color: #A8A29E !important;
+}
+
+html.dark .border-\[\#E8E4DC\],
+html.dark .border-\[\#E2DDD5\],
+html.dark .border-\[\#EFECE6\] {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Inputs, Selects & Forms in Dark Mode */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1A1714 !important;
+  color: #F5F5F4 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #78716C !important;
+}
+
+/* Mobile Bottom Navigation in Dark Mode */
+html.dark nav[aria-label="Mobile Navigation"] > div {
+  background-color: rgba(24, 21, 18, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark nav[aria-label="Mobile Navigation"] button {
+  color: #A8A29E !important;
+}
+
+html.dark nav[aria-label="Mobile Navigation"] button:hover {
+  color: #FFFFFF !important;
+}
+
+html.dark nav[aria-label="Mobile Navigation"] button .text-\[\#4A0E0E\] {
+  color: #E2A855 !important;
+}
+
+html.dark nav[aria-label="Mobile Navigation"] button span.bg-\[\#4A0E0E\] {
+  background-color: #E2A855 !important;
+}
+
+/* Modals & Dialogs in Dark Mode */
+html.dark .modal-spring,
+html.dark [role="dialog"] {
+  background-color: #1A1714 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #F5F5F4 !important;
+}
+
