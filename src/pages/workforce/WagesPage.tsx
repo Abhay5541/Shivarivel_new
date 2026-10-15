@@ -27,6 +27,7 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
 import wagesBannerBg from '@/Asserts/Wages banner.png';
+import totalWagesBanner from '@/Asserts/Total_wages banner.png';
 
 function getTodayISO() {
   const d = new Date();
@@ -524,89 +525,89 @@ export function WagesPage() {
             </div>
           </div>
 
-          {/* Wage Summary Card (From Reference Design) */}
-          <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 sm:p-5 shadow-xs relative overflow-hidden">
-            {/* Header: Today's Wages Paid + Big Amount */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-xs font-semibold text-[#6B6B6B]">
-                  {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDateShort}`}
-                </div>
-                <div className="text-2xl sm:text-3xl font-extrabold font-display tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
-                  {formatINR(dailySummary.totalPaid)}
-                </div>
-              </div>
+          {/* Wage Summary Card (From Reference Design with Total_wages banner) */}
+          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs relative overflow-hidden">
+            {/* Background illustration for Today's Wages Paid */}
+            <img
+              src={totalWagesBanner}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-90"
+            />
 
-              {/* Architectural Hard Hat Accent Icon */}
-              <div className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-[#F7F5F0] text-[#C99A2E]/70 border border-[#E2DDD5]/60">
-                <HardHat className="w-5 h-5" />
+            {/* Header: Today's Wages Paid + Big Amount */}
+            <div className="relative z-10 p-4 sm:p-5">
+              <div className="text-xs font-semibold text-[#166534]">
+                {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDateShort}`}
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold font-display tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
+                {formatINR(dailySummary.totalPaid)}
               </div>
             </div>
 
-            {/* 4 Stats Grid with icons and vertical dividers */}
-            <div className="grid grid-cols-4 gap-1 sm:gap-2 pt-3.5 mt-3.5 border-t border-[#F0ECE1]">
+            {/* 4 Stats Grid with icons, bold numbers, and full non-truncated labels */}
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#EFECE6]/90 bg-white/70 backdrop-blur-xs divide-x divide-[#EFECE6]/90 py-3 px-2 sm:px-3">
               {/* 1. Total Logged */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
-                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.totalEntries}
-                  </div>
-                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
-                    Total Logged
-                  </div>
-                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                  </span>
                 </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Total Logged
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 2. Full Days */}
-              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-[#F0ECE1] pl-1.5 sm:pl-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.fullDays}
-                  </div>
-                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
-                    Full Days
-                  </div>
-                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                  </span>
                 </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Full Days
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 3. Half Days */}
-              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-[#F0ECE1] pl-1.5 sm:pl-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
-                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                    <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.halfDays}
-                  </div>
-                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
-                    Half Days
-                  </div>
-                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                  </span>
                 </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Half Days
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 4. Absent */}
-              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-[#F0ECE1] pl-1.5 sm:pl-3">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
-                  <Ban className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                    <Ban className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.absent}
-                  </div>
-                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
-                    Absent
-                  </div>
-                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                  </span>
                 </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Absent
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
             </div>
           </div>
