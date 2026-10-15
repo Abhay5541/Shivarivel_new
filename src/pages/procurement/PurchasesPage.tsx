@@ -26,6 +26,76 @@ import type { Purchase } from '@/types/procurement';
 
 type ProcurementTab = 'project' | 'general';
 
+interface ProcurementCostCardProps {
+  title?: string;
+  total: number;
+  paid: number;
+  balance: number;
+}
+
+const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
+  title = 'TOTAL PROCUREMENT COST',
+  total,
+  paid,
+  balance,
+}) => {
+  const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+  const duePercent = total > 0 ? Math.max(0, 100 - paidPercent) : 0;
+
+  return (
+    <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+      {/* 1. Header Label */}
+      <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6B6B] block">
+        {title}
+      </span>
+
+      {/* 2. Big Total Currency Display */}
+      <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight my-2.5 sm:my-3 tabular-nums">
+        {formatINR(total)}
+      </div>
+
+      {/* 3. Progress Track & Fill Bar */}
+      <div className="w-full h-2 sm:h-2.5 bg-[#EDE8DC] rounded-full overflow-hidden mt-3 sm:mt-4">
+        <div
+          className="h-full bg-[#1B5E3B] rounded-full transition-all duration-500"
+          style={{ width: `${paidPercent}%` }}
+        />
+      </div>
+
+      {/* 4. Ratio Labels: % Paid & % Due */}
+      <div className="flex items-center justify-between text-xs sm:text-sm font-medium text-[#6B6B6B] mt-2 mb-4 sm:mb-5">
+        <span>{paidPercent}% paid</span>
+        <span>{duePercent}% due</span>
+      </div>
+
+      {/* 5. Bottom Two Tiles: PAID and BALANCE */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {/* PAID TILE */}
+        <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#166534]" />
+            <span>PAID</span>
+          </div>
+          <div className="text-xl sm:text-2xl font-normal font-serif text-[#166534] tabular-nums mt-1">
+            {formatINR(paid)}
+          </div>
+        </div>
+
+        {/* BALANCE TILE */}
+        <div className="bg-[#FDF0F0] rounded-2xl p-3.5 sm:p-4 transition-all">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#991B1B]" />
+            <span>BALANCE</span>
+          </div>
+          <div className="text-xl sm:text-2xl font-normal font-serif text-[#991B1B] tabular-nums mt-1">
+            {formatINR(balance)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const PurchasesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -513,41 +583,13 @@ export const PurchasesPage: React.FC = () => {
           {/* ========================================================= */}
           {activeTab === 'project' && (
             <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* Project Totals Cards (Rule 10: Cost, Paid, Balance) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Procurement Cost
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
-                    {formatINR(projectProcurementTotal)}
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Paid
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
-                    {formatINR(projectPaidTotal)}
-                  </span>
-                </div>
-
-                <div
-                  className={`border rounded-2xl p-4 shadow-xs ${
-                    projectBalanceTotal > 0
-                      ? 'bg-[#FEE2E2]/30 border-red-200 text-[#991B1B]'
-                      : 'bg-white border-[#E2DDD5] text-[#242424]'
-                  }`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Balance
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold font-heading">
-                    {formatINR(projectBalanceTotal)}
-                  </span>
-                </div>
-              </div>
+              {/* Project Totals Card (Matches Reference Design) */}
+              <ProcurementCostCard
+                title="TOTAL PROCUREMENT COST"
+                total={projectProcurementTotal}
+                paid={projectPaidTotal}
+                balance={projectBalanceTotal}
+              />
 
               {/* Payment Filter Segmented Control */}
               <SlidingSegmentedControl
@@ -642,41 +684,13 @@ export const PurchasesPage: React.FC = () => {
           {/* ========================================================= */}
           {activeTab === 'general' && (
             <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* General Purchases Summary Cards (Rule 11: Purchased, Paid, Outstanding) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL PURCHASED
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
-                    {formatINR(generalTotalPurchased)}
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL PAID
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
-                    {formatINR(generalTotalPaid)}
-                  </span>
-                </div>
-
-                <div
-                  className={`border rounded-2xl p-4 shadow-xs ${
-                    generalTotalOutstanding > 0
-                      ? 'bg-[#FEE2E2]/30 border-red-200 text-[#991B1B]'
-                      : 'bg-white border-[#E2DDD5] text-[#242424]'
-                  }`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL OUTSTANDING
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold font-heading">
-                    {formatINR(generalTotalOutstanding)}
-                  </span>
-                </div>
-              </div>
+              {/* General Purchases Summary Card (Matches Reference Design) */}
+              <ProcurementCostCard
+                title="TOTAL PROCUREMENT COST"
+                total={generalTotalPurchased}
+                paid={generalTotalPaid}
+                balance={generalTotalOutstanding}
+              />
 
               {/* Payment Filter Segmented Control */}
               <SlidingSegmentedControl
