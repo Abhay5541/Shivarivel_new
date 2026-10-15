@@ -11,6 +11,9 @@ import {
   Search as SearchIcon,
   Trash2,
   Clock,
+  Wallet,
+  Scale,
+  Coins,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { usePurchases, useDeleteSimplePurchase } from '@/hooks/useProcurement';
@@ -46,10 +49,15 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
 
   return (
     <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
-      {/* 1. Header Label */}
-      <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6B6B] block">
-        {title}
-      </span>
+      {/* 1. Header with Coins Symbol */}
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-lg bg-[#F5EDE2] text-[#8C6D23] flex items-center justify-center shrink-0">
+          <Coins className="w-3.5 h-3.5 text-[#8C6D23]" />
+        </div>
+        <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6B6B] block">
+          {title}
+        </span>
+      </div>
 
       {/* 2. Big Total Currency Display */}
       <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight my-2 sm:my-2.5 tabular-nums">
@@ -70,26 +78,36 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
         <span>{duePercent}% due</span>
       </div>
 
-      {/* 5. Bottom Two Tiles: PAID and BALANCE */}
+      {/* 5. Bottom Two Tiles: PAID (Wallet) and BALANCE (Scale) */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {/* PAID TILE */}
-        <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#166534]" />
-            <span>PAID</span>
+        {/* PAID TILE with Wallet Symbol */}
+        <div className="bg-[#EAF5EE] border border-[#C6E7D2] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] uppercase">
+              <span className="w-2 h-2 rounded-full bg-[#166534]" />
+              <span>PAID</span>
+            </div>
+            <div className="w-6 h-6 rounded-full bg-[#D1EDDC] flex items-center justify-center shrink-0">
+              <Wallet className="w-3.5 h-3.5 text-[#166534]" />
+            </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums mt-1">
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums mt-1.5">
             {formatINR(paid)}
           </div>
         </div>
 
-        {/* BALANCE TILE */}
-        <div className="bg-[#FDF0F0] rounded-2xl p-3.5 sm:p-4 transition-all">
-          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] uppercase">
-            <span className="w-2 h-2 rounded-full bg-[#991B1B]" />
-            <span>BALANCE</span>
+        {/* BALANCE TILE with Scale Symbol */}
+        <div className="bg-[#FDF0F0] border border-[#FECACA] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] uppercase">
+              <span className="w-2 h-2 rounded-full bg-[#991B1B]" />
+              <span>BALANCE</span>
+            </div>
+            <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 flex items-center justify-center shrink-0">
+              <Scale className="w-3.5 h-3.5 text-[#991B1B]" />
+            </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums mt-1">
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums mt-1.5">
             {formatINR(balance)}
           </div>
         </div>

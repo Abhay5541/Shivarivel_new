@@ -314,70 +314,60 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
               {employees.map((emp) => (
                 <div
                   key={emp.id}
-                  className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
+                  className="bg-white border border-[#E8E4DC] rounded-2xl p-3.5 shadow-2xs hover:shadow-xs transition-all flex items-center justify-between gap-3 group"
                 >
-                  <div>
-                    {/* Header: Laborer Avatar/Icon & Name */}
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
-                          <HardHat className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="font-bold text-sm text-[#242424] font-display truncate">
-                            {emp.name}
-                          </h4>
-                        </div>
-                      </div>
+                  {/* Left: Laborer Avatar, Name & Phone */}
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                      <HardHat className="w-5 h-5" />
                     </div>
-
-                    {/* Contact Info: Phone */}
-                    <div className="mt-3 space-y-1 text-xs text-[#6B6B6B] pl-1">
-                      {emp.phone ? (
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                        {emp.name}
+                      </h4>
+                      <div className="mt-1 text-xs text-[#6B6B6B]">
+                        {emp.phone ? (
                           <a
                             href={`tel:${emp.phone}`}
-                            className="font-medium text-[#242424] hover:text-[#4A0E0E] underline-offset-2 hover:underline"
+                            className="inline-flex items-center gap-1.5 font-medium text-[#404040] hover:text-[#4A0E0E] transition-colors"
                           >
-                            +91 {emp.phone.replace(/^(\+91|0)/, '')}
+                            <Phone className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                            <span>+91 {emp.phone.replace(/^(\\+91|0)/, '')}</span>
                           </a>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-[#99958F] italic">
-                          <Phone className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
-                          <span>No phone recorded</span>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="inline-flex items-center gap-1.5 text-[#99958F] italic">
+                            <Phone className="w-3.5 h-3.5 text-[#B0AAA2] shrink-0" />
+                            <span>No phone recorded</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Bottom Action Bar: Edit, Delete */}
-                  <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => handleStartEdit(emp)}
-                        className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
-                        title={`Edit ${emp.name}`}
-                        aria-label={`Edit ${emp.name}`}
-                      >
-                        <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                        <span>Edit</span>
-                      </button>
+                  {/* Right: Vertical Stacked Actions (Edit on Top, Delete Below) */}
+                  <div className="flex flex-col gap-1.5 shrink-0 pl-2.5 border-l border-[#F0EAE1]">
+                    <button
+                      type="button"
+                      onClick={() => handleStartEdit(emp)}
+                      className="h-7 px-2.5 text-xs font-semibold text-[#555555] hover:text-[#4A0E0E] hover:bg-[#FBEFEF]/80 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                      title={`Edit ${emp.name}`}
+                      aria-label={`Edit ${emp.name}`}
+                    >
+                      <Edit2 className="w-3 h-3 text-[#6B6B6B]" />
+                      <span>Edit</span>
+                    </button>
 
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteLaborer(emp)}
-                        disabled={deleteEmployeeMutation.isPending}
-                        className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
-                        title={`Delete ${emp.name}`}
-                        aria-label={`Delete ${emp.name}`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteLaborer(emp)}
+                      disabled={deleteEmployeeMutation.isPending}
+                      className="h-7 px-2.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+                      title={`Delete ${emp.name}`}
+                      aria-label={`Delete ${emp.name}`}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Delete</span>
+                    </button>
                   </div>
                 </div>
               ))}
