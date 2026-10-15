@@ -642,6 +642,27 @@ export function usePurchases(filters?: PurchaseFilters) {
               payment_status,
             };
           });
+          memoryPurchases = remoteResults;
+          saveStoredPurchases(remoteResults);
+          let results = remoteResults;
+          if (filters?.project_id === 'general') {
+            results = results.filter((p) => !p.project_id);
+          } else if (filters?.project_id && filters.project_id !== 'all') {
+            results = results.filter((p) => p.project_id === filters.project_id);
+          }
+          if (filters?.payment_status && filters.payment_status !== 'all') {
+            results = results.filter((p) => p.payment_status === filters.payment_status);
+          }
+          if (filters?.search) {
+            const s = filters.search.toLowerCase();
+            results = results.filter(
+              (p) =>
+                p.purchase_number?.toLowerCase().includes(s) ||
+                p.supplier?.name?.toLowerCase().includes(s) ||
+                p.project?.name?.toLowerCase().includes(s)
+            );
+          }
+          return results;
         } else if (error) {
           console.warn('Purchases query error:', error.message);
         }
@@ -649,29 +670,8 @@ export function usePurchases(filters?: PurchaseFilters) {
         console.warn('Purchases query notice:', err);
       }
 
-      // KEY FIX: Merge remote results with local dataset, eliminating duplicates.
-      // Remote results from Supabase are the source of truth.
-      const remoteIds = new Set(remoteResults.map((p) => p.id));
-      const remoteNumbers = new Set(remoteResults.map((p) => p.purchase_number).filter(Boolean));
-
-      // Filter out any local temporary records (pur-) that already exist in remoteResults
-      const nonDuplicateLocal = local.filter((lp) => {
-        if (remoteIds.has(lp.id)) return false; // Handled by remoteResults
-        if (lp.id.startsWith('pur-') && lp.purchase_number && remoteNumbers.has(lp.purchase_number)) return false;
-        const isDuplicate = remoteResults.some(
-          (rp) =>
-            rp.purchase_date === lp.purchase_date &&
-            Math.abs(rp.total_amount - lp.total_amount) < 0.01 &&
-            rp.supplier_id === lp.supplier_id
-        );
-        if (lp.id.startsWith('pur-') && isDuplicate) return false;
-        return true;
-      });
-
-      const combined = [...remoteResults, ...nonDuplicateLocal];
-
-      memoryPurchases = combined;
-      saveStoredPurchases(combined);
+      // Offline / network failure fallback:
+      let combined = local;
 
       let results = combined;
 
