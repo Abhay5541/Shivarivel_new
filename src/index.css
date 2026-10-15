@@ -346,9 +346,14 @@ html.dark body {
 }
 
 /* Glass Header in Dark Mode */
-html.dark .glass-header {
-  background: rgba(18, 16, 14, 0.92) !important;
+html.dark .glass-header-wrapper {
+  background: rgba(14, 13, 11, 0.96) !important;
   border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .glass-header {
+  background: transparent !important;
+  border: none !important;
 }
 
 html.dark .glass-brand-title {

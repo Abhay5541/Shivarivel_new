@@ -50,15 +50,16 @@ export function AppLayout() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-[#242424] relative">
+    <div className="min-h-screen flex flex-col antialiased text-[#242424] dark:text-[#F5F5F4] relative">
       {/* Universal Textured Architectural Background */}
       <div
-        className="fixed inset-0 pointer-events-none -z-10 bg-repeat bg-center"
+        className="fixed inset-0 pointer-events-none -z-10 bg-repeat bg-center transition-opacity duration-300 dark:opacity-0"
         style={{
           backgroundImage: `url(${appBg})`,
           backgroundSize: '600px auto',
         }}
       />
+      <div className="fixed inset-0 pointer-events-none -z-20 bg-[#F7F5F0] dark:bg-[#0E0D0B] transition-colors duration-300" />
       {/* Universal Top Header (Both PC & Mobile) */}
       <Header onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
 

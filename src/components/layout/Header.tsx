@@ -122,7 +122,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#E2DDD5] bg-white/90 flex items-center justify-center text-[#242424] hover:bg-white active:scale-95 transition-all cursor-pointer shadow-2xs"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#E2DDD5] dark:border-white/15 bg-white/90 dark:bg-white/10 flex items-center justify-center text-[#242424] dark:text-white hover:bg-white active:scale-95 transition-all cursor-pointer shadow-2xs"
                 aria-label="Back to dashboard"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -143,10 +143,10 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                 />
               </div>
               <div className="flex flex-col text-left leading-tight">
-                <span className="font-cinzel font-bold text-[15px] sm:text-[18px] tracking-[0.14em] text-[#1F1F1F] uppercase leading-none">
+                <span className="font-cinzel font-bold text-[15px] sm:text-[18px] tracking-[0.14em] text-[#1F1F1F] dark:text-[#FFFFFF] uppercase leading-none transition-colors">
                   SHIVARIVEL
                 </span>
-                <span className="font-inter font-bold text-[8px] sm:text-[9.5px] tracking-[0.22em] text-[#96742A] uppercase leading-none mt-1">
+                <span className="font-inter font-bold text-[8px] sm:text-[9.5px] tracking-[0.22em] text-[#96742A] dark:text-[#E2A855] uppercase leading-none mt-1 transition-colors">
                   CONSTRUCTION &amp; INTERIORS
                 </span>
               </div>
@@ -187,7 +187,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               aria-label="View notifications"
               className="glass-action-icon"
             >
-              <Bell className="w-4 h-4 text-[#242424]" />
+              <Bell className="w-4 h-4 text-[#242424] dark:text-white" />
               <span className="glass-notif-dot" />
             </button>
 
@@ -204,7 +204,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                 <div className="glass-user-avatar">
                   {userName.charAt(0).toUpperCase()}
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-[#4A0E0E] stroke-[2.5]" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#4A0E0E] dark:text-[#E2A855] stroke-[2.5]" />
               </button>
 
               {/* User Dropdown Popover */}
