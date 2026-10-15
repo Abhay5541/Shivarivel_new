@@ -113,15 +113,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // 3. Re-verify user existence when mobile browser tab becomes active
+    // 3. Re-verify user existence only when an active session exists
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
-        const { data, error } = await supabase.auth.getUser();
-        if (error || !data?.user) {
-          await supabase.auth.signOut().catch(() => {});
-          if (isMounted) {
-            setUser(null);
-            setSession(null);
+        const { data: currentSession } = await supabase.auth.getSession();
+        if (currentSession?.session) {
+          const { data, error } = await supabase.auth.getUser();
+          if (error || !data?.user) {
+            await supabase.auth.signOut().catch(() => {});
+            if (isMounted) {
+              setUser(null);
+              setSession(null);
+            }
           }
         }
       }
@@ -137,31 +140,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithPassword = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        // If fetch failed due to stale auth headers, clean up and retry once
-        if (error.message?.toLowerCase().includes('failed to fetch')) {
-          await supabase.auth.signOut().catch(() => {});
-          const retry = await supabase.auth.signInWithPassword({ email, password });
-          if (retry.error) return { error: retry.error };
-          return { error: null };
-        }
-        return { error };
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return { error };
+      if (data?.session) {
+        setSession(data.session);
+        setUser(data.user);
       }
       return { error: null };
     } catch (err: unknown) {
-      const e = err as Error;
-      if (e?.message?.toLowerCase().includes('failed to fetch')) {
-        await supabase.auth.signOut().catch(() => {});
-        try {
-          const retry = await supabase.auth.signInWithPassword({ email, password });
-          if (retry.error) return { error: retry.error };
-          return { error: null };
-        } catch (retryErr) {
-          return { error: retryErr as Error };
-        }
-      }
-      return { error: e };
+      return { error: err as Error };
     }
   };
 
@@ -171,17 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
-      if (error) {
-        if (error.message?.toLowerCase().includes('failed to fetch')) {
-          await supabase.auth.signOut().catch(() => {});
-          const retry = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: redirectUrl,
-          });
-          if (retry.error) return { error: retry.error };
-          return { error: null };
-        }
-        return { error };
-      }
+      if (error) return { error };
       return { error: null };
     } catch (err: unknown) {
       return { error: err as Error };
