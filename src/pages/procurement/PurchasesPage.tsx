@@ -50,7 +50,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
       </span>
 
       {/* 2. Big Total Currency Display */}
-      <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight my-2.5 sm:my-3 tabular-nums">
+      <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight my-2 sm:my-2.5 tabular-nums">
         {formatINR(total)}
       </div>
 
@@ -76,7 +76,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
             <span className="w-2 h-2 rounded-full bg-[#166534]" />
             <span>PAID</span>
           </div>
-          <div className="text-xl sm:text-2xl font-normal font-serif text-[#166534] tabular-nums mt-1">
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums mt-1">
             {formatINR(paid)}
           </div>
         </div>
@@ -87,7 +87,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
             <span className="w-2 h-2 rounded-full bg-[#991B1B]" />
             <span>BALANCE</span>
           </div>
-          <div className="text-xl sm:text-2xl font-normal font-serif text-[#991B1B] tabular-nums mt-1">
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums mt-1">
             {formatINR(balance)}
           </div>
         </div>
@@ -227,17 +227,6 @@ export const PurchasesPage: React.FC = () => {
     return projectPaidPurchases.reduce((sum, p) => sum + (p.total_allocated || p.total_amount || 0), 0);
   }, [projectPaidPurchases]);
 
-  const projectProcurementTotal = useMemo(() => {
-    return allProjectPurchases.reduce((sum, p) => sum + (p.total_amount || 0), 0);
-  }, [allProjectPurchases]);
-
-  const projectPaidTotal = useMemo(() => {
-    return allProjectPurchases.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
-  }, [allProjectPurchases]);
-
-  const projectBalanceTotal = useMemo(() => {
-    return Math.max(0, projectProcurementTotal - projectPaidTotal);
-  }, [projectProcurementTotal, projectPaidTotal]);
 
   // Segment options for project purchases with live counts
   const projectFilterOptions = useMemo<SegmentOption<'all' | 'pending' | 'paid'>[]>(
@@ -309,17 +298,6 @@ export const PurchasesPage: React.FC = () => {
     return generalPaidPurchases.reduce((sum, p) => sum + (p.total_allocated || p.total_amount || 0), 0);
   }, [generalPaidPurchases]);
 
-  const generalTotalPurchased = useMemo(() => {
-    return generalPurchases.reduce((sum, p) => sum + (p.total_amount || 0), 0);
-  }, [generalPurchases]);
-
-  const generalTotalPaid = useMemo(() => {
-    return generalPurchases.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
-  }, [generalPurchases]);
-
-  const generalTotalOutstanding = useMemo(() => {
-    return Math.max(0, generalTotalPurchased - generalTotalPaid);
-  }, [generalTotalPurchased, generalTotalPaid]);
 
   // Segment options for general purchases with live counts
   const generalFilterOptions = useMemo<SegmentOption<'all' | 'pending' | 'paid'>[]>(
@@ -586,9 +564,9 @@ export const PurchasesPage: React.FC = () => {
               {/* Project Totals Card (Matches Reference Design) */}
               <ProcurementCostCard
                 title="TOTAL PROCUREMENT COST"
-                total={projectProcurementTotal}
-                paid={projectPaidTotal}
-                balance={projectBalanceTotal}
+                total={projectPaidSettled + projectPendingBalance}
+                paid={projectPaidSettled}
+                balance={projectPendingBalance}
               />
 
               {/* Payment Filter Segmented Control */}
@@ -687,9 +665,9 @@ export const PurchasesPage: React.FC = () => {
               {/* General Purchases Summary Card (Matches Reference Design) */}
               <ProcurementCostCard
                 title="TOTAL PROCUREMENT COST"
-                total={generalTotalPurchased}
-                paid={generalTotalPaid}
-                balance={generalTotalOutstanding}
+                total={generalPaidSettled + generalPendingBalance}
+                paid={generalPaidSettled}
+                balance={generalPendingBalance}
               />
 
               {/* Payment Filter Segmented Control */}

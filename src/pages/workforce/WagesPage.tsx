@@ -602,22 +602,35 @@ export function WagesPage() {
           <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
             {/* Header: Icon + "Today's wages paid" + Worker Count Pill */}
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
                   <Receipt className="w-5 h-5 stroke-[1.75]" />
                 </div>
-                <span className="text-sm sm:text-base font-medium text-[#404040] truncate">
-                  {isSelectedDateToday ? "Today's wages paid" : `Wages paid on ${formattedSelectedDate}`}
-                </span>
+                <div className="min-w-0">
+                  {isSelectedDateToday ? (
+                    <span className="text-sm sm:text-base font-medium text-[#404040]">
+                      Today&apos;s wages paid
+                    </span>
+                  ) : (
+                    <div className="leading-tight">
+                      <span className="text-xs sm:text-sm font-medium text-[#6B6B6B] block">
+                        Wages paid on
+                      </span>
+                      <span className="text-sm sm:text-base font-semibold text-[#242424] block mt-0.5">
+                        {formattedSelectedDate}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="px-3.5 py-1 rounded-full bg-[#E5F3EB] text-[#166534] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
+              <div className="px-3.5 py-1 rounded-full bg-[#E5F3EB] text-[#166534] text-xs sm:text-sm font-semibold tracking-wide shrink-0 self-start sm:self-center">
                 {dailySummary.totalEntries} {dailySummary.totalEntries === 1 ? 'worker' : 'workers'}
               </div>
             </div>
 
             {/* Big Currency Amount */}
-            <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
+            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
               {formatINR(dailySummary.totalPaid)}
             </div>
 
@@ -625,7 +638,7 @@ export function WagesPage() {
             <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
               {/* Full Day Tile */}
               <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#166534] tabular-nums">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#166534] tabular-nums">
                   {dailySummary.fullDays}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-[#166534] mt-1">
@@ -635,7 +648,7 @@ export function WagesPage() {
 
               {/* Half Day Tile */}
               <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
                   {dailySummary.halfDays}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
@@ -645,7 +658,7 @@ export function WagesPage() {
 
               {/* Absent Tile */}
               <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
                   {dailySummary.absent}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
@@ -931,22 +944,27 @@ export function WagesPage() {
           <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
             {/* Header: Icon + "Weekly wages disbursed" + Week Range Pill */}
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
                   <Receipt className="w-5 h-5 stroke-[1.75]" />
                 </div>
-                <span className="text-sm sm:text-base font-medium text-[#404040] truncate">
-                  Weekly wages disbursed
-                </span>
+                <div className="leading-tight min-w-0">
+                  <span className="text-sm sm:text-base font-semibold text-[#242424] block">
+                    Weekly wages disbursed
+                  </span>
+                  <span className="text-xs text-[#6B6B6B] block mt-0.5 sm:hidden font-medium">
+                    {weekRange.label}
+                  </span>
+                </div>
               </div>
 
-              <div className="px-3.5 py-1 rounded-full bg-[#FAF7F0] border border-[#E8E4DC] text-[#6B6B6B] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
+              <div className="hidden sm:inline-flex px-3.5 py-1 rounded-full bg-[#FAF7F0] border border-[#E8E4DC] text-[#6B6B6B] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
                 {weekRange.label}
               </div>
             </div>
 
             {/* Big Currency Amount */}
-            <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
+            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
               {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
             </div>
 
@@ -954,7 +972,7 @@ export function WagesPage() {
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {/* Active Laborers Tile */}
               <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
                   {weeklyLaborerAggregation.rows.length}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
@@ -964,7 +982,7 @@ export function WagesPage() {
 
               {/* Total Entries Tile */}
               <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
                   {weeklyEntries.length}
                 </div>
                 <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
