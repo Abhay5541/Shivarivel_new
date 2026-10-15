@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, UserCheck, Plus, Edit2, Phone, Tag, Check, AlertCircle, Trash2 } from 'lucide-react';
+import { X, UserCheck, Plus, Edit2, Phone, Check, AlertCircle, Trash2 } from 'lucide-react';
 import { useEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmployee } from '@/hooks/useWorkforce';
 import { indianPhoneRegex } from '@/types/business';
 import type { Employee } from '@/types/workforce';
@@ -132,7 +132,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
           daily_wage: null,
           status: 'active',
         });
-        setSuccessMsg(`Added ${created.name} (${created.employee_code})`);
+        setSuccessMsg(`Added ${created.name}`);
         setIsAddingOrEditing(false);
         if (onSelectLaborer) {
           onSelectLaborer(created);
@@ -209,7 +209,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
             <div className="bg-[#F7F5F0] border border-[#E2DDD5] rounded-xl p-4 space-y-3.5 shadow-xs modal-spring">
               <div className="flex items-center justify-between border-b border-[#E2DDD5] pb-2">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
-                  {editingLaborer ? `Edit Laborer (${editingLaborer.employee_code})` : 'New Laborer Registration'}
+                  {editingLaborer ? `Edit ${editingLaborer.name}` : 'New Laborer Registration'}
                 </h3>
                 <button
                   type="button"
@@ -258,9 +258,6 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                       className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] placeholder:text-[#99958F] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
                     />
                   </div>
-                  <p className="text-[11px] text-[#6B6B6B] mt-1">
-                    Internal Labor ID will be automatically assigned.
-                  </p>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 pt-2">
@@ -319,13 +316,9 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                   key={emp.id}
                   className="p-3 bg-white border border-[#E2DDD5] hover:border-[#C99A2E]/70 rounded-xl flex items-center justify-between transition-all group"
                 >
-                  <div className="space-y-1">
+                  <div className="space-y-1 min-w-0 pr-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-[#242424] font-display">{emp.name}</span>
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-sm bg-[#F3EFEA] text-[11px] font-semibold text-[#4A0E0E] tabular-nums">
-                        <Tag className="w-2.5 h-2.5 text-[#C99A2E]" />
-                        {emp.employee_code}
-                      </span>
+                      <span className="font-semibold text-sm text-[#242424] font-display truncate">{emp.name}</span>
                     </div>
                     <div className="text-xs text-[#6B6B6B]">
                       {emp.phone ? (
@@ -341,25 +334,27 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-3 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleStartEdit(emp)}
-                      className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] hover:bg-[#F7EFEF] rounded-md transition-colors cursor-pointer"
-                      title="Edit Laborer"
+                      className="font-medium text-xs text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                      title={`Edit ${emp.name}`}
                       aria-label={`Edit ${emp.name}`}
                     >
-                      <Edit2 className="w-4 h-4" />
+                      <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                      <span>Edit</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteLaborer(emp)}
                       disabled={deleteEmployeeMutation.isPending}
-                      className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                      title="Delete Laborer"
+                      className="font-medium text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                      title={`Delete ${emp.name}`}
                       aria-label={`Delete ${emp.name}`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
                     </button>
                   </div>
                 </div>
