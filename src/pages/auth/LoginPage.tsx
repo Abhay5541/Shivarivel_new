@@ -73,11 +73,11 @@ function ServicesGrid() {
 
 function VisionTagline() {
   return (
-    <div className="pt-1.5">
-      <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide text-left drop-shadow-md leading-none">
+    <div className="pt-2 flex flex-col items-center text-center">
+      <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide drop-shadow-md leading-none">
         Your Vision . Our Expertise
       </p>
-      <div className="w-44 h-[1.5px] bg-gradient-to-r from-[#C9A24A] via-[#C9A24A]/60 to-transparent mt-1" />
+      <div className="w-44 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A24A] to-transparent mt-1" />
     </div>
   );
 }
