@@ -8,6 +8,7 @@ import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { useQueryClient } from '@tanstack/react-query';
+import { useTheme } from '@/context/ThemeContext';
 import appBg from '@/Asserts/backgroundUI1.jpg';
 
 const TOP_LEVEL_SPOKES = [
@@ -20,6 +21,7 @@ const TOP_LEVEL_SPOKES = [
 ];
 
 export function AppLayout() {
+  const { isDark } = useTheme();
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [activeQuickAction, setActiveQuickAction] = useState<QuickActionType | null>(null);
   const queryClient = useQueryClient();
@@ -50,16 +52,22 @@ export function AppLayout() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen flex flex-col antialiased text-[#242424] dark:text-[#F5F5F4] relative">
+    <div className={`min-h-screen flex flex-col antialiased relative transition-colors duration-200 ${isDark ? 'text-[#F5F5F4]' : 'text-[#242424]'}`}>
       {/* Universal Textured Architectural Background */}
       <div
-        className="fixed inset-0 pointer-events-none -z-10 bg-repeat bg-center transition-opacity duration-300 dark:opacity-0"
+        className={`fixed inset-0 pointer-events-none -z-10 bg-repeat bg-center transition-opacity duration-300 ${
+          isDark ? 'opacity-0' : 'opacity-100'
+        }`}
         style={{
           backgroundImage: `url(${appBg})`,
           backgroundSize: '600px auto',
         }}
       />
-      <div className="fixed inset-0 pointer-events-none -z-20 bg-[#F7F5F0] dark:bg-[#0E0D0B] transition-colors duration-300" />
+      <div
+        className={`fixed inset-0 pointer-events-none -z-20 transition-colors duration-300 ${
+          isDark ? 'bg-[#0E0D0B]' : 'bg-[#F7F5F0]'
+        }`}
+      />
       {/* Universal Top Header (Both PC & Mobile) */}
       <Header onOpenQuickAdd={() => setIsQuickAddOpen(true)} />
 
