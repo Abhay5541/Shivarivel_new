@@ -220,54 +220,54 @@ export function LoginPage() {
       </div>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-[1100px] mx-auto w-full">
-        <div className="w-full flex flex-col items-center space-y-6 sm:space-y-8 my-auto">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1200px] mx-auto w-full">
+        <div className="w-full flex flex-col items-center my-auto">
           {/* 1. HERO STATEMENT & BRAND (ABOVE LOGIN FORM) */}
-          <div className="text-center max-w-xl mx-auto space-y-1">
-            {/* BRAND HEADER & LOGO */}
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-lg">
+          <div className="text-center w-full max-w-2xl mx-auto">
+            {/* BRAND HEADER & LOGO (UNIFIED LOCKUP) */}
+            <div className="flex items-center justify-center gap-3.5">
+              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black/80 border border-[#C9A24A]/40 shadow-xl">
                 <img
                   src={logoImg}
                   alt="Shivarivel Official SVC Logo"
                   className="w-full h-full object-cover scale-[1.14]"
                 />
               </div>
-              <div className="space-y-0.5 text-left">
-                <h1 className="font-cinzel text-[19px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
+              <div className="text-left flex flex-col justify-center">
+                <h1 className="font-cinzel text-[20px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-md">
                   SHIVARIVEL
                 </h1>
-                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A] leading-tight">
+                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C9A24A] leading-snug">
                   CONSTRUCTION &amp; INTERIORS
+                </p>
+                <p className="font-inter text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]/90 leading-tight">
+                  BUILDING DREAMS
                 </p>
               </div>
             </div>
 
             {/* HERO STATEMENT */}
-            <div className="space-y-1 -mt-1 sm:-mt-2">
-              <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A] leading-tight">
-                BUILDING DREAMS
-              </p>
-              <h2 className="font-playfair text-[28px] sm:text-[34px] lg:text-[38px] font-normal text-white leading-[1.12] drop-shadow-md">
+            <div className="space-y-1.5 mt-3 sm:mt-4 text-center">
+              <h2 className="font-playfair text-[24px] sm:text-[30px] lg:text-[34px] font-normal text-white leading-tight drop-shadow-md">
                 Quality Construction.<br />
                 Beautiful Interiors.
               </h2>
-              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED] font-normal leading-relaxed max-w-lg pt-0.5 mx-auto">
+              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED]/85 font-normal leading-relaxed max-w-lg mx-auto">
                 From planning to precision, we deliver spaces that inspire, last and add value.
               </p>
             </div>
 
-            {/* OUR SERVICES SECTION (DESKTOP: SITS UNDER HERO STATEMENT) */}
-            <div className="hidden lg:block space-y-2 pt-0.5">
+            {/* OUR SERVICES SECTION (DESKTOP: BALANCED EXPANDED WIDTH) */}
+            <div className="hidden lg:block w-full max-w-2xl mx-auto space-y-2 mt-4">
               <ServicesDivider />
               <ServicesGrid />
               <VisionTagline />
             </div>
           </div>
 
-          {/* FLOATING CREAM LOGIN CARD (CENTERED IN ALL VIEWS) */}
-          <div className="w-full flex flex-col items-center">
-            <div className="w-full max-w-[420px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 lg:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] text-[#0A1813] border border-white/60 relative overflow-hidden transition-all">
+          {/* FLOATING CREAM LOGIN CARD (CENTERED WITH HARMONIOUS MARGIN) */}
+          <div className="w-full flex flex-col items-center mt-5 sm:mt-6">
+            <div className="w-full max-w-[410px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.65)] text-[#0A1813] border border-white/70 relative overflow-hidden transition-all">
               {/* Card Header with Centered Official Logo */}
               <div className="text-center space-y-1">
                 <div
