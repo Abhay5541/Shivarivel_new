@@ -524,47 +524,47 @@ export const PurchasesPage: React.FC = () => {
           {activeTab === 'project' && (
             <div key={activeTab} className="space-y-4 animate-filter-slide">
               {/* Financial Summary Cards */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-0.5 sm:grid sm:grid-cols-3 sm:gap-3">
                 {/* 1. Total Procurement Cost */}
-                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col justify-between min-h-[105px] sm:min-h-[120px]">
-                  <div className="w-8 h-8 rounded-full bg-[#F5EDE2] text-[#8C6D23] flex items-center justify-center shrink-0">
-                    <Coins className="w-4 h-4" />
+                <div className="min-w-[145px] sm:min-w-0 flex-1 bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#F5EDE2] text-[#8C6D23] flex items-center justify-center shrink-0">
+                    <Coins className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-2 min-w-0">
+                  <div className="mt-1.5 min-w-0">
                     <span className="text-[11px] sm:text-xs text-[#6B6B6B] font-medium block leading-tight">
                       Total Procurement Cost
                     </span>
-                    <span className="text-xs xs:text-sm sm:text-lg md:text-xl font-extrabold text-[#0F172A] font-mono tabular-nums leading-tight block mt-1">
+                    <span className="text-sm sm:text-lg md:text-xl font-extrabold text-[#0F172A] font-mono tabular-nums leading-tight block mt-1">
                       {formatINR(projectProcurementTotal)}
                     </span>
                   </div>
                 </div>
 
                 {/* 2. Total Paid */}
-                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col justify-between min-h-[105px] sm:min-h-[120px]">
-                  <div className="w-8 h-8 rounded-full bg-[#E8F8EE] text-[#166534] flex items-center justify-center shrink-0">
-                    <Wallet className="w-4 h-4" />
+                <div className="min-w-[145px] sm:min-w-0 flex-1 bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#E8F8EE] text-[#166534] flex items-center justify-center shrink-0">
+                    <Wallet className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-2 min-w-0">
+                  <div className="mt-1.5 min-w-0">
                     <span className="text-[11px] sm:text-xs text-[#6B6B6B] font-medium block leading-tight">
                       Total Paid
                     </span>
-                    <span className="text-xs xs:text-sm sm:text-lg md:text-xl font-extrabold text-[#166534] font-mono tabular-nums leading-tight block mt-1">
+                    <span className="text-sm sm:text-lg md:text-xl font-extrabold text-[#166534] font-mono tabular-nums leading-tight block mt-1">
                       {formatINR(projectPaidTotal)}
                     </span>
                   </div>
                 </div>
 
                 {/* 3. Total Balance */}
-                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col justify-between min-h-[105px] sm:min-h-[120px]">
-                  <div className="w-8 h-8 rounded-full bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
-                    <Scale className="w-4 h-4" />
+                <div className="min-w-[145px] sm:min-w-0 flex-1 bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                    <Scale className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-2 min-w-0">
+                  <div className="mt-1.5 min-w-0">
                     <span className="text-[11px] sm:text-xs text-[#6B6B6B] font-medium block leading-tight">
                       Total Balance
                     </span>
-                    <span className="text-xs xs:text-sm sm:text-lg md:text-xl font-extrabold text-[#991B1B] font-mono tabular-nums leading-tight block mt-1">
+                    <span className="text-sm sm:text-lg md:text-xl font-extrabold text-[#991B1B] font-mono tabular-nums leading-tight block mt-1">
                       {formatINR(projectBalanceTotal)}
                     </span>
                   </div>
@@ -682,47 +682,47 @@ export const PurchasesPage: React.FC = () => {
           {activeTab === 'general' && (
             <div key={activeTab} className="space-y-4 animate-filter-slide">
               {/* General Purchases Summary Cards */}
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <div className="flex gap-2.5 overflow-x-auto no-scrollbar py-0.5 sm:grid sm:grid-cols-3 sm:gap-3">
                 {/* 1. Total Cost */}
-                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col justify-between min-h-[105px] sm:min-h-[120px]">
-                  <div className="w-8 h-8 rounded-full bg-[#F5EDE2] text-[#8C6D23] flex items-center justify-center shrink-0">
-                    <Coins className="w-4 h-4" />
+                <div className="min-w-[145px] sm:min-w-0 flex-1 bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#F5EDE2] text-[#8C6D23] flex items-center justify-center shrink-0">
+                    <Coins className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-2 min-w-0">
+                  <div className="mt-1.5 min-w-0">
                     <span className="text-[11px] sm:text-xs text-[#6B6B6B] font-medium block leading-tight">
                       Total Cost
                     </span>
-                    <span className="text-xs xs:text-sm sm:text-lg md:text-xl font-extrabold text-[#0F172A] font-mono tabular-nums leading-tight block mt-1">
+                    <span className="text-sm sm:text-lg md:text-xl font-extrabold text-[#0F172A] font-mono tabular-nums leading-tight block mt-1">
                       {formatINR(generalTotalPurchased)}
                     </span>
                   </div>
                 </div>
 
                 {/* 2. Total Paid */}
-                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col justify-between min-h-[105px] sm:min-h-[120px]">
-                  <div className="w-8 h-8 rounded-full bg-[#E8F8EE] text-[#166534] flex items-center justify-center shrink-0">
-                    <Wallet className="w-4 h-4" />
+                <div className="min-w-[145px] sm:min-w-0 flex-1 bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#E8F8EE] text-[#166534] flex items-center justify-center shrink-0">
+                    <Wallet className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-2 min-w-0">
+                  <div className="mt-1.5 min-w-0">
                     <span className="text-[11px] sm:text-xs text-[#6B6B6B] font-medium block leading-tight">
                       Total Paid
                     </span>
-                    <span className="text-xs xs:text-sm sm:text-lg md:text-xl font-extrabold text-[#166534] font-mono tabular-nums leading-tight block mt-1">
+                    <span className="text-sm sm:text-lg md:text-xl font-extrabold text-[#166534] font-mono tabular-nums leading-tight block mt-1">
                       {formatINR(generalTotalPaid)}
                     </span>
                   </div>
                 </div>
 
                 {/* 3. Total Balance */}
-                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col justify-between min-h-[105px] sm:min-h-[120px]">
-                  <div className="w-8 h-8 rounded-full bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
-                    <Scale className="w-4 h-4" />
+                <div className="min-w-[145px] sm:min-w-0 flex-1 bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between">
+                  <div className="w-7 h-7 rounded-full bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                    <Scale className="w-3.5 h-3.5" />
                   </div>
-                  <div className="mt-2 min-w-0">
+                  <div className="mt-1.5 min-w-0">
                     <span className="text-[11px] sm:text-xs text-[#6B6B6B] font-medium block leading-tight">
                       Total Balance
                     </span>
-                    <span className="text-xs xs:text-sm sm:text-lg md:text-xl font-extrabold text-[#991B1B] font-mono tabular-nums leading-tight block mt-1">
+                    <span className="text-sm sm:text-lg md:text-xl font-extrabold text-[#991B1B] font-mono tabular-nums leading-tight block mt-1">
                       {formatINR(generalTotalOutstanding)}
                     </span>
                   </div>
