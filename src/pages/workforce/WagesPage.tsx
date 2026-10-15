@@ -462,52 +462,90 @@ export function WagesPage() {
       {/* ========================================================= */}
       {activeTab === 'daily' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
-          {/* Date Navigator Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-xs flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <button
-                type="button"
-                onClick={() => navigateDate(-1)}
-                className="w-8 h-8 rounded-lg border border-[#E8E4DC] hover:border-[#5A0F12] hover:bg-[#FAF7F0] flex items-center justify-center text-[#242424] transition-all cursor-pointer shrink-0"
-                aria-label="Previous Day"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-
-              <div className="relative flex items-center gap-2 min-w-0 cursor-pointer group px-1">
-                <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
-                <span className="font-display font-bold text-xs sm:text-sm text-[#242424] truncate">
-                  {formattedSelectedDateShort}
-                </span>
-                {/* Invisible native date picker over container for instant jump */}
-                <input
-                  type="date"
-                  max={todayStr}
-                  value={selectedDate}
-                  onChange={(e) => {
-                    if (e.target.value && e.target.value <= todayStr) {
-                      setSelectedDate(e.target.value);
-                    }
-                  }}
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  title="Choose a specific date"
-                  aria-label="Choose a specific date"
-                />
+          {/* Date Selector Bar (Matching Weekly Overview Structure) */}
+          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
+            {/* Mobile Layout (sm:hidden) */}
+            <div className="flex flex-col gap-2.5 sm:hidden">
+              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
+                  <span className="font-display font-bold text-sm text-[#242424] truncate">
+                    {formattedSelectedDateShort}
+                  </span>
+                </div>
+                {!isSelectedDateToday ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDate(todayStr)}
+                    className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer shrink-0 ml-2"
+                  >
+                    Jump to Today
+                  </button>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-md bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                    TODAY
+                  </span>
+                )}
               </div>
 
-              {!isSelectedDateToday && (
-                <button
+              <div className="grid grid-cols-2 gap-2">
+                <Button
                   type="button"
-                  onClick={() => navigateDate(1)}
-                  className="w-8 h-8 rounded-lg border border-[#E8E4DC] hover:border-[#5A0F12] hover:bg-[#FAF7F0] flex items-center justify-center text-[#242424] transition-all cursor-pointer shrink-0"
-                  aria-label="Next Day"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDate(-1)}
+                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
                 >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous Day</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isSelectedDateToday}
+                  onClick={() => navigateDate(1)}
+                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E] disabled:opacity-40"
+                >
+                  <span>Next Day</span>
                   <ChevronRight className="w-4 h-4" />
-                </button>
-              )}
+                </Button>
+              </div>
             </div>
 
-            <div className="shrink-0">
+            {/* Desktop Layout (sm and up) */}
+            <div className="hidden sm:flex items-center justify-between w-full">
+              <div className="flex items-center gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDate(-1)}
+                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous Day</span>
+                </Button>
+
+                <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
+                  <span>{formattedSelectedDate}</span>
+                </span>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isSelectedDateToday}
+                  onClick={() => navigateDate(1)}
+                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E] disabled:opacity-40"
+                >
+                  <span>Next Day</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+
               {isSelectedDateToday ? (
                 <span className="px-2.5 py-1 rounded-lg bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
                   TODAY
@@ -516,105 +554,104 @@ export function WagesPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
+                  className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
                 >
-                  JUMP TO TODAY
+                  Jump to Today
                 </button>
               )}
             </div>
           </div>
 
-                    {/* Daily Operational Summary Card (Combined Design with Background Illustration & Status Icons) */}
-          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs relative overflow-hidden">
-            {/* Background illustration */}
+          {/* Wage Summary Card (Kishore's Card with 4 Distinct Colored Status Tiles) */}
+          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs relative overflow-hidden">
+            {/* Background illustration for Today's Wages Paid */}
             <img
               src={totalWagesBanner}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-40 dark:opacity-20"
+              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-90"
             />
 
-            {/* Foreground Content */}
-            <div className="relative z-10">
-              {/* Header: Icon + "Today's wages paid" + Worker Count Pill */}
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0 shadow-xs">
-                    <Receipt className="w-5 h-5 stroke-[1.75]" />
-                  </div>
-                  <div className="min-w-0">
-                    {isSelectedDateToday ? (
-                      <span className="text-sm sm:text-base font-semibold text-[#333333]">
-                        Today&apos;s wages paid
-                      </span>
-                    ) : (
-                      <div className="leading-tight">
-                        <span className="text-xs sm:text-sm font-medium text-[#6B6B6B] block">
-                          Wages paid on
-                        </span>
-                        <span className="text-sm sm:text-base font-semibold text-[#242424] block mt-0.5">
-                          {formattedSelectedDate}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="px-3.5 py-1 rounded-full bg-[#E5F3EB] text-[#166534] text-xs sm:text-sm font-semibold tracking-wide shrink-0 self-start sm:self-center flex items-center gap-1.5 shadow-2xs">
-                  <Users className="w-3.5 h-3.5 text-[#166534]" />
-                  <span>{dailySummary.totalEntries} {dailySummary.totalEntries === 1 ? 'worker' : 'workers'}</span>
-                </div>
+            {/* Header: Today's Wages Paid + Big Amount */}
+            <div className="relative z-10 p-4 sm:p-5">
+              <div className="text-xs sm:text-sm font-semibold text-[#166534]">
+                {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDate}`}
               </div>
-
-              {/* Big Currency Amount */}
-              <div className="text-3xl sm:text-4xl lg:text-[42px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-display tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
                 {formatINR(dailySummary.totalPaid)}
               </div>
+            </div>
 
-              {/* 3 Status Tiles: Full Day (Green with Tick) | Half Day (Amber with Clock) | Absent (Rose with X mark) */}
-              <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
-                {/* Full Day Tile with Tick */}
-                <div className="bg-[#EAF5EE]/95 backdrop-blur-xs border border-[#C6E7D2] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#166534] tabular-nums">
-                      {dailySummary.fullDays}
-                    </span>
-                    <div className="w-6 h-6 rounded-full bg-[#D1EDDC] flex items-center justify-center shrink-0">
-                      <CheckCircle2 className="w-4 h-4 text-[#166534]" />
-                    </div>
-                  </div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#166534] mt-1.5">
-                    Full day
+            {/* 4 Status Tiles Grid with Distinct Colored Backgrounds */}
+            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 p-3 sm:p-4 pt-0">
+              {/* 1. Total Logged (Soft Blue/Slate) */}
+              <div className="bg-[#F0F5FA]/95 backdrop-blur-xs border border-[#D5E3F0] rounded-2xl p-3 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#1E3A8A] tabular-nums">
+                    {dailySummary.totalEntries}
+                  </span>
+                  <div className="w-6 h-6 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
+                    <Users className="w-3.5 h-3.5 text-[#1E3A8A]" />
                   </div>
                 </div>
-
-                {/* Half Day Tile with Clock */}
-                <div className="bg-[#FEF9E7]/95 backdrop-blur-xs border border-[#FDE68A] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#92400E] tabular-nums">
-                      {dailySummary.halfDays}
-                    </span>
-                    <div className="w-6 h-6 rounded-full bg-[#FEF08A] flex items-center justify-center shrink-0">
-                      <Clock className="w-4 h-4 text-[#92400E]" />
-                    </div>
+                <div className="mt-1.5">
+                  <div className="text-xs sm:text-sm font-semibold text-[#1E3A8A] leading-tight">
+                    Total Logged
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#92400E] mt-1.5">
-                    Half day
+                  <div className="text-[10px] text-[#6B7280] font-medium leading-none mt-0.5">Workers</div>
+                </div>
+              </div>
+
+              {/* 2. Full Days (Green with Tick) */}
+              <div className="bg-[#EAF5EE]/95 backdrop-blur-xs border border-[#C6E7D2] rounded-2xl p-3 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums">
+                    {dailySummary.fullDays}
+                  </span>
+                  <div className="w-6 h-6 rounded-full bg-[#D1EDDC] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
                   </div>
                 </div>
-
-                {/* Absent Tile with X mark */}
-                <div className="bg-[#FEE2E2]/95 backdrop-blur-xs border border-[#FECACA] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#991B1B] tabular-nums">
-                      {dailySummary.absent}
-                    </span>
-                    <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 flex items-center justify-center shrink-0">
-                      <X className="w-4 h-4 text-[#991B1B] stroke-[2.5]" />
-                    </div>
+                <div className="mt-1.5">
+                  <div className="text-xs sm:text-sm font-semibold text-[#166534] leading-tight">
+                    Full Days
                   </div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#991B1B] mt-1.5">
+                  <div className="text-[10px] text-[#166534]/70 font-medium leading-none mt-0.5">Workers</div>
+                </div>
+              </div>
+
+              {/* 3. Half Days (Amber with Clock) */}
+              <div className="bg-[#FEF9E7]/95 backdrop-blur-xs border border-[#FDE68A] rounded-2xl p-3.5 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#92400E] tabular-nums">
+                    {dailySummary.halfDays}
+                  </span>
+                  <div className="w-6 h-6 rounded-full bg-[#FEF08A] flex items-center justify-center shrink-0">
+                    <Clock className="w-3.5 h-3.5 text-[#92400E]" />
+                  </div>
+                </div>
+                <div className="mt-1.5">
+                  <div className="text-xs sm:text-sm font-semibold text-[#92400E] leading-tight">
+                    Half Days
+                  </div>
+                  <div className="text-[10px] text-[#92400E]/70 font-medium leading-none mt-0.5">Workers</div>
+                </div>
+              </div>
+
+              {/* 4. Absent (Rose with X mark) */}
+              <div className="bg-[#FEE2E2]/95 backdrop-blur-xs border border-[#FECACA] rounded-2xl p-3.5 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums">
+                    {dailySummary.absent}
+                  </span>
+                  <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 flex items-center justify-center shrink-0">
+                    <X className="w-3.5 h-3.5 text-[#991B1B] stroke-[2.5]" />
+                  </div>
+                </div>
+                <div className="mt-1.5">
+                  <div className="text-xs sm:text-sm font-semibold text-[#991B1B] leading-tight">
                     Absent
                   </div>
+                  <div className="text-[10px] text-[#991B1B]/70 font-medium leading-none mt-0.5">Workers</div>
                 </div>
               </div>
             </div>
