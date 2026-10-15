@@ -155,7 +155,7 @@ export const CustomersPage: React.FC = () => {
 
   if (isCustomersLoading) {
     return (
-      <div className="space-y-4 max-w-md mx-auto">
+      <div className="space-y-4">
         <div className="h-10 w-48 bg-[#E2DDD5]/60 rounded-xl animate-pulse" />
         <TableSkeleton rows={5} />
       </div>
@@ -164,7 +164,7 @@ export const CustomersPage: React.FC = () => {
 
   if (isError) {
     return (
-      <PageContainer className="py-8 max-w-md mx-auto">
+      <PageContainer className="py-8">
         <ErrorState
           title="Could not load customers"
           description={error?.message || 'Unable to retrieve customer records.'}
@@ -243,7 +243,7 @@ export const CustomersPage: React.FC = () => {
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {filteredCustomers.map((c) => {
             const isActive = c.status !== 'inactive';
             return (

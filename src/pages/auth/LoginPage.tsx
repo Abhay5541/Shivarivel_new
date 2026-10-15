@@ -210,24 +210,23 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen lg:h-screen lg:max-h-screen relative flex flex-col justify-between overflow-y-auto lg:overflow-hidden font-inter select-none bg-[#071510]">
+    <div className="min-h-screen relative flex flex-col justify-between overflow-y-auto font-inter select-none bg-[#071510]">
       {/* 1. BRIGHT, VIVID & WARM BACKGROUND IMAGE (Background_UI.png) */}
       <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
-        {/* Soft left-side dark vignette for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent" />
+        {/* Soft dark vignette for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/85" />
       </div>
 
-      {/* 2. MAIN CONTENT AREA — Fits 100% within viewport height on desktop */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-6 lg:py-4 max-w-[1360px] mx-auto w-full min-h-0">
-        {/* DESKTOP SPLIT LAYOUT: LEFT BRANDING & SERVICES + RIGHT LOGIN CARD */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center my-auto py-3 lg:py-0">
-          {/* LEFT PANEL: BRAND HEADER, HERO STATEMENT & SERVICES GRID */}
-          <div className="lg:col-span-7 space-y-3.5 lg:space-y-4 text-left">
+      {/* 2. MAIN CONTENT AREA */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-[1100px] mx-auto w-full">
+        <div className="w-full flex flex-col items-center space-y-6 sm:space-y-8 my-auto">
+          {/* 1. HERO STATEMENT & BRAND (ABOVE LOGIN FORM) */}
+          <div className="text-center space-y-2 max-w-xl mx-auto">
             {/* BRAND HEADER & LOGO */}
-            <div className="flex items-center gap-3.5">
+            <div className="flex items-center justify-center gap-3 mb-2">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-lg">
                 <img
                   src={logoImg}
@@ -235,11 +234,11 @@ export function LoginPage() {
                   className="w-full h-full object-cover scale-[1.14]"
                 />
               </div>
-              <div className="space-y-0.5">
-                <h1 className="font-cinzel text-[22px] sm:text-[26px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
+              <div className="space-y-0.5 text-left">
+                <h1 className="font-cinzel text-[19px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
                   SHIVARIVEL
                 </h1>
-                <p className="font-inter text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
+                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
                   CONSTRUCTION &amp; INTERIORS
                 </p>
               </div>
@@ -272,24 +271,8 @@ export function LoginPage() {
             <div className="w-full max-w-[420px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 lg:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] text-[#0A1813] border border-white/60 relative overflow-hidden transition-all">
               {/* Card Header with Centered Official Logo */}
               <div className="text-center space-y-1">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto rounded-full overflow-hidden flex items-center justify-center bg-black shadow-md">
-                  <img
-                    src={logoImg}
-                    alt="Shivarivel Official Logo"
-                    className="w-full h-full object-cover scale-[1.14]"
-                  />
-                </div>
-
-                <h2 className="font-cinzel text-[19px] sm:text-[21px] font-bold tracking-[0.16em] text-[#0A1813] uppercase mt-1">
-                  SHIVARIVEL
-                </h2>
-                <p className="font-inter text-[9.5px] sm:text-[10px] font-extrabold tracking-[0.25em] text-[#0A1813] uppercase">
-                  CONSTRUCTION &amp; INTERIORS
-                </p>
-
-                {/* EYE TRACKER (WATCHER) — Scaled for zero-scroll fit */}
                 <div
-                  className="flex justify-center pt-1.5 pb-0.5"
+                  className="flex justify-center pt-0.5 pb-0.5"
                   style={{ '--fill-slab': '#FFFFFF', '--fill-on': '#0A1813' } as React.CSSProperties}
                 >
                   <Watcher
@@ -388,6 +371,43 @@ export function LoginPage() {
               <ServicesDivider />
               <ServicesGrid />
               <VisionTagline />
+            </div>
+          </div>
+
+          {/* 3. OUR SERVICES SECTION (BELOW LOGIN FORM) */}
+          <div className="w-full max-w-4xl mx-auto space-y-3 pt-1 text-center">
+            <div className="flex items-center gap-3 my-1">
+              <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
+              <span className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.25em] text-[#C9A24A]">
+                OUR SERVICES
+              </span>
+              <div className="h-[1px] bg-gradient-to-l from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
+            </div>
+
+            {/* 4 COLUMNS X 2 ROWS TRANSLUCENT GLASS GRID (COMPACT) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+              {SERVICES.map((service) => {
+                const Icon = service.icon;
+                return (
+                  <div
+                    key={service.id}
+                    className="group bg-black/50 hover:bg-black/75 border border-[#C9A24A]/60 hover:border-[#C9A24A] backdrop-blur-md rounded-xl p-2.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all duration-200 shadow-xl hover:shadow-[#C9A24A]/30 cursor-default min-h-[64px] sm:min-h-[72px]"
+                  >
+                    <Icon className="w-5 h-5 text-[#C9A24A] group-hover:scale-110 transition-transform duration-200 shrink-0" />
+                    <span className="font-inter text-[10.5px] sm:text-[11px] font-medium text-white leading-tight">
+                      {service.title}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* CURSIVE SCRIPT TAGLINE WITH GOLD UNDERLINE FLOURISH */}
+            <div className="pt-2 flex flex-col items-center">
+              <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide drop-shadow-md leading-none">
+                Your Vision . Our Expertise
+              </p>
+              <div className="w-44 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A24A] to-transparent mt-1" />
             </div>
           </div>
         </div>

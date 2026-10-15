@@ -1,6 +1,8 @@
 // Quick diagnostic: check company UUID and table schema
-const URL = 'https://qjziigkwuppdzkhpzhoa.supabase.co';
-const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqemlpZ2t3dXBwZHpraHB6aG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMzI4NjYsImV4cCI6MjEwMzkwODg2Nn0.1o7NS11WO8kQfpxNM3XxyxZdwIBwfoZnkbGIZ9_Ekl0';
+const URL = process.env.VITE_SUPABASE_URL || 'https://uhetqkmskopooqsprfic.supabase.co';
+const KEY =
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoZXRxa21za29wb29xc3ByZmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNzU2NjEsImV4cCI6MjEwNjk1MTY2MX0.8uuqg0x8EWpbQNtX4YMhWSaoOWyv6bv-S5DgsBWDpnI';
 const h = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 
 const check = async (label, path) => {
