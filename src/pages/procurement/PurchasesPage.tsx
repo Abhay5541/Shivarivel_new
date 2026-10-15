@@ -468,21 +468,9 @@ export const PurchasesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. ACTION: Add Purchase Button below Banner */}
-      <div className="flex items-center justify-end mb-3.5">
-        <button
-          type="button"
-          onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
-          className="h-10 px-4 rounded-xl bg-[#5A0F12] hover:bg-[#43090B] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add Purchase</span>
-        </button>
-      </div>
-
-      {/* 3. SEARCH ROW */}
-      <div className="mb-3.5">
-        <div className="relative">
+      {/* 2. SEARCH & ADD PURCHASE ROW */}
+      <div className="flex items-center gap-2.5 sm:gap-3 mb-4">
+        <div className="relative flex-1 min-w-0">
           <SearchIcon className="w-4 h-4 text-[#8C867E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
@@ -491,9 +479,18 @@ export const PurchasesPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search product or project..."
-            className="w-full h-11 pl-10 pr-4 bg-white/95 border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#5A0F12] focus:ring-1 focus:ring-[#5A0F12]/20 transition-all shadow-2xs"
+            className="w-full h-11 pl-10 pr-3.5 bg-white/95 border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#5A0F12] focus:ring-1 focus:ring-[#5A0F12]/20 transition-all shadow-2xs"
           />
         </div>
+
+        <button
+          type="button"
+          onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
+          className="h-11 px-3.5 sm:px-4 rounded-xl bg-[#5A0F12] hover:bg-[#43090B] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all shrink-0 cursor-pointer whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Purchase</span>
+        </button>
       </div>
 
       {/* 4. TABS SWITCHER: [ Projects ] [ General ] */}
