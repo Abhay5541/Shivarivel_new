@@ -26,7 +26,7 @@ import { LaborersDrawer } from '@/components/business/LaborersDrawer';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
-import wagesBanner from '@/Asserts/wages_banner.png';
+import wagesBannerBg from '@/Asserts/Wages banner.png';
 
 function getTodayISO() {
   const d = new Date();
@@ -400,13 +400,23 @@ export function WagesPage() {
         </div>
       )}
 
-      {/* 1. HERO BANNER (Wages Background Banner) */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#0A1813] mb-4">
+      {/* 1. HERO BANNER (Wages Background Banner with Text) */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] min-h-[140px] sm:min-h-[160px] md:min-h-[180px] mb-4">
         <img
-          src={wagesBanner}
-          alt="Wages — Manage laborers and track daily / weekly wages."
-          className="w-full h-auto object-cover min-h-[115px] max-h-[175px] sm:max-h-[220px]"
+          src={wagesBannerBg}
+          alt="Wages Banner"
+          className="absolute inset-0 w-full h-full object-cover object-right sm:object-center pointer-events-none"
         />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
+        <div className="relative z-10 flex flex-col justify-center h-full min-h-[140px] sm:min-h-[160px] md:min-h-[180px] p-5 sm:p-6">
+          <div className="w-9 h-1 bg-[#C9A24A] rounded-full mb-2" />
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
+            Wages
+          </h1>
+          <p className="text-xs sm:text-sm text-white/85 font-inter mt-1 max-w-[210px] sm:max-w-xs leading-snug">
+            Manage laborers and track daily / weekly wages.
+          </p>
+        </div>
       </div>
 
       {/* 2. PAGE ACTIONS: Laborers Directory & Add Wage Entry */}
