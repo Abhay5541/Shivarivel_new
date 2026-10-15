@@ -7,7 +7,6 @@ import {
   MapPin,
   ArrowRight,
   Trash2,
-  Edit2,
   SlidersHorizontal,
   Search as SearchIcon,
   Plus,
@@ -21,6 +20,7 @@ import { TableSkeleton } from '@/components/ui/LoadingState';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
+import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import { useCustomers, useDeleteCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
 import type { Customer } from '@/types/business';
 import type { Project } from '@/types/projects';
@@ -62,6 +62,35 @@ export const CustomersPage: React.FC = () => {
   const allCount = customers.length;
   const activeCount = customers.filter((c) => c.status !== 'inactive').length;
   const inactiveCount = customers.filter((c) => c.status === 'inactive').length;
+
+  const customerFilterOptions = useMemo<SegmentOption<'all' | 'active' | 'inactive'>[]>(
+    () => [
+      {
+        id: 'all',
+        label: 'All Clients',
+        shortLabel: 'All',
+        count: allCount,
+        activeColorClass: 'text-[#4A0E0E]',
+      },
+      {
+        id: 'active',
+        label: 'Active',
+        shortLabel: 'Active',
+        count: activeCount,
+        dotColor: '#166534',
+        activeColorClass: 'text-[#166534]',
+      },
+      {
+        id: 'inactive',
+        label: 'Inactive',
+        shortLabel: 'Inactive',
+        count: inactiveCount,
+        dotColor: '#7A7265',
+        activeColorClass: 'text-[#6B6B6B]',
+      },
+    ],
+    [allCount, activeCount, inactiveCount]
+  );
 
   // Search & status filter
   const filteredCustomers = useMemo(() => {
@@ -126,7 +155,7 @@ export const CustomersPage: React.FC = () => {
 
   if (isCustomersLoading) {
     return (
-      <div className="space-y-4 max-w-md mx-auto">
+      <div className="space-y-4">
         <div className="h-10 w-48 bg-[#E2DDD5]/60 rounded-xl animate-pulse" />
         <TableSkeleton rows={5} />
       </div>
@@ -135,7 +164,7 @@ export const CustomersPage: React.FC = () => {
 
   if (isError) {
     return (
-      <PageContainer className="py-8 max-w-md mx-auto">
+      <PageContainer className="py-8">
         <ErrorState
           title="Could not load customers"
           description={error?.message || 'Unable to retrieve customer records.'}
@@ -146,7 +175,7 @@ export const CustomersPage: React.FC = () => {
   }
 
   return (
-    <PageContainer className="pb-24 max-w-md mx-auto">
+    <PageContainer className="pb-24">
       {/* 1. TOP HEADER & ADD BUTTON */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
@@ -197,43 +226,15 @@ export const CustomersPage: React.FC = () => {
         </button>
       </div>
 
-      {/* 3. SEGMENTED FILTER PILLS: [ All (4) ] [ Active (4) ] [ Inactive (0) ] */}
-      <div className="flex items-center gap-2 mb-4 overflow-x-auto no-scrollbar">
-        <button
-          type="button"
-          onClick={() => setStatusFilter('all')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            statusFilter === 'all'
-              ? 'bg-[#4A0E0E] text-white shadow-xs'
-              : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-          }`}
-        >
-          All ({allCount})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setStatusFilter('active')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            statusFilter === 'active'
-              ? 'bg-[#4A0E0E] text-white shadow-xs'
-              : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-          }`}
-        >
-          Active ({activeCount})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setStatusFilter('inactive')}
-          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-            statusFilter === 'inactive'
-              ? 'bg-[#4A0E0E] text-white shadow-xs'
-              : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-          }`}
-        >
-          Inactive ({inactiveCount})
-        </button>
+      {/* 3. SLIDING SEGMENTED FILTER: [ All Clients (X) ] [ Active (Y) ] [ Inactive (Z) ] */}
+      <div className="mb-4">
+        <SlidingSegmentedControl
+          options={customerFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          fullWidth
+          ariaLabel="Filter clients"
+        />
       </div>
 
       {/* 4. CUSTOMER LIST */}
@@ -248,7 +249,7 @@ export const CustomersPage: React.FC = () => {
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {filteredCustomers.map((c) => {
             const isActive = c.status !== 'inactive';
             return (
@@ -304,22 +305,9 @@ export const CustomersPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bottom Action Bar: Edit, Toggle Status, Delete, View Details */}
+                {/* Bottom Action Bar: Toggle Status, Delete, View Details */}
                 <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingCustomer(c);
-                        setIsCustomerModalOpen(true);
-                      }}
-                      className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                      <span>Edit</span>
-                    </button>
-
                     {/* Active / Inactive toggle */}
                     <button
                       type="button"

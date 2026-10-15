@@ -14,9 +14,10 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  HardHat,
+  Receipt,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { useWages, useEmployees, useDeleteDailyWage } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
@@ -25,7 +26,6 @@ import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal
 import { LaborersDrawer } from '@/components/business/LaborersDrawer';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { SplitText } from '@/components/ui/SplitText';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
 
 function getTodayISO() {
@@ -44,18 +44,18 @@ export function WagesPage() {
   const [openInAddMode, setOpenInAddMode] = useState(false);
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
 
-  // Segment options for Daily Muster vs Weekly Wages
+  // Segment options for Daily Wages vs Weekly Overview
   const wageViewOptions = useMemo<SegmentOption<'daily' | 'weekly'>[]>(
     () => [
       {
         id: 'daily',
-        label: 'Daily Muster',
+        label: 'Daily Wages',
         icon: <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />,
         activeColorClass: 'text-[#4A0E0E]',
       },
       {
         id: 'weekly',
-        label: 'Weekly Wages',
+        label: 'Weekly Overview',
         icon: <Clock className="w-4 h-4 text-[#C99A2E]" />,
         activeColorClass: 'text-[#4A0E0E]',
       },
@@ -400,50 +400,48 @@ export function WagesPage() {
         </div>
       )}
 
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* 1. TOP PAGE HEADER & ACTION BUTTONS */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <SplitText
-            text="Wages"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+            Wages
+          </h1>
+          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
+            Record daily muster, site labor, and wage payouts
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          {/* Laborers Directory Trigger */}
-          <ActionButton
-            variant="outline"
-            icon={<Users className="w-4 h-4 text-[#4A0E0E]" />}
-            label="Laborers Directory"
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
+          <button
+            type="button"
             onClick={() => {
               setOpenInAddMode(false);
               setIsLaborersDrawerOpen(true);
             }}
-          />
+            className="h-8 sm:h-9 px-3 rounded-xl border border-[#E8E4DC] bg-white text-[#4A0E0E] text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:bg-[#FAF7F0] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+          >
+            <Users className="w-3.5 h-3.5 text-[#4A0E0E]" />
+            <span className="hidden sm:inline">Laborers Directory</span>
+            <span className="sm:hidden">Laborers</span>
+          </button>
 
-          {/* Primary Action Button */}
           {activeTab === 'daily' && (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Wage Entry"
+            <button
+              type="button"
               onClick={() => {
                 setEditingWage(null);
                 setIsAddWageModalOpen(true);
               }}
-            />
+              className="h-8 sm:h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto justify-center"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Add Wage</span>
+            </button>
           )}
         </div>
       </div>
 
-      {/* View Switcher: [ Daily Muster ] [ Weekly Wages ] */}
+      {/* View Switcher: [ Daily Wages ] [ Weekly Overview ] */}
       <div className="mb-6 overflow-x-auto no-scrollbar">
         <SlidingSegmentedControl
           options={wageViewOptions}
@@ -600,38 +598,72 @@ export function WagesPage() {
             </div>
           </div>
 
-          {/* Daily Operational Summary Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="text-xs font-medium text-[#6B6B6B]">
-                {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDate}`}
+          {/* Daily Operational Summary Card (Matches Reference Design) */}
+          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+            {/* Header: Icon + "Today's wages paid" + Worker Count Pill */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                  <Receipt className="w-5 h-5 stroke-[1.75]" />
+                </div>
+                <div className="min-w-0">
+                  {isSelectedDateToday ? (
+                    <span className="text-sm sm:text-base font-medium text-[#404040]">
+                      Today&apos;s wages paid
+                    </span>
+                  ) : (
+                    <div className="leading-tight">
+                      <span className="text-xs sm:text-sm font-medium text-[#6B6B6B] block">
+                        Wages paid on
+                      </span>
+                      <span className="text-sm sm:text-base font-semibold text-[#242424] block mt-0.5">
+                        {formattedSelectedDate}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-display tabular-nums text-[#242424] mt-0.5">
-                {formatINR(dailySummary.totalPaid)}
+
+              <div className="px-3.5 py-1 rounded-full bg-[#E5F3EB] text-[#166534] text-xs sm:text-sm font-semibold tracking-wide shrink-0 self-start sm:self-center">
+                {dailySummary.totalEntries} {dailySummary.totalEntries === 1 ? 'worker' : 'workers'}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B6B6B] border-t sm:border-t-0 sm:border-l border-[#E2DDD5] pt-3 sm:pt-0 sm:pl-6">
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Total Logged</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
-                  {dailySummary.totalEntries} Workers
-                </span>
+            {/* Big Currency Amount */}
+            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
+              {formatINR(dailySummary.totalPaid)}
+            </div>
+
+            {/* 3 Status Tiles: Full Day (Green) | Half Day (Beige) | Absent (Beige) */}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
+              {/* Full Day Tile */}
+              <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#166534] tabular-nums">
+                  {dailySummary.fullDays}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#166534] mt-1">
+                  Full day
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Full Days</span>
-                <span className="font-bold text-[#166534] text-sm tabular-nums">{dailySummary.fullDays}</span>
+
+              {/* Half Day Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
+                  {dailySummary.halfDays}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Half day
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Half Days</span>
-                <span className="font-bold text-[#854D0E] text-sm tabular-nums">{dailySummary.halfDays}</span>
-              </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Absent</span>
-                <span className="font-bold text-[#991B1B] text-sm tabular-nums">{dailySummary.absent}</span>
+
+              {/* Absent Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
+                  {dailySummary.absent}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Absent
+                </div>
               </div>
             </div>
           </div>
@@ -735,7 +767,7 @@ export function WagesPage() {
               </div>
 
               {/* MOBILE STACKED CARDS (< 768px) */}
-              <div className="md:hidden space-y-2.5">
+              <div className="md:hidden space-y-3">
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -747,43 +779,63 @@ export function WagesPage() {
                   return (
                     <div
                       key={wage.id}
-                      className="bg-white border border-[#E2DDD5] rounded-xl p-4 shadow-xs space-y-3"
+                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
                     >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-bold text-sm text-[#242424] font-display">{laborerName}</h4>
-                          <div className="flex items-center gap-1 text-xs text-[#6B6B6B] mt-0.5">
-                            <Building2 className="w-3.5 h-3.5" />
-                            <span>{projectName}</span>
+                      <div>
+                        {/* Header: Laborer Avatar/Icon, Name, Attendance Badge */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                              <HardHat className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                                {laborerName}
+                              </h4>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            {renderAttendancePill(wage.payable_units)}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        {/* Details: Project Name */}
+                        <div className="mt-3 space-y-1.5 text-xs text-[#6B6B6B] pl-1">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                            <span className="truncate">{projectName}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Bar: Edit, Delete, Amount Paid */}
+                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(wage)}
-                            className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] rounded-md transition-colors cursor-pointer"
-                            aria-label={`Edit ${laborerName}`}
+                            className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                            <span>Edit</span>
                           </button>
+
                           <button
                             type="button"
                             onClick={() => handleDeleteWage(wage, laborerName)}
                             disabled={deleteWageMutation.isPending}
-                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                            aria-label={`Delete wage for ${laborerName}`}
+                            className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                            title={`Delete wage for ${laborerName}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
                           </button>
                         </div>
-                      </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#E2DDD5]">
-                        <div>{renderAttendancePill(wage.payable_units)}</div>
                         <div className="text-right">
-                          <span className="block text-[10px] font-semibold text-[#6B6B6B] uppercase">Amount Paid</span>
-                          <span className="font-bold text-base tabular-nums text-[#242424]">
+                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm sm:text-base text-[#242424] font-mono tabular-nums">
                             {formatINR(wage.amount || 0)}
                           </span>
                         </div>
@@ -888,28 +940,54 @@ export function WagesPage() {
             </div>
           </div>
 
-          {/* Weekly Operational Summary Banner */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="text-xs font-medium text-[#6B6B6B]">Weekly Total Wages Disbursed</div>
-              <div className="text-2xl sm:text-3xl font-bold font-display tabular-nums text-[#242424] mt-0.5">
-                {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
+          {/* Weekly Operational Summary Card (Matches Daily Wages Design) */}
+          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+            {/* Header: Icon + "Weekly wages disbursed" + Week Range Pill */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                  <Receipt className="w-5 h-5 stroke-[1.75]" />
+                </div>
+                <div className="leading-tight min-w-0">
+                  <span className="text-sm sm:text-base font-semibold text-[#242424] block">
+                    Weekly wages disbursed
+                  </span>
+                  <span className="text-xs text-[#6B6B6B] block mt-0.5 sm:hidden font-medium">
+                    {weekRange.label}
+                  </span>
+                </div>
+              </div>
+
+              <div className="hidden sm:inline-flex px-3.5 py-1 rounded-full bg-[#FAF7F0] border border-[#E8E4DC] text-[#6B6B6B] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
+                {weekRange.label}
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-[#6B6B6B] border-t sm:border-t-0 sm:border-l border-[#E2DDD5] pt-3 sm:pt-0 sm:pl-6">
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Active Laborers</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
+            {/* Big Currency Amount */}
+            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
+              {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
+            </div>
+
+            {/* Bottom 2 Boxes: Active Laborers & Total Entries (Both in beige/stone #F4F1EA matching Half day / Absent) */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {/* Active Laborers Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
                   {weeklyLaborerAggregation.rows.length}
-                </span>
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Active Laborers
+                </div>
               </div>
-              <span className="text-[#E2DDD5]">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Total Entries</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
+
+              {/* Total Entries Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
                   {weeklyEntries.length}
-                </span>
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Total Entries
+                </div>
               </div>
             </div>
           </div>
@@ -929,7 +1007,7 @@ export function WagesPage() {
                   onClick={() => setActiveTab('daily')}
                   className="h-9 px-4 border-[#E2DDD5] text-xs font-semibold"
                 >
-                  Go to Daily Muster
+                  Go to Daily Wages
                 </Button>
               </div>
             </div>
@@ -1048,77 +1126,119 @@ export function WagesPage() {
                   return (
                     <div
                       key={row.employeeId}
-                      className="bg-white border border-[#E2DDD5] rounded-xl p-4 shadow-xs space-y-3"
+                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
                     >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-bold text-sm text-[#242424] font-display">{row.name}</h4>
-                          <p className="text-xs text-[#6B6B6B] mt-0.5">
-                            {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'No sites recorded'}
-                          </p>
+                      <div>
+                        {/* Header: Laborer Avatar/Icon, Name, Days Badge */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                              <HardHat className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                                {row.name}
+                              </h4>
+                              <p className="text-[11px] text-[#6B6B6B] font-mono mt-0.5 truncate">
+                                {row.code}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F8EE] text-[#1E7E34]">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#1E7E34]" />
+                              <span>{row.fullDays + row.halfDays} Days</span>
+                            </span>
+                          </div>
                         </div>
 
+                        {/* Details: Sites worked and Attendance pills */}
+                        <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                            <span className="truncate">
+                              {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'General Site Work'}
+                            </span>
+                          </div>
+
+                          {/* Attendance breakdown pills */}
+                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#86EFAC]/70 text-[11px] font-semibold">
+                              <CheckCircle2 className="w-3 h-3 text-[#166534]" />
+                              <span>{row.fullDays} Full</span>
+                            </span>
+
+                            {row.halfDays > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047]/70 text-[11px] font-semibold">
+                                <Clock className="w-3 h-3 text-[#854D0E]" />
+                                <span>{row.halfDays} Half</span>
+                              </span>
+                            )}
+
+                            {row.absentDays > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]/70 text-[11px] font-semibold">
+                                <Ban className="w-3 h-3 text-[#991B1B]" />
+                                <span>{row.absentDays} Absent</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Bar: Accordion Toggle & Amount Paid */}
+                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)}
+                          className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <span>{isExpanded ? 'Hide Daily Details' : 'View Daily Details'}</span>
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+
                         <div className="text-right">
-                          <span className="block text-[10px] font-semibold text-[#6B6B6B] uppercase">Weekly Total</span>
-                          <span className="font-bold text-base tabular-nums text-[#242424]">
+                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
                             {formatINR(row.totalPaid)}
                           </span>
                         </div>
                       </div>
 
-                      {/* Attendance breakdown pills */}
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="px-2 py-0.5 bg-[#F0FDF4] text-[#166534] border border-[#86EFAC] rounded-sm font-semibold">
-                          {row.fullDays} Full
-                        </span>
-                        <span className="px-2 py-0.5 bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047] rounded-sm font-semibold">
-                          {row.halfDays} Half
-                        </span>
-                        <span className="px-2 py-0.5 bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5] rounded-sm font-semibold">
-                          {row.absentDays} Absent
-                        </span>
-                      </div>
-
-                      {/* Accordion trigger for 7-day breakdown */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)
-                        }
-                        className="w-full pt-2 border-t border-[#E2DDD5] flex items-center justify-between text-xs text-[#4A0E0E] font-semibold cursor-pointer"
-                      >
-                        <span>{isExpanded ? 'Hide Daily Breakdown' : 'View Daily Breakdown'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-
+                      {/* 7-Day Expanded Breakdown */}
                       {isExpanded && (
-                        <div className="bg-[#F7F5F0] rounded-lg p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
-                          {weekRange.days.map((dISO) => {
-                            const dayRec = row.dailyAmounts[dISO];
-                            const dObj = new Date(
-                              Number(dISO.split('-')[0]),
-                              Number(dISO.split('-')[1]) - 1,
-                              Number(dISO.split('-')[2])
-                            );
-                            const dayName = dObj.toLocaleDateString('en-GB', {
-                              weekday: 'short',
-                              day: 'numeric',
-                              month: 'short',
-                            });
+                        <div className="mt-3 pt-3 border-t border-[#F0EAE1] space-y-2">
+                          <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider pl-1">
+                            7-Day Daily Breakdown
+                          </div>
+                          <div className="bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
+                            {weekRange.days.map((dISO) => {
+                              const dayRec = row.dailyAmounts[dISO];
+                              const dObj = new Date(
+                                Number(dISO.split('-')[0]),
+                                Number(dISO.split('-')[1]) - 1,
+                                Number(dISO.split('-')[2])
+                              );
+                              const dayName = dObj.toLocaleDateString('en-GB', {
+                                weekday: 'short',
+                                day: 'numeric',
+                                month: 'short',
+                              });
 
-                            return (
-                              <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E2DDD5]/70 last:border-0">
-                                <span className="font-medium text-[#6B6B6B]">{dayName}</span>
-                                {dayRec ? (
-                                  <span className="font-semibold text-[#242424] tabular-nums">
-                                    {dayRec.projectName} — {dayRec.status} ({formatINR(dayRec.amount)})
-                                  </span>
-                                ) : (
-                                  <span className="text-[#99958F] italic">No work recorded</span>
-                                )}
-                              </div>
-                            );
-                          })}
+                              return (
+                                <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E8E4DC]/60 last:border-0">
+                                  <span className="font-medium text-[#6B6B6B]">{dayName}</span>
+                                  {dayRec ? (
+                                    <span className="font-semibold text-[#242424] tabular-nums">
+                                      {dayRec.projectName} — <span className={dayRec.status === 'Absent' ? 'text-[#991B1B]' : dayRec.status === 'Half Day' ? 'text-[#854D0E]' : 'text-[#166534]'}>{dayRec.status}</span> ({formatINR(dayRec.amount)})
+                                    </span>
+                                  ) : (
+                                    <span className="text-[#99958F] italic">No work recorded</span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       )}
                     </div>

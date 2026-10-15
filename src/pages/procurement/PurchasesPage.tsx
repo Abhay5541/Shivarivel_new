@@ -8,11 +8,11 @@ import {
   Edit2,
   Package,
   CheckCircle2,
+  Search as SearchIcon,
+  Trash2,
 } from 'lucide-react';
-import { Search } from '@/components/ui/Search';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { usePurchases } from '@/hooks/useProcurement';
+import { usePurchases, useDeleteSimplePurchase } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { TableSkeleton } from '@/components/ui/LoadingState';
@@ -20,11 +20,81 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { RecordPaymentModal } from '@/components/business/RecordPaymentModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { SplitText } from '@/components/ui/SplitText';
 import type { Purchase } from '@/types/procurement';
 
 type ProcurementTab = 'project' | 'general';
+
+interface ProcurementCostCardProps {
+  title?: string;
+  total: number;
+  paid: number;
+  balance: number;
+}
+
+const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
+  title = 'TOTAL PROCUREMENT COST',
+  total,
+  paid,
+  balance,
+}) => {
+  const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+  const duePercent = total > 0 ? Math.max(0, 100 - paidPercent) : 0;
+
+  return (
+    <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+      {/* 1. Header Label */}
+      <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6B6B] block">
+        {title}
+      </span>
+
+      {/* 2. Big Total Currency Display */}
+      <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight my-2 sm:my-2.5 tabular-nums">
+        {formatINR(total)}
+      </div>
+
+      {/* 3. Progress Track & Fill Bar */}
+      <div className="w-full h-2 sm:h-2.5 bg-[#EDE8DC] rounded-full overflow-hidden mt-3 sm:mt-4">
+        <div
+          className="h-full bg-[#1B5E3B] rounded-full transition-all duration-500"
+          style={{ width: `${paidPercent}%` }}
+        />
+      </div>
+
+      {/* 4. Ratio Labels: % Paid & % Due */}
+      <div className="flex items-center justify-between text-xs sm:text-sm font-medium text-[#6B6B6B] mt-2 mb-4 sm:mb-5">
+        <span>{paidPercent}% paid</span>
+        <span>{duePercent}% due</span>
+      </div>
+
+      {/* 5. Bottom Two Tiles: PAID and BALANCE */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        {/* PAID TILE */}
+        <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#166534]" />
+            <span>PAID</span>
+          </div>
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums mt-1">
+            {formatINR(paid)}
+          </div>
+        </div>
+
+        {/* BALANCE TILE */}
+        <div className="bg-[#FDF0F0] rounded-2xl p-3.5 sm:p-4 transition-all">
+          <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#991B1B]" />
+            <span>BALANCE</span>
+          </div>
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums mt-1">
+            {formatINR(balance)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const PurchasesPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,6 +162,27 @@ export const PurchasesPage: React.FC = () => {
     setIsPaymentModalOpen(true);
   };
 
+  // Delete purchase state & handler
+  const deletePurchaseMutation = useDeleteSimplePurchase();
+  const [deletingPurchase, setDeletingPurchase] = useState<Purchase | null>(null);
+
+  const handleDeletePurchase = (purchase: Purchase) => {
+    setDeletingPurchase(purchase);
+  };
+
+  const confirmDeletePurchase = () => {
+    if (!deletingPurchase) return;
+    deletePurchaseMutation.mutate(deletingPurchase.id, {
+      onSuccess: () => {
+        setDeletingPurchase(null);
+        refetch();
+      },
+      onError: () => {
+        setDeletingPurchase(null);
+      },
+    });
+  };
+
   // 1. PROJECT PURCHASES DATA & TOTALS
   const allProjectPurchases = useMemo(() => {
     return purchases.filter((p) => Boolean(p.project_id));
@@ -136,17 +227,6 @@ export const PurchasesPage: React.FC = () => {
     return projectPaidPurchases.reduce((sum, p) => sum + (p.total_allocated || p.total_amount || 0), 0);
   }, [projectPaidPurchases]);
 
-  const projectProcurementTotal = useMemo(() => {
-    return allProjectPurchases.reduce((sum, p) => sum + (p.total_amount || 0), 0);
-  }, [allProjectPurchases]);
-
-  const projectPaidTotal = useMemo(() => {
-    return allProjectPurchases.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
-  }, [allProjectPurchases]);
-
-  const projectBalanceTotal = useMemo(() => {
-    return Math.max(0, projectProcurementTotal - projectPaidTotal);
-  }, [projectProcurementTotal, projectPaidTotal]);
 
   // Segment options for project purchases with live counts
   const projectFilterOptions = useMemo<SegmentOption<'all' | 'pending' | 'paid'>[]>(
@@ -218,17 +298,6 @@ export const PurchasesPage: React.FC = () => {
     return generalPaidPurchases.reduce((sum, p) => sum + (p.total_allocated || p.total_amount || 0), 0);
   }, [generalPaidPurchases]);
 
-  const generalTotalPurchased = useMemo(() => {
-    return generalPurchases.reduce((sum, p) => sum + (p.total_amount || 0), 0);
-  }, [generalPurchases]);
-
-  const generalTotalPaid = useMemo(() => {
-    return generalPurchases.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
-  }, [generalPurchases]);
-
-  const generalTotalOutstanding = useMemo(() => {
-    return Math.max(0, generalTotalPurchased - generalTotalPaid);
-  }, [generalTotalPurchased, generalTotalPaid]);
 
   // Segment options for general purchases with live counts
   const generalFilterOptions = useMemo<SegmentOption<'all' | 'pending' | 'paid'>[]>(
@@ -298,110 +367,124 @@ export const PurchasesPage: React.FC = () => {
     const bal = p.outstanding_balance ?? Math.max(0, totalVal - paidAmt);
     const isPaid = bal <= 0 || p.payment_status === 'Paid';
 
-    const activeFilter = isProject ? projectPaymentFilter : generalPaymentFilter;
-    const showStatusBadge = activeFilter === 'all';
-
     return (
       <div
         key={p.id}
-        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-xs transition-all space-y-3.5 ${
-          isPaid ? 'border-[#E2DDD5] hover:border-[#166534]/40' : 'border-[#E2DDD5] hover:border-[#C99A2E]/50'
-        }`}
+        className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
       >
-        {/* Top: Product Name, Project Name badge, Financials */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1.5 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base sm:text-lg font-bold text-[#242424]">
-                {productName}
-              </span>
-              {isProject && resolvedProjectName && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#F7F5F0] text-[#4A0E0E] px-2.5 py-0.5 rounded-lg border border-[#E2DDD5]">
-                  <Building2 className="w-3.5 h-3.5 text-[#C99A2E]" />
-                  <span>{resolvedProjectName}</span>
-                </span>
-              )}
+        <div>
+          {/* Header: Avatar, Name, Status Badge */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                  {productName}
+                </h4>
+                <div className="text-xs text-[#6B6B6B] mt-0.5">
+                  {p.purchase_date}
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-[#6B6B6B]">
-              <span>{p.purchase_date}</span>
-            </div>
+
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
+                isPaid ? 'bg-[#E8F8EE] text-[#1E7E34]' : 'bg-[#FEE2E2] text-[#991B1B]'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isPaid ? 'bg-[#1E7E34]' : 'bg-[#DC2626]'
+                }`}
+              />
+              <span>{isPaid ? 'Fully Paid' : 'Pending'}</span>
+            </span>
           </div>
 
-          {/* Financials */}
-          <div className="flex items-center gap-5 sm:text-right pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E2DDD5]/70 shrink-0">
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
-                Total
-              </span>
-              <span className="text-sm sm:text-base font-bold text-[#242424] font-mono">
-                {formatINR(totalVal)}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
-                Paid
-              </span>
-              <span className="text-sm sm:text-base font-bold text-[#166534] font-mono">
-                {formatINR(paidAmt)}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
-                Balance
-              </span>
-              <span
-                className={`text-sm sm:text-base font-bold font-mono ${
-                  bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
-                }`}
-              >
-                {formatINR(bal)}
-              </span>
+          {/* Details: Project Name & Financials */}
+          <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
+            {isProject && resolvedProjectName && (
+              <div className="flex items-center gap-2">
+                <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                <span className="truncate">{resolvedProjectName}</span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-5 pt-1 text-xs">
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+                  Total
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-[#242424] font-mono tabular-nums">
+                  {formatINR(totalVal)}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+                  Paid
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-[#166534] font-mono tabular-nums">
+                  {formatINR(paidAmt)}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+                  Balance
+                </span>
+                <span
+                  className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${
+                    bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
+                  }`}
+                >
+                  {formatINR(bal)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Actions Bar */}
-        <div
-          className={`pt-3 border-t border-[#E2DDD5]/70 flex flex-wrap items-center ${
-            showStatusBadge ? 'justify-between' : 'justify-end'
-          } gap-2.5`}
-        >
-          {showStatusBadge && (
-            <div className="flex items-center shrink-0">
-              {isPaid ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#86EFAC] shadow-2xs">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
-                  <span>Fully Paid</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]/70 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
-                  <span>Pending Payment</span>
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 shrink-0">
-            {!isPaid && (
-              <button
-                type="button"
-                onClick={() => handleOpenRecordPayment(p)}
-                className="h-8 px-3.5 text-xs font-semibold text-white bg-[#4A0E0E] hover:bg-[#380A0A] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
-              >
-                <CreditCard className="w-3.5 h-3.5 text-[#C9A24A]" />
-                <span>Update Payment</span>
-              </button>
-            )}
-
+        {/* Bottom Action Bar: Edit, Delete, Payment Action */}
+        <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => handleEditPurchase(p)}
-              className="h-8 px-3 text-xs font-semibold text-[#242424] bg-[#F7F5F0] hover:bg-[#EAE6DF] border border-[#E2DDD5] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
+              className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
               <span>Edit</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => handleDeletePurchase(p)}
+              disabled={deletePurchaseMutation.isPending}
+              className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+              title={`Delete purchase ${productName}`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
+            </button>
+          </div>
+
+          <div>
+            {!isPaid ? (
+              <button
+                type="button"
+                onClick={() => handleOpenRecordPayment(p)}
+                className="h-7.5 px-3 text-xs font-semibold text-white bg-[#4A0E0E] hover:bg-[#380A0A] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-[#C9A24A]" />
+                <span>Update Payment</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-1 text-xs font-semibold text-[#166534]">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
+                <span>Paid in full</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -410,48 +493,44 @@ export const PurchasesPage: React.FC = () => {
 
   return (
     <PageContainer className="pb-24 select-none">
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* 1. TOP PAGE HEADER & ADD BUTTON */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <SplitText
-            text="Procurement"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+            Procurement
+          </h1>
+          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
+            Track materials bought for projects and general inventory
+          </p>
         </div>
 
-        {/* Search & Action Button side-by-side */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          <Search
-            size="sm"
+        <button
+          type="button"
+          onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
+          className="h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Purchase</span>
+        </button>
+      </div>
+
+      {/* 2. SEARCH ROW */}
+      <div className="mb-3.5">
+        <div className="relative">
+          <SearchIcon className="w-4 h-4 text-[#8C867E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
             value={search}
-            onChange={setSearch}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={
               activeTab === 'project'
                 ? 'Search product or project...'
                 : 'Search general purchases...'
             }
+            className="w-full h-11 pl-10 pr-3.5 bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#4A0E0E] focus:bg-white transition-all"
           />
-          {activeTab === 'general' ? (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Purchase"
-              onClick={() => handleOpenAddPurchase('general')}
-            />
-          ) : activeTab === 'project' ? (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Purchase"
-              onClick={() => handleOpenAddPurchase('project')}
-            />
-          ) : null}
         </div>
       </div>
 
@@ -482,41 +561,13 @@ export const PurchasesPage: React.FC = () => {
           {/* ========================================================= */}
           {activeTab === 'project' && (
             <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* Project Totals Cards (Rule 10: Cost, Paid, Balance) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Procurement Cost
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
-                    {formatINR(projectProcurementTotal)}
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Paid
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
-                    {formatINR(projectPaidTotal)}
-                  </span>
-                </div>
-
-                <div
-                  className={`border rounded-2xl p-4 shadow-xs ${
-                    projectBalanceTotal > 0
-                      ? 'bg-[#FEE2E2]/30 border-red-200 text-[#991B1B]'
-                      : 'bg-white border-[#E2DDD5] text-[#242424]'
-                  }`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Balance
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold font-heading">
-                    {formatINR(projectBalanceTotal)}
-                  </span>
-                </div>
-              </div>
+              {/* Project Totals Card (Matches Reference Design) */}
+              <ProcurementCostCard
+                title="TOTAL PROCUREMENT COST"
+                total={projectPaidSettled + projectPendingBalance}
+                paid={projectPaidSettled}
+                balance={projectPendingBalance}
+              />
 
               {/* Payment Filter Segmented Control */}
               <SlidingSegmentedControl
@@ -611,41 +662,13 @@ export const PurchasesPage: React.FC = () => {
           {/* ========================================================= */}
           {activeTab === 'general' && (
             <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* General Purchases Summary Cards (Rule 11: Purchased, Paid, Outstanding) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL PURCHASED
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
-                    {formatINR(generalTotalPurchased)}
-                  </span>
-                </div>
-
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL PAID
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
-                    {formatINR(generalTotalPaid)}
-                  </span>
-                </div>
-
-                <div
-                  className={`border rounded-2xl p-4 shadow-xs ${
-                    generalTotalOutstanding > 0
-                      ? 'bg-[#FEE2E2]/30 border-red-200 text-[#991B1B]'
-                      : 'bg-white border-[#E2DDD5] text-[#242424]'
-                  }`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL OUTSTANDING
-                  </span>
-                  <span className="text-xl sm:text-2xl font-bold font-heading">
-                    {formatINR(generalTotalOutstanding)}
-                  </span>
-                </div>
-              </div>
+              {/* General Purchases Summary Card (Matches Reference Design) */}
+              <ProcurementCostCard
+                title="TOTAL PROCUREMENT COST"
+                total={generalPaidSettled + generalPendingBalance}
+                paid={generalPaidSettled}
+                balance={generalPendingBalance}
+              />
 
               {/* Payment Filter Segmented Control */}
               <SlidingSegmentedControl
@@ -762,6 +785,17 @@ export const PurchasesPage: React.FC = () => {
         onClose={() => setIsPaymentModalOpen(false)}
         purchase={paymentTargetPurchase}
         onSuccess={() => refetch()}
+      />
+
+      {/* Confirm Delete Purchase Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingPurchase)}
+        onClose={() => setDeletingPurchase(null)}
+        onConfirm={confirmDeletePurchase}
+        title="Delete Purchase"
+        itemName={deletingPurchase?.items?.[0]?.description || deletingPurchase?.items?.[0]?.material?.name || 'this purchase'}
+        message="This purchase record will be deleted. Are you sure you want to proceed?"
+        isLoading={deletePurchaseMutation.isPending}
       />
     </PageContainer>
   );
