@@ -449,8 +449,8 @@ export const PurchasesPage: React.FC = () => {
 
   return (
     <PageContainer className="pb-24 select-none">
-      {/* 1. HERO BANNER (Procurement Background Banner with Text & Add Purchase Button) */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] min-h-[145px] sm:min-h-[165px] md:min-h-[180px] mb-4">
+      {/* 1. HERO BANNER (Procurement Background Banner with Text) */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4">
         <img
           src={procurementBannerBg}
           alt="Procurement Banner"
@@ -458,28 +458,26 @@ export const PurchasesPage: React.FC = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
         
-        <div className="relative z-10 flex flex-col justify-between sm:flex-row sm:items-end w-full h-full min-h-[145px] sm:min-h-[165px] md:min-h-[180px] p-5 sm:p-6 gap-3">
-          <div>
-            <div className="w-9 h-1 bg-[#C9A24A] rounded-full mb-2" />
-            <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
-              Procurement
-            </h1>
-            <p className="text-xs sm:text-sm text-white/85 font-inter mt-1 max-w-[210px] sm:max-w-xs leading-snug">
-              Track materials bought for projects and general inventory.
-            </p>
-          </div>
-
-          <div className="flex justify-end shrink-0">
-            <button
-              type="button"
-              onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
-              className="h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl bg-[#5A0F12] hover:bg-[#43090B] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all shrink-0 cursor-pointer border border-[#8C6D23]/30"
-            >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
-              <span>Add Purchase</span>
-            </button>
-          </div>
+        <div className="relative z-10 flex flex-col justify-center h-full p-5 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
+            Procurement
+          </h1>
+          <p className="text-xs sm:text-sm text-white/85 font-inter mt-1 max-w-[210px] sm:max-w-xs leading-snug">
+            Track materials bought for projects and general inventory.
+          </p>
         </div>
+      </div>
+
+      {/* 2. ACTION: Add Purchase Button below Banner */}
+      <div className="flex items-center justify-end mb-3.5">
+        <button
+          type="button"
+          onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
+          className="h-10 px-4 rounded-xl bg-[#5A0F12] hover:bg-[#43090B] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Purchase</span>
+        </button>
       </div>
 
       {/* 3. SEARCH ROW */}
