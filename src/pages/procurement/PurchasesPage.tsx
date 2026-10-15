@@ -332,26 +332,28 @@ export const PurchasesPage: React.FC = () => {
         <div>
           {/* Header: Avatar, Name, Date/Project, Status Badge */}
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0 mt-0.5">
                 <Package className="w-5 h-5" />
               </div>
               <div className="min-w-0">
                 <h4 className="font-bold text-sm sm:text-base text-[#242424] font-display truncate">
                   {productName}
                 </h4>
-                <div className="flex items-center gap-1.5 text-xs text-[#8C867E] mt-0.5 truncate">
-                  <span>{p.purchase_date}</span>
-                  {isProject && resolvedProjectName && (
-                    <>
-                      <span>•</span>
-                      <span className="flex items-center gap-1 font-medium text-[#4A0E0E] truncate">
-                        <Building2 className="w-3 h-3 text-[#A8A29E] shrink-0" />
-                        <span className="truncate">{resolvedProjectName}</span>
-                      </span>
-                    </>
-                  )}
+                <div className="text-xs text-[#8C867E] mt-0.5">
+                  {p.purchase_date}
                 </div>
+                {isProject && resolvedProjectName && (
+                  <div className="mt-1.5 flex items-center">
+                    <span
+                      title={resolvedProjectName}
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF4ED] text-[#7A272A] border border-[#ECD9C6] text-[11px] sm:text-xs font-semibold max-w-full"
+                    >
+                      <Building2 className="w-3.5 h-3.5 text-[#A84B14] shrink-0" />
+                      <span className="truncate">{resolvedProjectName}</span>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
