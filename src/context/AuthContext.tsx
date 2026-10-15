@@ -32,19 +32,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let isMounted = true;
 
-    // 1. Initial session check
+    // 1. Initial session check & real-time server validation
     async function initSession() {
       try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-          console.warn('Supabase auth getSession notice:', error.message);
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !sessionData?.session) {
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+          }
+          return;
         }
+
+        // Validate directly with Supabase server to verify the user still exists in database
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData?.user) {
+          // User was deleted or banned in Supabase! Wipe local session immediately.
+          console.warn('User account was deleted or banned in Supabase. Revoking session.');
+          await supabase.auth.signOut().catch(() => {});
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+          }
+          return;
+        }
+
         if (isMounted) {
-          setSession(data?.session ?? null);
-          setUser(data?.session?.user ?? null);
+          setSession(sessionData.session);
+          setUser(userData.user);
         }
       } catch (err) {
-        console.warn('Local auth initialization note:', err);
+        console.warn('Auth validation note:', err);
+        if (isMounted) {
+          setSession(null);
+          setUser(null);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -60,6 +82,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'PASSWORD_RECOVERY') {
           setIsPasswordRecovery(true);
         }
+        if (event === 'SIGNED_OUT' || !currentSession) {
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+            setIsLoading(false);
+          }
+          return;
+        }
         if (isMounted) {
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
@@ -68,9 +98,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
+    // 3. Re-verify user existence when mobile browser tab becomes active
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data?.user) {
+          await supabase.auth.signOut().catch(() => {});
+          if (isMounted) {
+            setUser(null);
+            setSession(null);
+          }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       isMounted = false;
       subscription?.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
