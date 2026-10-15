@@ -15,6 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
   HardHat,
+  Receipt,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/Button';
@@ -597,38 +598,62 @@ export function WagesPage() {
             </div>
           </div>
 
-          {/* Daily Operational Summary Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="text-xs font-medium text-[#6B6B6B]">
-                {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDate}`}
+          {/* Daily Operational Summary Card (Matches Reference Design) */}
+          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+            {/* Header: Icon + "Today's wages paid" + Worker Count Pill */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                  <Receipt className="w-5 h-5 stroke-[1.75]" />
+                </div>
+                <span className="text-sm sm:text-base font-medium text-[#404040] truncate">
+                  {isSelectedDateToday ? "Today's wages paid" : `Wages paid on ${formattedSelectedDate}`}
+                </span>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-display tabular-nums text-[#242424] mt-0.5">
-                {formatINR(dailySummary.totalPaid)}
+
+              <div className="px-3.5 py-1 rounded-full bg-[#E5F3EB] text-[#166534] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
+                {dailySummary.totalEntries} {dailySummary.totalEntries === 1 ? 'worker' : 'workers'}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B6B6B] border-t sm:border-t-0 sm:border-l border-[#E2DDD5] pt-3 sm:pt-0 sm:pl-6">
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Total Logged</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
-                  {dailySummary.totalEntries} Workers
-                </span>
+            {/* Big Currency Amount */}
+            <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight my-4 sm:my-5 tabular-nums">
+              {formatINR(dailySummary.totalPaid)}
+            </div>
+
+            {/* Thick Forest Green Divider Bar */}
+            <div className="w-full h-1.5 sm:h-2 bg-[#1B5E3B] rounded-full my-4 sm:my-5" />
+
+            {/* 3 Status Tiles: Full Day (Green) | Half Day (Beige) | Absent (Beige) */}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
+              {/* Full Day Tile */}
+              <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#166534] tabular-nums">
+                  {dailySummary.fullDays}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#166534] mt-1">
+                  Full day
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Full Days</span>
-                <span className="font-bold text-[#166534] text-sm tabular-nums">{dailySummary.fullDays}</span>
+
+              {/* Half Day Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
+                  {dailySummary.halfDays}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Half day
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Half Days</span>
-                <span className="font-bold text-[#854D0E] text-sm tabular-nums">{dailySummary.halfDays}</span>
-              </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Absent</span>
-                <span className="font-bold text-[#991B1B] text-sm tabular-nums">{dailySummary.absent}</span>
+
+              {/* Absent Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
+                  {dailySummary.absent}
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Absent
+                </div>
               </div>
             </div>
           </div>
