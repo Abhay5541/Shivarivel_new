@@ -1126,77 +1126,119 @@ export function WagesPage() {
                   return (
                     <div
                       key={row.employeeId}
-                      className="bg-white border border-[#E2DDD5] rounded-xl p-4 shadow-xs space-y-3"
+                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
                     >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-bold text-sm text-[#242424] font-display">{row.name}</h4>
-                          <p className="text-xs text-[#6B6B6B] mt-0.5">
-                            {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'No sites recorded'}
-                          </p>
+                      <div>
+                        {/* Header: Laborer Avatar/Icon, Name, Days Badge */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                              <HardHat className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                                {row.name}
+                              </h4>
+                              <p className="text-[11px] text-[#6B6B6B] font-mono mt-0.5 truncate">
+                                {row.code}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F8EE] text-[#1E7E34]">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#1E7E34]" />
+                              <span>{row.fullDays + row.halfDays} Days</span>
+                            </span>
+                          </div>
                         </div>
 
+                        {/* Details: Sites worked and Attendance pills */}
+                        <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                            <span className="truncate">
+                              {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'General Site Work'}
+                            </span>
+                          </div>
+
+                          {/* Attendance breakdown pills */}
+                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#86EFAC]/70 text-[11px] font-semibold">
+                              <CheckCircle2 className="w-3 h-3 text-[#166534]" />
+                              <span>{row.fullDays} Full</span>
+                            </span>
+
+                            {row.halfDays > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047]/70 text-[11px] font-semibold">
+                                <Clock className="w-3 h-3 text-[#854D0E]" />
+                                <span>{row.halfDays} Half</span>
+                              </span>
+                            )}
+
+                            {row.absentDays > 0 && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]/70 text-[11px] font-semibold">
+                                <Ban className="w-3 h-3 text-[#991B1B]" />
+                                <span>{row.absentDays} Absent</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Action Bar: Accordion Toggle & Amount Paid */}
+                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)}
+                          className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <span>{isExpanded ? 'Hide Daily Details' : 'View Daily Details'}</span>
+                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                        </button>
+
                         <div className="text-right">
-                          <span className="block text-[10px] font-semibold text-[#6B6B6B] uppercase">Weekly Total</span>
-                          <span className="font-bold text-base tabular-nums text-[#242424]">
+                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
                             {formatINR(row.totalPaid)}
                           </span>
                         </div>
                       </div>
 
-                      {/* Attendance breakdown pills */}
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="px-2 py-0.5 bg-[#F0FDF4] text-[#166534] border border-[#86EFAC] rounded-sm font-semibold">
-                          {row.fullDays} Full
-                        </span>
-                        <span className="px-2 py-0.5 bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047] rounded-sm font-semibold">
-                          {row.halfDays} Half
-                        </span>
-                        <span className="px-2 py-0.5 bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5] rounded-sm font-semibold">
-                          {row.absentDays} Absent
-                        </span>
-                      </div>
-
-                      {/* Accordion trigger for 7-day breakdown */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)
-                        }
-                        className="w-full pt-2 border-t border-[#E2DDD5] flex items-center justify-between text-xs text-[#4A0E0E] font-semibold cursor-pointer"
-                      >
-                        <span>{isExpanded ? 'Hide Daily Breakdown' : 'View Daily Breakdown'}</span>
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </button>
-
+                      {/* 7-Day Expanded Breakdown */}
                       {isExpanded && (
-                        <div className="bg-[#F7F5F0] rounded-lg p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
-                          {weekRange.days.map((dISO) => {
-                            const dayRec = row.dailyAmounts[dISO];
-                            const dObj = new Date(
-                              Number(dISO.split('-')[0]),
-                              Number(dISO.split('-')[1]) - 1,
-                              Number(dISO.split('-')[2])
-                            );
-                            const dayName = dObj.toLocaleDateString('en-GB', {
-                              weekday: 'short',
-                              day: 'numeric',
-                              month: 'short',
-                            });
+                        <div className="mt-3 pt-3 border-t border-[#F0EAE1] space-y-2">
+                          <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider pl-1">
+                            7-Day Daily Breakdown
+                          </div>
+                          <div className="bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
+                            {weekRange.days.map((dISO) => {
+                              const dayRec = row.dailyAmounts[dISO];
+                              const dObj = new Date(
+                                Number(dISO.split('-')[0]),
+                                Number(dISO.split('-')[1]) - 1,
+                                Number(dISO.split('-')[2])
+                              );
+                              const dayName = dObj.toLocaleDateString('en-GB', {
+                                weekday: 'short',
+                                day: 'numeric',
+                                month: 'short',
+                              });
 
-                            return (
-                              <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E2DDD5]/70 last:border-0">
-                                <span className="font-medium text-[#6B6B6B]">{dayName}</span>
-                                {dayRec ? (
-                                  <span className="font-semibold text-[#242424] tabular-nums">
-                                    {dayRec.projectName} — {dayRec.status} ({formatINR(dayRec.amount)})
-                                  </span>
-                                ) : (
-                                  <span className="text-[#99958F] italic">No work recorded</span>
-                                )}
-                              </div>
-                            );
-                          })}
+                              return (
+                                <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E8E4DC]/60 last:border-0">
+                                  <span className="font-medium text-[#6B6B6B]">{dayName}</span>
+                                  {dayRec ? (
+                                    <span className="font-semibold text-[#242424] tabular-nums">
+                                      {dayRec.projectName} — <span className={dayRec.status === 'Absent' ? 'text-[#991B1B]' : dayRec.status === 'Half Day' ? 'text-[#854D0E]' : 'text-[#166534]'}>{dayRec.status}</span> ({formatINR(dayRec.amount)})
+                                    </span>
+                                  ) : (
+                                    <span className="text-[#99958F] italic">No work recorded</span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       )}
                     </div>
