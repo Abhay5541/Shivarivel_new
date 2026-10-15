@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types/database';
 
-const DEFAULT_SUPABASE_URL = 'https://qjziigkwuppdzkhpzhoa.supabase.co';
+const DEFAULT_SUPABASE_URL = 'https://uhetqkmskopooqsprfic.supabase.co';
 const DEFAULT_SUPABASE_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqemlpZ2t3dXBwZHpraHB6aG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMzI4NjYsImV4cCI6MjEwMzkwODg2Nn0.1o7NS11WO8kQfpxNM3XxyxZdwIBwfoZnkbGIZ9_Ekl0';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVoZXRxa21za29wb29xc3ByZmljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzNzU2NjEsImV4cCI6MjEwNjk1MTY2MX0.8uuqg0x8EWpbQNtX4YMhWSaoOWyv6bv-S5DgsBWDpnI';
 
 const supabaseUrl =
   import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL;
