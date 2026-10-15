@@ -6,25 +6,24 @@ import {
   MapPin,
   User,
   ArrowRight,
-  CheckCircle2,
+  Edit2,
+  SlidersHorizontal,
+  Search as SearchIcon,
 } from 'lucide-react';
-import { Search } from '@/components/ui/Search';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
-import { useProjects, useUpdateProject } from '@/hooks/useProjects';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
+import { useProjects, useUpdateProject } from '@/hooks/useProjects';
 import type { Project, ProjectStatus } from '@/types/projects';
-import { SplitText } from '@/components/ui/SplitText';
 
 export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'active' | 'completed'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [isSiteModalOpen, setIsSiteModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
@@ -54,16 +53,19 @@ export const ProjectsPage: React.FC = () => {
   const activeCount = sites.filter((s) => s.status !== 'Completed').length;
   const completedCount = sites.filter((s) => s.status === 'Completed').length;
 
-  const statusOptions = useMemo<SegmentOption<'all' | 'active' | 'completed'>[]>(
+  const projectFilterOptions = useMemo<SegmentOption<'all' | 'active' | 'completed'>[]>(
     () => [
       {
         id: 'all',
-        label: 'All',
+        label: 'All Projects',
+        shortLabel: 'All',
         count: allCount,
+        activeColorClass: 'text-[#4A0E0E]',
       },
       {
         id: 'active',
         label: 'Active',
+        shortLabel: 'Active',
         count: activeCount,
         dotColor: '#166534',
         activeColorClass: 'text-[#166534]',
@@ -71,19 +73,29 @@ export const ProjectsPage: React.FC = () => {
       {
         id: 'completed',
         label: 'Completed',
+        shortLabel: 'Done',
         count: completedCount,
-        dotColor: '#C99A2E',
-        activeColorClass: 'text-[#4A0E0E]',
+        dotColor: '#7A7265',
+        activeColorClass: 'text-[#6B6B6B]',
       },
     ],
     [allCount, activeCount, completedCount]
   );
 
   // Search & status filtering
-  const searchedSites = useMemo(() => {
+  const filteredSites = useMemo(() => {
+    let list = sites;
+
+    if (statusFilter === 'active') {
+      list = list.filter((s) => s.status !== 'Completed');
+    } else if (statusFilter === 'completed') {
+      list = list.filter((s) => s.status === 'Completed');
+    }
+
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return sites;
-    return sites.filter((site) => {
+    if (!term) return list;
+
+    return list.filter((site) => {
       const siteMatch = site.name.toLowerCase().includes(term);
       const customerMatch = site.customer?.name
         ? site.customer.name.toLowerCase().includes(term)
@@ -91,19 +103,12 @@ export const ProjectsPage: React.FC = () => {
       const locationMatch = site.site_address
         ? site.site_address.toLowerCase().includes(term)
         : false;
-      return siteMatch || customerMatch || locationMatch;
+      const codeMatch = site.project_code
+        ? site.project_code.toLowerCase().includes(term)
+        : false;
+      return siteMatch || customerMatch || locationMatch || codeMatch;
     });
-  }, [sites, searchTerm]);
-
-  const activeSites = useMemo(
-    () => searchedSites.filter((s) => s.status !== 'Completed'),
-    [searchedSites]
-  );
-
-  const completedSites = useMemo(
-    () => searchedSites.filter((s) => s.status === 'Completed'),
-    [searchedSites]
-  );
+  }, [sites, searchTerm, statusFilter]);
 
   const handleOpenAddProject = () => {
     setEditingProject(null);
@@ -131,87 +136,104 @@ export const ProjectsPage: React.FC = () => {
     });
   };
 
-  const renderProjectCard = (site: Project) => (
-    <div
-      key={site.id}
-      onClick={() => navigate(`/projects/${site.id}`)}
-      className="bg-white border border-[#E2DDD5] rounded-2xl p-5 hover:border-[#4A0E0E]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-    >
-      <div>
-        <div className="flex items-start justify-between gap-3">
-          <h2 className="text-base font-bold text-[#242424] font-heading group-hover:text-[#4A0E0E] transition-colors leading-snug">
-            {site.name}
-          </h2>
+  const renderProjectCard = (site: Project) => {
+    const isCompleted = site.status === 'Completed';
 
-          {/* Mark Complete / Completed button */}
+    return (
+      <div
+        key={site.id}
+        onClick={() => navigate(`/projects/${site.id}`)}
+        className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99]"
+      >
+        <div>
+          {/* Header: Project Icon, Name, Project Code & Status Badge */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[10.5px] font-bold text-[#A67C24]">
+                    {site.project_code || 'PRJ'}
+                  </span>
+                </div>
+                <h2 className="text-sm font-bold text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
+                  {site.name}
+                </h2>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleComplete(site);
+              }}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 transition-all cursor-pointer ${
+                isCompleted
+                  ? 'bg-[#E8F8EE] text-[#1E7E34] hover:bg-[#d4f3de]'
+                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+              }`}
+              title={isCompleted ? 'Click to reopen as Active' : 'Click to mark as Complete'}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isCompleted ? 'bg-[#1E7E34]' : 'bg-blue-500'
+                }`}
+              />
+              <span>{isCompleted ? 'Completed' : 'Active'}</span>
+            </button>
+          </div>
+
+          {/* Details: Client, Location, Contract Value */}
+          <div className="mt-3 space-y-1.5 text-xs text-[#6B6B6B] pl-1">
+            {site.customer?.name && (
+              <div className="flex items-center gap-2">
+                <User className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                <span className="font-semibold text-[#242424] truncate">
+                  {site.customer.name}
+                </span>
+              </div>
+            )}
+            {site.site_address && (
+              <div className="flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                <span className="truncate">{site.site_address}</span>
+              </div>
+            )}
+            {site.contract_value ? (
+              <div className="text-[11.5px] font-medium text-[#6B6B6B]">
+                Contract: <span className="font-bold text-[#242424] font-mono">₹{Number(site.contract_value).toLocaleString('en-IN')}</span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Bottom Action Bar: Edit Project & View Details */}
+        <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleComplete(site);
-            }}
-            className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-              site.status === 'Completed'
-                ? 'bg-[#DCFCE7] text-[#166534] border border-[#86EFAC]'
-                : 'bg-[#F7F5F0] text-[#6B6B6B] border border-[#E2DDD5] hover:bg-[#DCFCE7] hover:text-[#166534] hover:border-[#86EFAC]'
-            }`}
-            title={
-              site.status === 'Completed'
-                ? 'Completed (Click to reopen as Active)'
-                : 'Click to mark as Complete'
-            }
+            onClick={(e) => handleOpenEditProject(e, site)}
+            className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>{site.status === 'Completed' ? 'Completed' : 'Mark Complete'}</span>
+            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+            <span>Edit</span>
           </button>
-        </div>
 
-        <div className="mt-3 space-y-1.5 text-xs text-[#6B6B6B]">
-          {site.customer?.name && (
-            <div className="flex items-center gap-2">
-              <User className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
-              <span className="font-semibold text-[#242424]">
-                {site.customer.name}
-              </span>
-            </div>
-          )}
-
-          {site.site_address && (
-            <div className="flex items-center gap-2">
-              <MapPin className="w-3.5 h-3.5 text-[#6B6B6B] shrink-0" />
-              <span className="truncate">{site.site_address}</span>
-            </div>
-          )}
+          <span className="font-bold text-[#4A0E0E] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+            <span>View Details</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </span>
         </div>
       </div>
-
-      <div className="mt-4 pt-3 border-t border-[#E2DDD5]/60 flex items-center justify-between text-xs">
-        <button
-          type="button"
-          onClick={(e) => handleOpenEditProject(e, site)}
-          className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] px-2 py-1 -ml-2 rounded-md hover:bg-[#F7F5F0] transition-colors cursor-pointer"
-        >
-          Edit Project
-        </button>
-        <span className="font-bold text-[#4A0E0E] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-          View Project
-          <ArrowRight className="w-3.5 h-3.5" />
-        </span>
-      </div>
-    </div>
-  );
-
-  const isCurrentListEmpty =
-    activeTab === 'all'
-      ? searchedSites.length === 0
-      : activeTab === 'active'
-      ? activeSites.length === 0
-      : completedSites.length === 0;
+    );
+  };
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto">
-        <div className="h-10 w-48 bg-[#E2DDD5]/60 rounded-lg animate-pulse" />
+      <div className="space-y-4 max-w-md mx-auto">
+        <div className="h-10 w-48 bg-[#E2DDD5]/60 rounded-xl animate-pulse" />
         <TableSkeleton rows={5} />
       </div>
     );
@@ -219,7 +241,7 @@ export const ProjectsPage: React.FC = () => {
 
   if (isError) {
     return (
-      <PageContainer className="py-8">
+      <PageContainer className="py-8 max-w-md mx-auto">
         <ErrorState
           title="Could not load projects"
           description={error?.message || 'Unable to retrieve projects.'}
@@ -230,61 +252,77 @@ export const ProjectsPage: React.FC = () => {
   }
 
   return (
-    <PageContainer className="pb-24">
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <PageContainer className="pb-24 max-w-md mx-auto">
+      {/* 1. TOP HEADER & ADD BUTTON */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <SplitText
-            text="Projects"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+            Projects
+          </h1>
+          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
+            Manage and track your active construction sites
+          </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          <Search
-            size="sm"
-            value={searchTerm}
-            onChange={setSearchTerm}
-            placeholder="Search projects or clients..."
-          />
-          <ActionButton
-            icon={<Plus className="w-4 h-4" />}
-            label="Add Project"
-            onClick={handleOpenAddProject}
-          />
-        </div>
+        <button
+          type="button"
+          onClick={handleOpenAddProject}
+          className="h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Project</span>
+        </button>
       </div>
 
-      {/* Sliding Segmented Filter: All / Active / Completed */}
-      <div className="mb-5 overflow-x-auto no-scrollbar">
+      {/* 2. SEARCH & FILTER ROW */}
+      <div className="mb-3.5 flex items-center gap-2">
+        <div className="relative flex-1">
+          <SearchIcon className="w-4 h-4 text-[#8C867E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by project, client or location..."
+            className="w-full h-11 pl-10 pr-3.5 bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#4A0E0E] focus:bg-white transition-all"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setStatusFilter((prev) => (prev === 'all' ? 'active' : prev === 'active' ? 'completed' : 'all'));
+          }}
+          className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-[#E8E4DC] flex items-center justify-center text-[#4A0E0E] hover:bg-white active:scale-95 transition-all shrink-0 cursor-pointer"
+          title="Toggle Filter"
+          aria-label="Filter Projects"
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* 3. SLIDING SEGMENTED FILTER: [ All Projects (X) ] [ Active (Y) ] [ Completed (Z) ] */}
+      <div className="mb-4">
         <SlidingSegmentedControl
-          options={statusOptions}
-          value={activeTab}
-          onChange={(val) => setActiveTab(val)}
-          size="md"
+          options={projectFilterOptions}
+          value={statusFilter}
+          onChange={setStatusFilter}
           fullWidth
-          ariaLabel="Filter projects by status"
+          ariaLabel="Filter projects"
         />
       </div>
 
-      {/* Project Cards List */}
-      {isCurrentListEmpty ? (
+      {/* 4. PROJECT LIST */}
+      {filteredSites.length === 0 ? (
         <EmptyState
           icon={<Building2 className="w-6 h-6" />}
           title={
             searchTerm
               ? 'No matching projects found'
-              : activeTab === 'completed'
+              : statusFilter === 'completed'
               ? 'No completed projects yet.'
-              : activeTab === 'active'
+              : statusFilter === 'active'
               ? 'No active projects found.'
               : 'No projects yet.'
           }
@@ -294,47 +332,9 @@ export const ProjectsPage: React.FC = () => {
               : undefined
           }
         />
-      ) : activeTab === 'all' ? (
-        <div className="space-y-6">
-          {/* 1. Active Projects (Shown First - Highest Priority) */}
-          {activeSites.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 px-1">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#166534]" />
-                <h3 className="text-sm font-bold text-[#242424] font-heading">
-                  Active Projects
-                </h3>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                  {activeSites.length}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {activeSites.map(renderProjectCard)}
-              </div>
-            </div>
-          )}
-
-          {/* 2. Completed Projects (Shown Below Active) */}
-          {completedSites.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 px-1 pt-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#C99A2E]" />
-                <h3 className="text-sm font-bold text-[#242424] font-heading">
-                  Completed Projects
-                </h3>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
-                  {completedSites.length}
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {completedSites.map(renderProjectCard)}
-              </div>
-            </div>
-          )}
-        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(activeTab === 'active' ? activeSites : completedSites).map(renderProjectCard)}
+        <div className="space-y-3">
+          {filteredSites.map(renderProjectCard)}
         </div>
       )}
 

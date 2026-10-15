@@ -6,7 +6,6 @@ import {
   HardHat,
   ShoppingCart,
   ArrowRight,
-  ArrowUpRight,
   ChevronRight,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -70,6 +69,7 @@ export function DashboardPage() {
       totalPurchases,
       totalPurchaseSpent,
       totalPendingSupplierPayable,
+      unpaidPurchasesCount: unpaidPurchases.length,
     };
   }, [projects, customers, employees, purchases]);
 
@@ -134,18 +134,6 @@ export function DashboardPage() {
           <p className="text-xs text-[#E2DDD5]/85 font-normal mt-1.5">
             Keep building. Every project matters.
           </p>
-
-          {/* Quick Stats Pill Strip */}
-          <div className="flex items-center gap-2 flex-wrap pt-3.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-[#F7F5F0]">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span><strong className="text-white font-semibold">{kpis.activeProjectsCount}</strong> Active Sites</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[11px] text-[#F7F5F0]">
-              <span className="w-2 h-2 rounded-full bg-[#E5C378]" />
-              <span><strong className="text-white font-semibold">{kpis.activeEmployeesCount}</strong> Site Laborers</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -163,12 +151,17 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               CLIENTS
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalCustomers}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              <span className="font-semibold text-emerald-700">{kpis.activeCustomersCount} Active</span> clients
-            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="font-semibold text-emerald-950">{kpis.activeCustomersCount}</strong> Active Clients
+                </span>
+              </span>
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Clients →</span>
@@ -188,12 +181,17 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               PROJECTS
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
-              {kpis.activeProjectsCount}
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
+              {kpis.totalProjects}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              <span className="font-semibold text-[#4A0E0E]">{kpis.totalProjects}</span> total sites
-            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="font-semibold text-emerald-950">{kpis.activeProjectsCount}</strong> Active Sites
+                </span>
+              </span>
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Projects →</span>
@@ -213,12 +211,17 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               LABORERS
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalEmployees}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              <span className="font-semibold text-emerald-700">{kpis.activeEmployeesCount} active</span> laborers
-            </p>
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="font-semibold text-emerald-950">{kpis.activeEmployeesCount}</strong> Active Laborers
+                </span>
+              </span>
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Wages →</span>
@@ -238,12 +241,26 @@ export function DashboardPage() {
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
               PURCHASES
             </div>
-            <div className="text-2xl font-black font-heading text-[#242424] tabular-nums mt-0.5">
+            <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
               {kpis.totalPurchases}
             </div>
-            <p className="text-[11px] text-[#6B6B6B] mt-0.5">
-              Material purchase bills
-            </p>
+            <div className="mt-2">
+              {kpis.unpaidPurchasesCount > 0 ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FEF9EE] border border-[#FDE68A] text-[10.5px] font-medium text-[#92400E]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="truncate">
+                    <strong className="font-semibold text-amber-950">{kpis.unpaidPurchasesCount}</strong> Pending Bills
+                  </span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="truncate">
+                    <strong className="font-semibold text-emerald-950">{kpis.totalPurchases > 0 ? 'All Bills Paid' : '0 Bills'}</strong>
+                  </span>
+                </span>
+              )}
+            </div>
           </div>
           <div className="mt-3.5 py-1.5 px-3 bg-[#FAF7F0] border border-[#EFEBE3] rounded-xl flex items-center justify-between text-[11px] font-semibold text-[#242424] group-hover:bg-[#F3EFE6] transition-colors">
             <span>View Purchases →</span>
@@ -290,43 +307,32 @@ export function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-2.5">
-              {projects.slice(0, 4).map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => navigate(`/projects/${p.id}`)}
-                  className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98]"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-bold text-[#E5C378]">
-                        {p.project_code || 'PRJ'}
-                      </span>
-                      <span className="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300">
-                        {p.status}
-                      </span>
+              {(projects.filter((p) => p.status === 'Active' || p.status === 'Planning').length > 0
+                ? projects.filter((p) => p.status === 'Active' || p.status === 'Planning')
+                : projects
+              )
+                .slice(0, 4)
+                .map((p) => (
+                  <div
+                    key={p.id}
+                    onClick={() => navigate(`/projects/${p.id}`)}
+                    className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98] group"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-[#E5C378] transition-colors">
+                        {p.name}
+                      </h3>
+                      <p className="text-[11px] text-white/60 truncate mt-0.5">
+                        {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
+                      </p>
                     </div>
-                    <h3 className="text-xs font-bold text-white truncate mt-1">
-                      {p.name}
-                    </h3>
-                    <p className="text-[11px] text-white/60 truncate">
-                      {p.customer?.name ? `Client: ${p.customer.name}` : p.site_address || 'Project Details'}
-                    </p>
-                  </div>
 
-                  <div className="text-right shrink-0">
-                    {p.contract_value ? (
-                      <div className="text-xs font-bold text-white font-mono">
-                        ₹{Number(p.contract_value).toLocaleString('en-IN')}
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-white/50">Value unset</div>
-                    )}
-                    <span className="text-[10px] text-[#E5C378] font-semibold flex items-center justify-end gap-0.5 mt-0.5">
-                      View <ArrowUpRight className="w-3 h-3" />
-                    </span>
+                    <div className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-[#E5C378] group-hover:text-white transition-colors">
+                      <span>View</span>
+                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>

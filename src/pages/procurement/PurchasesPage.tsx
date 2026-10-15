@@ -8,11 +8,12 @@ import {
   Edit2,
   Package,
   CheckCircle2,
+  Search as SearchIcon,
+  Trash2,
+  Clock,
 } from 'lucide-react';
-import { Search } from '@/components/ui/Search';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { usePurchases } from '@/hooks/useProcurement';
+import { usePurchases, useDeleteSimplePurchase } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
 import { TableSkeleton } from '@/components/ui/LoadingState';
@@ -20,9 +21,10 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { RecordPaymentModal } from '@/components/business/RecordPaymentModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { SplitText } from '@/components/ui/SplitText';
 import type { Purchase } from '@/types/procurement';
+import procurementBanner from '@/Asserts/procurement_banner.png';
 
 type ProcurementTab = 'project' | 'general';
 
@@ -90,6 +92,27 @@ export const PurchasesPage: React.FC = () => {
   const handleOpenRecordPayment = (purchase: Purchase) => {
     setPaymentTargetPurchase(purchase);
     setIsPaymentModalOpen(true);
+  };
+
+  // Delete purchase state & handler
+  const deletePurchaseMutation = useDeleteSimplePurchase();
+  const [deletingPurchase, setDeletingPurchase] = useState<Purchase | null>(null);
+
+  const handleDeletePurchase = (purchase: Purchase) => {
+    setDeletingPurchase(purchase);
+  };
+
+  const confirmDeletePurchase = () => {
+    if (!deletingPurchase) return;
+    deletePurchaseMutation.mutate(deletingPurchase.id, {
+      onSuccess: () => {
+        setDeletingPurchase(null);
+        refetch();
+      },
+      onError: () => {
+        setDeletingPurchase(null);
+      },
+    });
   };
 
   // 1. PROJECT PURCHASES DATA & TOTALS
@@ -298,59 +321,77 @@ export const PurchasesPage: React.FC = () => {
     const bal = p.outstanding_balance ?? Math.max(0, totalVal - paidAmt);
     const isPaid = bal <= 0 || p.payment_status === 'Paid';
 
-    const activeFilter = isProject ? projectPaymentFilter : generalPaymentFilter;
-    const showStatusBadge = activeFilter === 'all';
-
     return (
       <div
         key={p.id}
-        className={`bg-white border rounded-2xl p-4 sm:p-5 shadow-xs transition-all space-y-3.5 ${
-          isPaid ? 'border-[#E2DDD5] hover:border-[#166534]/40' : 'border-[#E2DDD5] hover:border-[#C99A2E]/50'
-        }`}
+        className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
       >
-        {/* Top: Product Name, Project Name badge, Financials */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1.5 min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base sm:text-lg font-bold text-[#242424]">
-                {productName}
-              </span>
-              {isProject && resolvedProjectName && (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-[#F7F5F0] text-[#4A0E0E] px-2.5 py-0.5 rounded-lg border border-[#E2DDD5]">
-                  <Building2 className="w-3.5 h-3.5 text-[#C99A2E]" />
-                  <span>{resolvedProjectName}</span>
-                </span>
-              )}
+        <div>
+          {/* Header: Avatar, Name, Date/Project, Status Badge */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+                <Package className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-bold text-sm sm:text-base text-[#242424] font-display truncate">
+                  {productName}
+                </h4>
+                <div className="flex items-center gap-1.5 text-xs text-[#8C867E] mt-0.5 truncate">
+                  <span>{p.purchase_date}</span>
+                  {isProject && resolvedProjectName && (
+                    <>
+                      <span>•</span>
+                      <span className="flex items-center gap-1 font-medium text-[#4A0E0E] truncate">
+                        <Building2 className="w-3 h-3 text-[#A8A29E] shrink-0" />
+                        <span className="truncate">{resolvedProjectName}</span>
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-[#6B6B6B]">
-              <span>{p.purchase_date}</span>
-            </div>
+
+            <span
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold shrink-0 border ${
+                isPaid
+                  ? 'bg-[#E8F8EE] text-[#1E7E34] border-[#A7F3D0]'
+                  : 'bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]'
+              }`}
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  isPaid ? 'bg-[#1E7E34]' : 'bg-[#DC2626]'
+                }`}
+              />
+              <span>{isPaid ? 'Fully Paid' : 'Pending'}</span>
+            </span>
           </div>
 
-          {/* Financials */}
-          <div className="flex items-center gap-5 sm:text-right pt-2.5 sm:pt-0 border-t sm:border-t-0 border-[#E2DDD5]/70 shrink-0">
+          {/* 3-Column Financial Matrix Card */}
+          <div className="grid grid-cols-3 gap-2 bg-[#FAF8F5] border border-[#EFECE6] rounded-xl p-2.5 text-center mt-3.5 mb-1">
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
                 Total
               </span>
-              <span className="text-sm sm:text-base font-bold text-[#242424] font-mono">
+              <span className="text-xs sm:text-sm font-bold text-[#242424] font-mono tabular-nums">
                 {formatINR(totalVal)}
               </span>
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
                 Paid
               </span>
-              <span className="text-sm sm:text-base font-bold text-[#166534] font-mono">
+              <span className="text-xs sm:text-sm font-bold text-[#166534] font-mono tabular-nums">
                 {formatINR(paidAmt)}
               </span>
             </div>
             <div>
-              <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
                 Balance
               </span>
               <span
-                className={`text-sm sm:text-base font-bold font-mono ${
+                className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${
                   bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
                 }`}
               >
@@ -360,48 +401,46 @@ export const PurchasesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Actions Bar */}
-        <div
-          className={`pt-3 border-t border-[#E2DDD5]/70 flex flex-wrap items-center ${
-            showStatusBadge ? 'justify-between' : 'justify-end'
-          } gap-2.5`}
-        >
-          {showStatusBadge && (
-            <div className="flex items-center shrink-0">
-              {isPaid ? (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#DCFCE7] text-[#166534] border border-[#86EFAC] shadow-2xs">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
-                  <span>Fully Paid</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#FEE2E2] text-[#991B1B] border border-[#FCA5A5]/70 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
-                  <span>Pending Payment</span>
-                </span>
-              )}
-            </div>
-          )}
+        {/* Bottom Action Bar: Edit, Delete, Payment Action */}
+        <div className="mt-3 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleEditPurchase(p)}
+              className="px-2 py-1 text-[#6B6B6B] hover:text-[#5A0F12] hover:bg-[#F9ECEB] rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
+            >
+              <Edit2 className="w-3.5 h-3.5" />
+              <span>Edit</span>
+            </button>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {!isPaid && (
+            <button
+              type="button"
+              onClick={() => handleDeletePurchase(p)}
+              disabled={deletePurchaseMutation.isPending}
+              className="px-2 py-1 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
+              title={`Delete purchase ${productName}`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
+            </button>
+          </div>
+
+          <div>
+            {!isPaid ? (
               <button
                 type="button"
                 onClick={() => handleOpenRecordPayment(p)}
-                className="h-8 px-3.5 text-xs font-semibold text-white bg-[#4A0E0E] hover:bg-[#380A0A] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                className="h-8 px-3.5 text-xs font-bold text-white bg-[#5A0F12] hover:bg-[#43090B] rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
               >
                 <CreditCard className="w-3.5 h-3.5 text-[#C9A24A]" />
                 <span>Update Payment</span>
               </button>
+            ) : (
+              <div className="flex items-center gap-1 text-xs font-bold text-[#166534]">
+                <CheckCircle2 className="w-4 h-4 text-[#166534]" />
+                <span>Paid in full</span>
+              </div>
             )}
-
-            <button
-              type="button"
-              onClick={() => handleEditPurchase(p)}
-              className="h-8 px-3 text-xs font-semibold text-[#242424] bg-[#F7F5F0] hover:bg-[#EAE6DF] border border-[#E2DDD5] rounded-lg transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
-            >
-              <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-              <span>Edit</span>
-            </button>
           </div>
         </div>
       </div>
@@ -410,60 +449,61 @@ export const PurchasesPage: React.FC = () => {
 
   return (
     <PageContainer className="pb-24 select-none">
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* 1. HERO BANNER (Procurement Background Banner) */}
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#0A1813] mb-4">
+        <img
+          src={procurementBanner}
+          alt="Procurement — Track materials bought for projects and general inventory."
+          className="w-full h-auto object-cover min-h-[115px] max-h-[175px] sm:max-h-[220px]"
+        />
+      </div>
+
+      {/* 2. TOP PAGE HEADER & ADD BUTTON */}
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <SplitText
-            text="Procurement"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
+          <h1 className="text-xl sm:text-2xl font-bold font-display text-[#3E1012] tracking-tight">
+            Procurement
+          </h1>
+          <p className="text-xs text-[#8C867E] mt-0.5">
+            Track materials bought for projects and general inventory.
+          </p>
         </div>
 
-        {/* Search & Action Button side-by-side */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          <Search
-            size="sm"
+        <button
+          type="button"
+          onClick={() => handleOpenAddPurchase(activeTab === 'general' ? 'general' : 'project')}
+          className="h-9 sm:h-10 px-3.5 sm:px-4 rounded-xl bg-[#5A0F12] hover:bg-[#43090B] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all shrink-0 cursor-pointer"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Purchase</span>
+        </button>
+      </div>
+
+      {/* 3. SEARCH ROW */}
+      <div className="mb-3.5">
+        <div className="relative">
+          <SearchIcon className="w-4 h-4 text-[#8C867E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
             value={search}
-            onChange={setSearch}
-            placeholder={
-              activeTab === 'project'
-                ? 'Search product or project...'
-                : 'Search general purchases...'
-            }
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search product or project..."
+            className="w-full h-11 pl-10 pr-4 bg-white/95 border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#5A0F12] focus:ring-1 focus:ring-[#5A0F12]/20 transition-all shadow-2xs"
           />
-          {activeTab === 'general' ? (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Purchase"
-              onClick={() => handleOpenAddPurchase('general')}
-            />
-          ) : activeTab === 'project' ? (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Purchase"
-              onClick={() => handleOpenAddPurchase('project')}
-            />
-          ) : null}
         </div>
       </div>
 
-      {/* Tabs Switcher: [ Project Purchases ] [ General Purchases ] [ Supplier Summary ] */}
-      <div className="mb-6 overflow-x-auto no-scrollbar">
+      {/* 4. TABS SWITCHER: [ Projects ] [ General ] */}
+      <div className="mb-4">
         <SlidingSegmentedControl
           options={procurementTabOptions}
           value={activeTab}
           onChange={setActiveTab}
           size="md"
           fullWidth
-          ariaLabel="Procurement sections"
+          ariaLabel="Procurement categories"
         />
       </div>
 
@@ -481,38 +521,36 @@ export const PurchasesPage: React.FC = () => {
           {/* TAB 1: PROJECT PURCHASES */}
           {/* ========================================================= */}
           {activeTab === 'project' && (
-            <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* Project Totals Cards (Rule 10: Cost, Paid, Balance) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    Total Procurement Cost
+            <div key={activeTab} className="space-y-4 animate-filter-slide">
+              {/* Financial Summary Cards */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8C867E] block truncate">
+                    Total Cost
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
+                  <span className="text-sm sm:text-2xl font-extrabold text-[#242424] font-display tabular-nums mt-1 block truncate">
                     {formatINR(projectProcurementTotal)}
                   </span>
                 </div>
 
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
+                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8C867E] block truncate">
                     Total Paid
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
+                  <span className="text-sm sm:text-2xl font-extrabold text-[#166534] font-display tabular-nums mt-1 block truncate">
                     {formatINR(projectPaidTotal)}
                   </span>
                 </div>
 
-                <div
-                  className={`border rounded-2xl p-4 shadow-xs ${
-                    projectBalanceTotal > 0
-                      ? 'bg-[#FEE2E2]/30 border-red-200 text-[#991B1B]'
-                      : 'bg-white border-[#E2DDD5] text-[#242424]'
-                  }`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
+                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8C867E] block truncate">
                     Total Balance
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold font-heading">
+                  <span
+                    className={`text-sm sm:text-2xl font-extrabold font-display tabular-nums mt-1 block truncate ${
+                      projectBalanceTotal > 0 ? 'text-[#991B1B]' : 'text-[#242424]'
+                    }`}
+                  >
                     {formatINR(projectBalanceTotal)}
                   </span>
                 </div>
@@ -526,6 +564,23 @@ export const PurchasesPage: React.FC = () => {
                 fullWidth
               />
 
+              {/* Pending Payment Alert Strip */}
+              {projectPendingPurchases.length > 0 && projectPaymentFilter !== 'paid' && (
+                <div className="bg-[#FEF6E9] border border-[#F5E2B8] rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-[#C99A2E]" />
+                    <span className="font-bold text-[#784D09]">
+                      {projectPendingPurchases.length} Pending {projectPendingPurchases.length === 1 ? 'Payment' : 'Payments'}
+                    </span>
+                  </div>
+                  {projectPendingBalance > 0 && (
+                    <span className="font-extrabold text-[#991B1B] tabular-nums font-mono text-xs sm:text-sm">
+                      {formatINR(projectPendingBalance)} pending
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* Project Purchases List */}
               {allProjectPurchases.length === 0 ? (
                 <EmptyState
@@ -537,7 +592,7 @@ export const PurchasesPage: React.FC = () => {
                   No project purchases match &ldquo;{search}&rdquo;.
                 </div>
               ) : (
-                <div key={projectPaymentFilter} className="space-y-6 animate-filter-slide">
+                <div key={projectPaymentFilter} className="space-y-4 animate-filter-slide">
                   {/* 1. Pending Payment Section */}
                   {(projectPaymentFilter === 'all' || projectPaymentFilter === 'pending') && (
                     <div className="space-y-3">
@@ -610,38 +665,36 @@ export const PurchasesPage: React.FC = () => {
           {/* TAB 2: GENERAL PURCHASES */}
           {/* ========================================================= */}
           {activeTab === 'general' && (
-            <div key={activeTab} className="space-y-5 animate-filter-slide">
-              {/* General Purchases Summary Cards (Rule 11: Purchased, Paid, Outstanding) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL PURCHASED
+            <div key={activeTab} className="space-y-4 animate-filter-slide">
+              {/* General Purchases Summary Cards */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8C867E] block truncate">
+                    Total Cost
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#242424] font-heading">
+                  <span className="text-sm sm:text-2xl font-extrabold text-[#242424] font-display tabular-nums mt-1 block truncate">
                     {formatINR(generalTotalPurchased)}
                   </span>
                 </div>
 
-                <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL PAID
+                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8C867E] block truncate">
+                    Total Paid
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold text-[#166534] font-heading">
+                  <span className="text-sm sm:text-2xl font-extrabold text-[#166534] font-display tabular-nums mt-1 block truncate">
                     {formatINR(generalTotalPaid)}
                   </span>
                 </div>
 
-                <div
-                  className={`border rounded-2xl p-4 shadow-xs ${
-                    generalTotalOutstanding > 0
-                      ? 'bg-[#FEE2E2]/30 border-red-200 text-[#991B1B]'
-                      : 'bg-white border-[#E2DDD5] text-[#242424]'
-                  }`}
-                >
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#6B6B6B] block mb-1">
-                    TOTAL OUTSTANDING
+                <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl p-3 sm:p-4 shadow-xs">
+                  <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#8C867E] block truncate">
+                    Total Balance
                   </span>
-                  <span className="text-xl sm:text-2xl font-bold font-heading">
+                  <span
+                    className={`text-sm sm:text-2xl font-extrabold font-display tabular-nums mt-1 block truncate ${
+                      generalTotalOutstanding > 0 ? 'text-[#991B1B]' : 'text-[#242424]'
+                    }`}
+                  >
                     {formatINR(generalTotalOutstanding)}
                   </span>
                 </div>
@@ -654,6 +707,23 @@ export const PurchasesPage: React.FC = () => {
                 onChange={setGeneralPaymentFilter}
                 fullWidth
               />
+
+              {/* Pending Payment Alert Strip */}
+              {generalPendingPurchases.length > 0 && generalPaymentFilter !== 'paid' && (
+                <div className="bg-[#FEF6E9] border border-[#F5E2B8] rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-[#C99A2E]" />
+                    <span className="font-bold text-[#784D09]">
+                      {generalPendingPurchases.length} Pending {generalPendingPurchases.length === 1 ? 'Payment' : 'Payments'}
+                    </span>
+                  </div>
+                  {generalPendingBalance > 0 && (
+                    <span className="font-extrabold text-[#991B1B] tabular-nums font-mono text-xs sm:text-sm">
+                      {formatINR(generalPendingBalance)} pending
+                    </span>
+                  )}
+                </div>
+              )}
 
               {/* General Purchases List */}
               {generalPurchases.length === 0 ? (
@@ -762,6 +832,17 @@ export const PurchasesPage: React.FC = () => {
         onClose={() => setIsPaymentModalOpen(false)}
         purchase={paymentTargetPurchase}
         onSuccess={() => refetch()}
+      />
+
+      {/* Confirm Delete Purchase Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingPurchase)}
+        onClose={() => setDeletingPurchase(null)}
+        onConfirm={confirmDeletePurchase}
+        title="Delete Purchase"
+        itemName={deletingPurchase?.items?.[0]?.description || deletingPurchase?.items?.[0]?.material?.name || 'this purchase'}
+        message="This purchase record will be deleted. Are you sure you want to proceed?"
+        isLoading={deletePurchaseMutation.isPending}
       />
     </PageContainer>
   );

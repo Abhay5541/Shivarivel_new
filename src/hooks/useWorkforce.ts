@@ -142,18 +142,6 @@ export function useEmployees(filters?: {
         const { data, error } = await query;
         if (!error && data) {
           remote = data as Employee[];
-          saveStoredEmployees(remote);
-          let results = remote;
-          if (filters?.status && filters.status !== 'all') {
-            results = results.filter((e) => e.status === filters.status);
-          } else {
-            results = results.filter((e) => e.status !== 'inactive');
-          }
-          if (filters?.search?.trim()) {
-            const s = filters.search.trim().toLowerCase();
-            results = results.filter((e) => e.name.toLowerCase().includes(s) || e.phone?.includes(s));
-          }
-          return results;
         } else if (error) {
           console.warn('Employees query error:', error.message);
         }
@@ -161,7 +149,17 @@ export function useEmployees(filters?: {
         console.warn('Employees query notice:', err);
       }
 
-      let merged = local;
+      const remoteIds = new Set(remote.map((e) => e.id));
+      let merged: Employee[];
+      if (remote.length > 0) {
+        // Remote query succeeded: Remote is source of truth.
+        // Keep only local-only un-synced items (emp-local-) that don't exist in remote yet.
+        // Do NOT resurrect deleted remote employees from stale localStorage!
+        const unsyncedLocal = local.filter((le) => le.id.startsWith('emp-local-') && !remoteIds.has(le.id));
+        merged = [...remote, ...unsyncedLocal];
+      } else {
+        merged = local;
+      }
 
       // Exclude inactive employees unless explicitly requested
       if (filters?.status !== 'all' && filters?.status !== 'inactive') {
@@ -629,9 +627,6 @@ export function useWages(filters?: {
         const { data, error } = await query;
         if (!error && data) {
           remote = data as DailyWage[];
-          memoryDailyWages = remote;
-          saveStoredDailyWages(remote);
-          return remote;
         } else if (error) {
           console.warn('Daily wages query error:', error.message);
         }
@@ -639,12 +634,45 @@ export function useWages(filters?: {
         console.warn('Daily wages query notice:', err);
       }
 
-      let filtered = allLocal;
+      // KEY FIX: Merge remote results with local dataset, eliminating duplicates.
+      // Remote results from Supabase are the authoritative source of truth.
+      const remoteIds = new Set(remote.map((w) => w.id));
+      const remoteKeys = new Set(remote.map((rw) => `${rw.employee_id}_${rw.wage_date}`));
+
+      // Filter out any local temporary records that match remote by ID or (employee_id + wage_date)
+      const nonDuplicateLocal = allLocal.filter((lw) => {
+        if (remoteIds.has(lw.id)) return false; // Handled by remote
+        if (lw.employee_id && lw.wage_date && remoteKeys.has(`${lw.employee_id}_${lw.wage_date}`)) {
+          return false; // Duplicate of remote
+        }
+        return true;
+      });
+
+      const rawMerged = [...remote, ...nonDuplicateLocal];
+
+      // Final uniqueness guarantee: strictly one wage entry per (employee_id, wage_date)
+      const seen = new Set<string>();
+      const merged: DailyWage[] = [];
+      for (const w of rawMerged) {
+        const uniqueKey = `${w.employee_id}_${w.wage_date}`;
+        if (!seen.has(uniqueKey)) {
+          seen.add(uniqueKey);
+          merged.push(w);
+        }
+      }
+
+      // Persist the deduplicated merged set
+      memoryDailyWages = merged;
+      saveStoredDailyWages(merged);
+
+      // Return only the filtered view for this query
+      let filtered = merged;
       if (filters?.employeeId && filters.employeeId !== 'all') {
         filtered = filtered.filter((w) => w.employee_id === filters.employeeId);
       }
       if (filters?.projectId && filters.projectId !== 'all') {
         filtered = filtered.filter((w) => w.project_id === filters.projectId);
+      }
       if (filters?.status && filters.status !== 'all') {
         filtered = filtered.filter((w) => w.status === filters.status);
       }

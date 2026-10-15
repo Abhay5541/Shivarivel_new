@@ -37,12 +37,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
       aria-label="Mobile Navigation"
       className="fixed bottom-0 inset-x-0 z-30 flex justify-center px-4 pb-[max(10px,env(safe-area-inset-bottom,0px))] pointer-events-none select-none md:hidden"
     >
-      <div className="w-full max-w-sm bg-white/95 backdrop-blur-2xl border border-[#E8E4DC] rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-3 py-2 flex items-center justify-between pointer-events-auto">
+      <div className="w-full max-w-sm bg-white/95 backdrop-blur-2xl border border-[#E8E4DC] rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] px-2 py-2 grid grid-cols-5 items-end pointer-events-auto">
         {/* Clients */}
         <button
           type="button"
           onClick={() => navigateTab('/customers')}
-          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl transition-all cursor-pointer min-w-[50px] ${
+          className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isCustomers
               ? 'text-[#4A0E0E] font-bold'
               : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
@@ -61,7 +61,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
         <button
           type="button"
           onClick={() => navigateTab('/projects')}
-          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl transition-all cursor-pointer min-w-[50px] ${
+          className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isProjects
               ? 'text-[#4A0E0E] font-bold'
               : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
@@ -81,21 +81,22 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
           type="button"
           onClick={onOpenQuickAdd}
           aria-label="Open Quick Add Menu"
-          className="relative -top-2 flex flex-col items-center justify-center group cursor-pointer focus:outline-none"
+          className="flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full group focus:outline-none"
         >
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#DFB95E] via-[#C9A24A] to-[#B88E35] text-white flex items-center justify-center shadow-[0_4px_16px_rgba(201,162,74,0.45)] border-2 border-white group-active:scale-90 transition-transform">
+          <div className="-mt-5 w-11 h-11 rounded-full bg-gradient-to-br from-[#DFB95E] via-[#C9A24A] to-[#B88E35] text-white flex items-center justify-center shadow-[0_4px_16px_rgba(201,162,74,0.45)] border-2 border-white group-active:scale-90 transition-transform shrink-0">
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </div>
-          <span className="text-[9.5px] font-bold tracking-tight text-[#8F6A18] mt-0.5 leading-none">
+          <span className="text-[10px] tracking-tight mt-0.5 leading-none font-sans font-bold text-[#8F6A18]">
             Add
           </span>
+          <span className="w-5 h-0.5 rounded-full bg-transparent mt-1" />
         </button>
 
         {/* Wages */}
         <button
           type="button"
           onClick={() => navigateTab('/wages')}
-          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl transition-all cursor-pointer min-w-[50px] ${
+          className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isWages
               ? 'text-[#4A0E0E] font-bold'
               : 'text-[#6B6B6B] hover:text-[#242424] font-medium'
@@ -114,7 +115,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ onOpenQuickAdd
         <button
           type="button"
           onClick={() => navigateTab('/procurement')}
-          className={`flex flex-col items-center justify-center py-0.5 px-2 rounded-xl transition-all cursor-pointer min-w-[50px] ${
+          className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl transition-all cursor-pointer w-full ${
             isProcurement
               ? 'text-[#4A0E0E] font-bold'
               : 'text-[#6B6B6B] hover:text-[#242424] font-medium'

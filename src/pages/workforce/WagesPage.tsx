@@ -14,9 +14,9 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  HardHat,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { ActionButton } from '@/components/ui/ActionButton';
 import { Button } from '@/components/ui/Button';
 import { useWages, useEmployees, useDeleteDailyWage } from '@/hooks/useWorkforce';
 import { useProjects } from '@/hooks/useProjects';
@@ -25,8 +25,8 @@ import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal
 import { LaborersDrawer } from '@/components/business/LaborersDrawer';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { SplitText } from '@/components/ui/SplitText';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
+import wagesBanner from '@/Asserts/wages_banner.png';
 
 function getTodayISO() {
   const d = new Date();
@@ -400,51 +400,44 @@ export function WagesPage() {
         </div>
       )}
 
-      {/* Top Page Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <SplitText
-            text="Wages"
-            tag="h1"
-            className="text-2xl font-bold font-display text-[#242424] tracking-tight"
-            delay={40}
-            duration={0.6}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 18 }}
-            to={{ opacity: 1, y: 0 }}
-            textAlign="left"
-          />
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          {/* Laborers Directory Trigger */}
-          <ActionButton
-            variant="outline"
-            icon={<Users className="w-4 h-4 text-[#4A0E0E]" />}
-            label="Laborers Directory"
-            onClick={() => {
-              setOpenInAddMode(false);
-              setIsLaborersDrawerOpen(true);
-            }}
-          />
-
-          {/* Primary Action Button */}
-          {activeTab === 'daily' && (
-            <ActionButton
-              icon={<Plus className="w-4 h-4" />}
-              label="Add Wage Entry"
-              onClick={() => {
-                setEditingWage(null);
-                setIsAddWageModalOpen(true);
-              }}
-            />
-          )}
-        </div>
+      {/* 1. HERO BANNER (Wages Background Banner) */}
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#0A1813] mb-4">
+        <img
+          src={wagesBanner}
+          alt="Wages — Manage laborers and track daily / weekly wages."
+          className="w-full h-auto object-cover min-h-[115px] max-h-[175px] sm:max-h-[220px]"
+        />
       </div>
 
-      {/* View Switcher: [ Daily Muster ] [ Weekly Wages ] */}
-      <div className="mb-6 overflow-x-auto no-scrollbar">
+      {/* 2. PAGE ACTIONS: Laborers Directory & Add Wage Entry */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4">
+        <button
+          type="button"
+          onClick={() => {
+            setOpenInAddMode(false);
+            setIsLaborersDrawerOpen(true);
+          }}
+          className="h-11 px-3.5 sm:px-4 rounded-xl border border-[#E8E4DC] bg-white text-[#242424] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-2xs hover:bg-[#FAF7F0] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+        >
+          <Users className="w-4 h-4 text-[#854D0E] shrink-0" />
+          <span className="truncate">Laborers Directory</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEditingWage(null);
+            setIsAddWageModalOpen(true);
+          }}
+          className="h-11 px-3.5 sm:px-4 rounded-xl bg-[#5A0F12] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-xs hover:bg-[#430B0D] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
+          <span className="truncate">Add Wage Entry</span>
+        </button>
+      </div>
+
+      {/* 3. VIEW SWITCHER: [ Daily Muster ] [ Weekly Wages ] */}
+      <div className="mb-4">
         <SlidingSegmentedControl
           options={wageViewOptions}
           value={activeTab}
@@ -461,177 +454,150 @@ export function WagesPage() {
       {activeTab === 'daily' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Date Navigator Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
-            {/* Mobile Layout (sm:hidden) */}
-            <div className="flex flex-col gap-2.5 sm:hidden">
-              {/* Selected Date & Quick Jump Row */}
-              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
-                <div className="relative flex items-center gap-2 min-w-0">
-                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
-                  <span className="font-display font-bold text-sm text-[#242424] truncate">
-                    {formattedSelectedDateShort}
-                  </span>
-                  {/* Invisible native date picker over container for instant jump */}
-                  <input
-                    type="date"
-                    max={todayStr}
-                    value={selectedDate}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const val = e.target.value;
-                        if (val <= todayStr) setSelectedDate(val);
-                      }
-                    }}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                    title="Choose a specific date"
-                    aria-label="Choose a specific date"
-                  />
-                </div>
+          <div className="bg-white border border-[#E2DDD5] rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-xs flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <button
+                type="button"
+                onClick={() => navigateDate(-1)}
+                className="w-8 h-8 rounded-lg border border-[#E8E4DC] hover:border-[#5A0F12] hover:bg-[#FAF7F0] flex items-center justify-center text-[#242424] transition-all cursor-pointer shrink-0"
+                aria-label="Previous Day"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
 
-                <div className="shrink-0 ml-2">
-                  {isSelectedDateToday ? (
-                    <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
-                      Today
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDate(todayStr)}
-                      className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
-                    >
-                      Jump to Today
-                    </button>
-                  )}
-                </div>
+              <div className="relative flex items-center gap-2 min-w-0 cursor-pointer group px-1">
+                <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
+                <span className="font-display font-bold text-xs sm:text-sm text-[#242424] truncate">
+                  {formattedSelectedDateShort}
+                </span>
+                {/* Invisible native date picker over container for instant jump */}
+                <input
+                  type="date"
+                  max={todayStr}
+                  value={selectedDate}
+                  onChange={(e) => {
+                    if (e.target.value && e.target.value <= todayStr) {
+                      setSelectedDate(e.target.value);
+                    }
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  title="Choose a specific date"
+                  aria-label="Choose a specific date"
+                />
               </div>
 
-              {/* Quick Navigation Buttons */}
-              <div className={isSelectedDateToday ? "grid grid-cols-1" : "grid grid-cols-2 gap-2"}>
-                <Button
+              {!isSelectedDateToday && (
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigateDate(-1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                  onClick={() => navigateDate(1)}
+                  className="w-8 h-8 rounded-lg border border-[#E8E4DC] hover:border-[#5A0F12] hover:bg-[#FAF7F0] flex items-center justify-center text-[#242424] transition-all cursor-pointer shrink-0"
+                  aria-label="Next Day"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
-                </Button>
-
-                {!isSelectedDateToday && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate(1)}
-                    className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
-                  >
-                    <span>Next Day</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
-            {/* Desktop Layout (sm and up) */}
-            <div className="hidden sm:flex items-center justify-between w-full">
-              <div className="flex items-center gap-3">
-                <Button
+            <div className="shrink-0">
+              {isSelectedDateToday ? (
+                <span className="px-2.5 py-1 rounded-lg bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                  TODAY
+                </span>
+              ) : (
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigateDate(-1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                  onClick={() => setSelectedDate(todayStr)}
+                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
-                </Button>
-
-                <div className="flex items-center gap-2">
-                  <div className="relative flex items-center">
-                    <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
-                      <span>{formattedSelectedDate}</span>
-                    </span>
-                    <input
-                      type="date"
-                      max={todayStr}
-                      value={selectedDate}
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const val = e.target.value;
-                          if (val <= todayStr) setSelectedDate(val);
-                        }
-                      }}
-                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                      title="Choose a specific date"
-                      aria-label="Choose a specific date"
-                    />
-                  </div>
-
-                  {isSelectedDateToday ? (
-                    <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
-                      Today
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDate(todayStr)}
-                      className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
-                    >
-                      Jump to Today
-                    </button>
-                  )}
-                </div>
-
-                {!isSelectedDateToday && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate(1)}
-                    className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-                  >
-                    <span>Next Day</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
+                  JUMP TO TODAY
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Daily Operational Summary Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="text-xs font-medium text-[#6B6B6B]">
-                {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDate}`}
+          {/* Wage Summary Card (From Reference Design) */}
+          <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 sm:p-5 shadow-xs relative overflow-hidden">
+            {/* Header: Today's Wages Paid + Big Amount */}
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-xs font-semibold text-[#6B6B6B]">
+                  {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDateShort}`}
+                </div>
+                <div className="text-2xl sm:text-3xl font-extrabold font-display tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
+                  {formatINR(dailySummary.totalPaid)}
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-bold font-display tabular-nums text-[#242424] mt-0.5">
-                {formatINR(dailySummary.totalPaid)}
+
+              {/* Architectural Hard Hat Accent Icon */}
+              <div className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl bg-[#F7F5F0] text-[#C99A2E]/70 border border-[#E2DDD5]/60">
+                <HardHat className="w-5 h-5" />
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-xs text-[#6B6B6B] border-t sm:border-t-0 sm:border-l border-[#E2DDD5] pt-3 sm:pt-0 sm:pl-6">
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Total Logged</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
-                  {dailySummary.totalEntries} Workers
-                </span>
+            {/* 4 Stats Grid with icons and vertical dividers */}
+            <div className="grid grid-cols-4 gap-1 sm:gap-2 pt-3.5 mt-3.5 border-t border-[#F0ECE1]">
+              {/* 1. Total Logged */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.totalEntries}
+                  </div>
+                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
+                    Total Logged
+                  </div>
+                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Full Days</span>
-                <span className="font-bold text-[#166534] text-sm tabular-nums">{dailySummary.fullDays}</span>
+
+              {/* 2. Full Days */}
+              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-[#F0ECE1] pl-1.5 sm:pl-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.fullDays}
+                  </div>
+                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
+                    Full Days
+                  </div>
+                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Half Days</span>
-                <span className="font-bold text-[#854D0E] text-sm tabular-nums">{dailySummary.halfDays}</span>
+
+              {/* 3. Half Days */}
+              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-[#F0ECE1] pl-1.5 sm:pl-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.halfDays}
+                  </div>
+                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
+                    Half Days
+                  </div>
+                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                </div>
               </div>
-              <span className="text-[#E2DDD5] hidden sm:inline">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Absent</span>
-                <span className="font-bold text-[#991B1B] text-sm tabular-nums">{dailySummary.absent}</span>
+
+              {/* 4. Absent */}
+              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-[#F0ECE1] pl-1.5 sm:pl-3">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                  <Ban className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.absent}
+                  </div>
+                  <div className="text-[10px] sm:text-xs font-semibold text-[#242424] leading-tight mt-0.5 truncate">
+                    Absent
+                  </div>
+                  <div className="text-[9px] text-[#8C867E]">Workers</div>
+                </div>
               </div>
             </div>
           </div>
@@ -657,26 +623,34 @@ export function WagesPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
-              {/* DESKTOP TABLE (>= 768px) */}
-              <div className="hidden md:block bg-white border border-[#E2DDD5] rounded-xl overflow-hidden shadow-xs">
-                <div className="px-5 py-3.5 bg-[#F7F5F0] border-b border-[#E2DDD5] flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
-                    Daily Muster Matrix ({dayEntries.length} Recorded)
-                  </h3>
-                </div>
+            <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl overflow-hidden shadow-xs">
+              {/* Header */}
+              <div className="px-4 sm:px-5 py-3.5 bg-[#FAF8F5] border-b border-[#EFECE6] flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-bold text-[#3E1012] font-display">
+                  Laborers ({dayEntries.length})
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsLaborersDrawerOpen(true)}
+                  className="text-xs font-bold text-[#8C6D23] hover:text-[#5A0F12] flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
+              {/* DESKTOP TABLE (>= 768px) */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#E2DDD5] bg-[#FFFFFF] text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                      <th className="py-3 px-5">Laborer</th>
-                      <th className="py-3 px-4">Project / Site</th>
-                      <th className="py-3 px-4">Attendance Status</th>
-                      <th className="py-3 px-5 text-right">Amount Paid</th>
-                      <th className="py-3 px-4 text-center">Action</th>
+                    <tr className="border-b border-[#EFECE6] bg-[#FAF8F5]/50 text-[11px] font-bold text-[#8C867E] uppercase tracking-wider">
+                      <th className="py-3 px-5">Laborer / Project</th>
+                      <th className="py-3 px-4">Attendance</th>
+                      <th className="py-3 px-5 text-right">Paid Amount</th>
+                      <th className="py-3 px-4 text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E2DDD5] text-sm text-[#242424]">
+                  <tbody className="divide-y divide-[#EFECE6] text-sm text-[#242424]">
                     {dayEntries.map((wage) => {
                       const emp = employees.find((e) => e.id === wage.employee_id);
                       const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -686,15 +660,19 @@ export function WagesPage() {
                         : proj?.name || 'General Site Work';
 
                       return (
-                        <tr key={wage.id} className="hover:bg-[#F7F5F0]/60 transition-colors">
+                        <tr key={wage.id} className="hover:bg-[#FAF8F5]/80 transition-colors">
                           <td className="py-3.5 px-5">
-                            <span className="font-bold text-[#242424] font-display">{laborerName}</span>
-                          </td>
-
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-1.5 text-xs text-[#242424]">
-                              <Building2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                              <span>{projectName}</span>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+                                <HardHat className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-[#242424] font-display truncate">{laborerName}</div>
+                                <div className="flex items-center gap-1 text-xs text-[#8C867E] mt-0.5">
+                                  <Building2 className="w-3 h-3 text-[#A8A29E]" />
+                                  <span className="truncate">{projectName}</span>
+                                </div>
+                              </div>
                             </div>
                           </td>
 
@@ -709,7 +687,7 @@ export function WagesPage() {
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(wage)}
-                                className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] hover:bg-[#F7EFEF] rounded-md transition-colors cursor-pointer"
+                                className="p-1.5 text-[#8C867E] hover:text-[#5A0F12] hover:bg-[#F9ECEB] rounded-lg transition-colors cursor-pointer"
                                 title="Edit wage entry"
                                 aria-label={`Edit wage for ${laborerName}`}
                               >
@@ -719,7 +697,7 @@ export function WagesPage() {
                                 type="button"
                                 onClick={() => handleDeleteWage(wage, laborerName)}
                                 disabled={deleteWageMutation.isPending}
-                                className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                                className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                                 title="Delete wage entry"
                                 aria-label={`Delete wage for ${laborerName}`}
                               >
@@ -734,8 +712,8 @@ export function WagesPage() {
                 </table>
               </div>
 
-              {/* MOBILE STACKED CARDS (< 768px) */}
-              <div className="md:hidden space-y-2.5">
+              {/* MOBILE ROWS (< 768px) */}
+              <div className="md:hidden divide-y divide-[#EFECE6]">
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -747,43 +725,57 @@ export function WagesPage() {
                   return (
                     <div
                       key={wage.id}
-                      className="bg-white border border-[#E2DDD5] rounded-xl p-4 shadow-xs space-y-3"
+                      className="p-4 hover:bg-[#FAF8F5]/60 transition-colors flex flex-col gap-2.5"
                     >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-bold text-sm text-[#242424] font-display">{laborerName}</h4>
-                          <div className="flex items-center gap-1 text-xs text-[#6B6B6B] mt-0.5">
-                            <Building2 className="w-3.5 h-3.5" />
-                            <span>{projectName}</span>
+                      {/* Top: Avatar, Name + Project, Attendance Pill */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+                            <HardHat className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                              {laborerName}
+                            </h4>
+                            <div className="flex items-center gap-1.5 text-[11px] text-[#8C867E] mt-0.5">
+                              <Building2 className="w-3 h-3 text-[#A8A29E] shrink-0" />
+                              <span className="truncate">{projectName}</span>
+                            </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
+                        <div className="shrink-0">
+                          {renderAttendancePill(wage.payable_units)}
+                        </div>
+                      </div>
+
+                      {/* Bottom: Actions & Amount Paid */}
+                      <div className="flex items-center justify-between pt-2 border-t border-[#F5F2EB] text-xs">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(wage)}
-                            className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] rounded-md transition-colors cursor-pointer"
-                            aria-label={`Edit ${laborerName}`}
+                            className="px-2 py-1 text-[#6B6B6B] hover:text-[#5A0F12] hover:bg-[#F9ECEB] rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
                           >
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
                           </button>
+
                           <button
                             type="button"
                             onClick={() => handleDeleteWage(wage, laborerName)}
                             disabled={deleteWageMutation.isPending}
-                            className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                            aria-label={`Delete wage for ${laborerName}`}
+                            className="px-2 py-1 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
+                            title={`Delete wage for ${laborerName}`}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
                           </button>
                         </div>
-                      </div>
 
-                      <div className="flex items-center justify-between pt-2 border-t border-[#E2DDD5]">
-                        <div>{renderAttendancePill(wage.payable_units)}</div>
                         <div className="text-right">
-                          <span className="block text-[10px] font-semibold text-[#6B6B6B] uppercase">Amount Paid</span>
-                          <span className="font-bold text-base tabular-nums text-[#242424]">
+                          <span className="text-[10px] uppercase font-bold text-[#8C867E] mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm text-[#242424] font-mono tabular-nums">
                             {formatINR(wage.amount || 0)}
                           </span>
                         </div>
