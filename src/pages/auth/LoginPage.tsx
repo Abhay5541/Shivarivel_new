@@ -73,11 +73,11 @@ function ServicesGrid() {
 
 function VisionTagline() {
   return (
-    <div className="pt-1.5">
-      <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide text-left drop-shadow-md leading-none">
+    <div className="pt-2 flex flex-col items-center text-center">
+      <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide drop-shadow-md leading-none">
         Your Vision . Our Expertise
       </p>
-      <div className="w-44 h-[1.5px] bg-gradient-to-r from-[#C9A24A] via-[#C9A24A]/60 to-transparent mt-1" />
+      <div className="w-44 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A24A] to-transparent mt-1" />
     </div>
   );
 }
@@ -220,54 +220,54 @@ export function LoginPage() {
       </div>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-[1100px] mx-auto w-full">
-        <div className="w-full flex flex-col items-center space-y-6 sm:space-y-8 my-auto">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1200px] mx-auto w-full">
+        <div className="w-full flex flex-col items-center my-auto">
           {/* 1. HERO STATEMENT & BRAND (ABOVE LOGIN FORM) */}
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            {/* BRAND HEADER & LOGO */}
-            <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-lg">
+          <div className="text-center w-full max-w-2xl mx-auto">
+            {/* BRAND HEADER & LOGO (UNIFIED LOCKUP) */}
+            <div className="flex items-center justify-center gap-3.5">
+              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black/80 border border-[#C9A24A]/40 shadow-xl">
                 <img
                   src={logoImg}
                   alt="Shivarivel Official SVC Logo"
                   className="w-full h-full object-cover scale-[1.14]"
                 />
               </div>
-              <div className="space-y-0.5 text-left">
-                <h1 className="font-cinzel text-[19px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
+              <div className="text-left flex flex-col justify-center">
+                <h1 className="font-cinzel text-[20px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-md">
                   SHIVARIVEL
                 </h1>
-                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
+                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C9A24A] leading-snug">
                   CONSTRUCTION &amp; INTERIORS
+                </p>
+                <p className="font-inter text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]/90 leading-tight">
+                  BUILDING DREAMS
                 </p>
               </div>
             </div>
 
             {/* HERO STATEMENT */}
-            <div className="space-y-1.5 pt-0.5">
-              <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]">
-                BUILDING DREAMS
-              </p>
-              <h2 className="font-playfair text-[28px] sm:text-[34px] lg:text-[38px] font-normal text-white leading-[1.12] drop-shadow-md">
+            <div className="space-y-1.5 mt-3 sm:mt-4 text-center">
+              <h2 className="font-playfair text-[24px] sm:text-[30px] lg:text-[34px] font-normal text-white leading-tight drop-shadow-md">
                 Quality Construction.<br />
                 Beautiful Interiors.
               </h2>
-              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED] font-normal leading-relaxed max-w-lg pt-0.5">
+              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED]/85 font-normal leading-relaxed max-w-lg mx-auto">
                 From planning to precision, we deliver spaces that inspire, last and add value.
               </p>
             </div>
 
-            {/* OUR SERVICES SECTION (DESKTOP: SITS IN LEFT PANEL) */}
-            <div className="hidden lg:block space-y-2 pt-0.5">
+            {/* OUR SERVICES SECTION (DESKTOP: BALANCED EXPANDED WIDTH) */}
+            <div className="hidden lg:block w-full max-w-2xl mx-auto space-y-2 mt-4">
               <ServicesDivider />
               <ServicesGrid />
               <VisionTagline />
             </div>
           </div>
 
-          {/* RIGHT PANEL: FLOATING CREAM LOGIN CARD + MOBILE SERVICES UNDER CONTAINER */}
-          <div className="lg:col-span-5 w-full flex flex-col items-center lg:items-end">
-            <div className="w-full max-w-[420px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 lg:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] text-[#0A1813] border border-white/60 relative overflow-hidden transition-all">
+          {/* FLOATING CREAM LOGIN CARD (CENTERED WITH HARMONIOUS MARGIN) */}
+          <div className="w-full flex flex-col items-center mt-5 sm:mt-6">
+            <div className="w-full max-w-[410px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.65)] text-[#0A1813] border border-white/70 relative overflow-hidden transition-all">
               {/* Card Header with Centered Official Logo */}
               <div className="text-center space-y-1">
                 <div
@@ -370,43 +370,6 @@ export function LoginPage() {
               <ServicesDivider />
               <ServicesGrid />
               <VisionTagline />
-            </div>
-          </div>
-
-          {/* 3. OUR SERVICES SECTION (BELOW LOGIN FORM) */}
-          <div className="w-full max-w-4xl mx-auto space-y-3 pt-1 text-center">
-            <div className="flex items-center gap-3 my-1">
-              <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
-              <span className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.25em] text-[#C9A24A]">
-                OUR SERVICES
-              </span>
-              <div className="h-[1px] bg-gradient-to-l from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
-            </div>
-
-            {/* 4 COLUMNS X 2 ROWS TRANSLUCENT GLASS GRID (COMPACT) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
-              {SERVICES.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <div
-                    key={service.id}
-                    className="group bg-black/50 hover:bg-black/75 border border-[#C9A24A]/60 hover:border-[#C9A24A] backdrop-blur-md rounded-xl p-2.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all duration-200 shadow-xl hover:shadow-[#C9A24A]/30 cursor-default min-h-[64px] sm:min-h-[72px]"
-                  >
-                    <Icon className="w-5 h-5 text-[#C9A24A] group-hover:scale-110 transition-transform duration-200 shrink-0" />
-                    <span className="font-inter text-[10.5px] sm:text-[11px] font-medium text-white leading-tight">
-                      {service.title}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* CURSIVE SCRIPT TAGLINE WITH GOLD UNDERLINE FLOURISH */}
-            <div className="pt-2 flex flex-col items-center">
-              <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide drop-shadow-md leading-none">
-                Your Vision . Our Expertise
-              </p>
-              <div className="w-44 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A24A] to-transparent mt-1" />
             </div>
           </div>
         </div>
