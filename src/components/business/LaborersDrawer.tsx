@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, UserCheck, Plus, Edit2, Phone, Check, AlertCircle, Trash2 } from 'lucide-react';
+import { X, UserCheck, Plus, Edit2, Phone, Check, AlertCircle, Trash2, HardHat } from 'lucide-react';
 import { useEmployees, useCreateEmployee, useUpdateEmployee, useDeleteEmployee } from '@/hooks/useWorkforce';
 import { indianPhoneRegex } from '@/types/business';
 import type { Employee } from '@/types/workforce';
@@ -310,52 +310,74 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
               <p className="font-semibold text-[#242424]">No laborers registered yet.</p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {employees.map((emp) => (
                 <div
                   key={emp.id}
-                  className="p-3 bg-white border border-[#E2DDD5] hover:border-[#C99A2E]/70 rounded-xl flex items-center justify-between transition-all group"
+                  className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
                 >
-                  <div className="space-y-1 min-w-0 pr-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-[#242424] font-display truncate">{emp.name}</span>
+                  <div>
+                    {/* Header: Laborer Avatar/Icon & Name */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                          <HardHat className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                            {emp.name}
+                          </h4>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-xs text-[#6B6B6B]">
+
+                    {/* Contact Info: Phone */}
+                    <div className="mt-3 space-y-1 text-xs text-[#6B6B6B] pl-1">
                       {emp.phone ? (
-                        <a
-                          href={`tel:${emp.phone}`}
-                          className="hover:text-[#4A0E0E] underline-offset-2 hover:underline"
-                        >
-                          {emp.phone}
-                        </a>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                          <a
+                            href={`tel:${emp.phone}`}
+                            className="font-medium text-[#242424] hover:text-[#4A0E0E] underline-offset-2 hover:underline"
+                          >
+                            +91 {emp.phone.replace(/^(\+91|0)/, '')}
+                          </a>
+                        </div>
                       ) : (
-                        <span className="text-[#99958F] italic">No phone recorded</span>
+                        <div className="flex items-center gap-2 text-[#99958F] italic">
+                          <Phone className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                          <span>No phone recorded</span>
+                        </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleStartEdit(emp)}
-                      className="font-medium text-xs text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
-                      title={`Edit ${emp.name}`}
-                      aria-label={`Edit ${emp.name}`}
-                    >
-                      <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                      <span>Edit</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteLaborer(emp)}
-                      disabled={deleteEmployeeMutation.isPending}
-                      className="font-medium text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
-                      title={`Delete ${emp.name}`}
-                      aria-label={`Delete ${emp.name}`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Delete</span>
-                    </button>
+                  {/* Bottom Action Bar: Edit, Delete */}
+                  <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleStartEdit(emp)}
+                        className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                        title={`Edit ${emp.name}`}
+                        aria-label={`Edit ${emp.name}`}
+                      >
+                        <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLaborer(emp)}
+                        disabled={deleteEmployeeMutation.isPending}
+                        className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                        title={`Delete ${emp.name}`}
+                        aria-label={`Delete ${emp.name}`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

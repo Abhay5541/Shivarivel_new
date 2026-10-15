@@ -645,6 +645,7 @@ export function useWages(filters?: {
       }
       if (filters?.projectId && filters.projectId !== 'all') {
         filtered = filtered.filter((w) => w.project_id === filters.projectId);
+      }
       if (filters?.status && filters.status !== 'all') {
         filtered = filtered.filter((w) => w.status === filters.status);
       }

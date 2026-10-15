@@ -282,7 +282,6 @@ export function WagesPage() {
     interface LaborerWeekData {
       employeeId: string;
       name: string;
-      code: string;
       fullDays: number;
       halfDays: number;
       absentDays: number;
@@ -297,7 +296,6 @@ export function WagesPage() {
       const empId = wage.employee_id;
       const emp = employees.find((e) => e.id === empId);
       const name = wage.employee?.name || emp?.name || 'Laborer';
-      const code = wage.employee?.employee_code || emp?.employee_code || 'EMP';
       const amount = Number(wage.amount || 0);
 
       const status: AttendanceStatus =
@@ -313,7 +311,6 @@ export function WagesPage() {
         row = {
           employeeId: empId,
           name,
-          code,
           fullDays: 0,
           halfDays: 0,
           absentDays: 0,
@@ -737,25 +734,27 @@ export function WagesPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-center">
-                            <div className="flex items-center justify-center gap-1">
+                            <div className="flex items-center justify-center gap-3">
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(wage)}
-                                className="p-1.5 text-[#6B6B6B] hover:text-[#4A0E0E] hover:bg-[#F7EFEF] rounded-md transition-colors cursor-pointer"
+                                className="font-medium text-xs text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
                                 title="Edit wage entry"
                                 aria-label={`Edit wage for ${laborerName}`}
                               >
-                                <Edit2 className="w-4 h-4" />
+                                <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                                <span>Edit</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteWage(wage, laborerName)}
                                 disabled={deleteWageMutation.isPending}
-                                className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                                className="font-medium text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
                                 title="Delete wage entry"
                                 aria-label={`Delete wage for ${laborerName}`}
                               >
-                                <Trash2 className="w-4 h-4" />
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete</span>
                               </button>
                             </div>
                           </td>
@@ -835,7 +834,7 @@ export function WagesPage() {
 
                         <div className="text-right">
                           <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
-                          <span className="font-bold text-sm sm:text-base text-[#242424] font-mono tabular-nums">
+                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
                             {formatINR(wage.amount || 0)}
                           </span>
                         </div>
@@ -1139,9 +1138,6 @@ export function WagesPage() {
                               <h4 className="font-bold text-sm text-[#242424] font-display truncate">
                                 {row.name}
                               </h4>
-                              <p className="text-[11px] text-[#6B6B6B] font-mono mt-0.5 truncate">
-                                {row.code}
-                              </p>
                             </div>
                           </div>
 

@@ -309,7 +309,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
                 </option>
                 {employees.map((emp) => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.name} ({emp.employee_code})
+                    {emp.name}
                   </option>
                 ))}
               </select>
