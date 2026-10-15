@@ -115,6 +115,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
     try {
       if (editingLaborer) {
         const updated = await updateEmployeeMutation.mutateAsync({
+          id: editingLaborer.id,
           name: trimmedName,
           phone: trimmedPhone || null,
           worker_type: editingLaborer.worker_type || 'Field Laborer',

@@ -1628,6 +1628,9 @@ export function useUpdateSimplePurchase() {
                 supplier_id: supplier.id,
                 project_id: payload.project_id || null,
                 total_amount: totalValue,
+                total_allocated: amountPaid,
+                outstanding_balance: balance,
+                payment_status: paymentStatus,
                 notes: payload.notes || null,
                 updated_at: new Date().toISOString(),
               })
