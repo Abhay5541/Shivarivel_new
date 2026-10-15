@@ -13,8 +13,11 @@ import {
   Calendar,
   Settings,
   LayoutDashboard,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
 import { useCompanySettings } from '@/hooks/useSettings';
 import { MagnifyingDock, type DockItem } from '@/components/ui/MagnifyingDock';
 import logoImg from '@/Asserts/shivarivel_svc_logo.png';
@@ -34,6 +37,7 @@ function resolveActiveKey(pathname: string) {
 
 export function Header({ onOpenQuickAdd }: HeaderProps) {
   const { user, signOut } = useAuth();
+  const { isDark, setTheme } = useTheme();
   const { data: company } = useCompanySettings();
   const location = useLocation();
   const navigate = useNavigate();
@@ -219,6 +223,44 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                     <span className="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[#F9F3E5] text-[#8C6514]">
                       {userRole}
                     </span>
+                  </div>
+
+                  {/* Dark / White Theme Toggle Bar */}
+                  <div className="px-3.5 py-2.5 border-b border-[#E2DDD5]/60">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] font-semibold text-[#6B6B6B] uppercase tracking-wider">
+                        Theme
+                      </span>
+                      <span className="text-[10px] font-bold text-[#4A0E0E]">
+                        {isDark ? 'Dark Mode' : 'White Mode'}
+                      </span>
+                    </div>
+                    <div className="flex p-0.5 bg-[#EFECE6] rounded-xl border border-[#E2DDD5]/70">
+                      <button
+                        type="button"
+                        onClick={() => setTheme('light')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          !isDark
+                            ? 'bg-white text-[#4A0E0E] shadow-2xs font-bold'
+                            : 'text-[#6B6B6B] hover:text-[#242424]'
+                        }`}
+                      >
+                        <Sun className="w-3.5 h-3.5 text-[#D97706]" />
+                        <span>White</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTheme('dark')}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          isDark
+                            ? 'bg-[#1C1A17] text-white shadow-2xs font-bold'
+                            : 'text-[#6B6B6B] hover:text-[#242424]'
+                        }`}
+                      >
+                        <Moon className="w-3.5 h-3.5 text-[#C9A24A]" />
+                        <span>Dark</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Settings & Master Data */}

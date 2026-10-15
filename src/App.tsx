@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -49,10 +50,11 @@ export function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <BrowserRouter>
-            <ScrollManager />
-            <Suspense fallback={<PageLoadingFallback />}>
-              <Routes>
+          <ThemeProvider>
+            <BrowserRouter>
+              <ScrollManager />
+              <Suspense fallback={<PageLoadingFallback />}>
+                <Routes>
                 {/* Public Authentication */}
                 <Route path="/login" element={<LoginPage />} />
 
@@ -116,7 +118,8 @@ export function App() {
               </Routes>
             </Suspense>
           </BrowserRouter>
-        </AuthProvider>
+        </ThemeProvider>
+      </AuthProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );

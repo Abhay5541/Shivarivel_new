@@ -259,3 +259,37 @@
     transition: none;
   }
 }
+
+/* Dark Mode Theme Overrides for Header & Dropdown */
+html.dark .glass-header {
+  background: rgba(18, 16, 14, 0.92);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+html.dark .glass-header-brand {
+  color: #FFFFFF;
+}
+html.dark .glass-brand-title {
+  color: #FFFFFF;
+}
+html.dark .glass-action-icon {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #F5F5F4;
+}
+html.dark .glass-user-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+html.dark .glass-user-dropdown {
+  background: rgba(24, 21, 18, 0.98);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+html.dark .glass-user-dropdown div.bg-\[\#EFECE6\] {
+  background-color: #12100E !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+html.dark .glass-user-dropdown span.text-\[\#4A0E0E\] {
+  color: #E2A855 !important;
+}
+
