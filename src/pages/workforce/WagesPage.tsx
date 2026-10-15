@@ -9,7 +9,6 @@ import {
   Building2,
   CheckCircle2,
   Clock,
-  Ban,
   Edit2,
   Trash2,
   ChevronDown,
@@ -65,6 +64,7 @@ export function WagesPage() {
     []
   );
   const [expandedWeeklyLaborerId, setExpandedWeeklyLaborerId] = useState<string | null>(null);
+  const [weeklyViewMode, setWeeklyViewMode] = useState<'cards' | 'ledger'>('cards');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const todayStr = useMemo(() => getTodayISO(), []);
@@ -380,27 +380,27 @@ export function WagesPage() {
     setIsAddWageModalOpen(true);
   };
 
-  // Helper for attendance pill display
+  // Helper for attendance pill display matching project status badge
   const renderAttendancePill = (units: number) => {
     if (units === 0.5) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047] text-xs font-semibold">
-          <Clock className="w-3 h-3" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] text-[11px] font-semibold shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#EAB308]" />
           <span>Half Day</span>
         </span>
       );
     }
     if (units === 0) {
       return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5] text-xs font-semibold">
-          <Ban className="w-3 h-3" />
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] text-[11px] font-semibold shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#DC2626]" />
           <span>Absent</span>
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#F0FDF4] text-[#166534] border border-[#86EFAC] text-xs font-semibold">
-        <CheckCircle2 className="w-3 h-3" />
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] text-[#1E7E34] text-[11px] font-semibold shrink-0">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#1E7E34]" />
         <span>Full Day</span>
       </span>
     );
@@ -421,9 +421,9 @@ export function WagesPage() {
         <img
           src={wagesBannerBg}
           alt="Wages Banner"
-          className="absolute inset-0 w-full h-full object-cover object-right sm:object-center pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent pointer-events-none" />
         <div className="relative z-10 flex flex-col justify-center h-full p-5 sm:p-6">
           <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
             Wages
@@ -584,7 +584,7 @@ export function WagesPage() {
             <img
               src={totalWagesBanner}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-90"
+              className="absolute right-0 top-0 h-full w-auto max-w-[45%] sm:max-w-[35%] object-contain object-right pointer-events-none opacity-85 select-none"
             />
 
             {/* Header: Today's Wages Paid + Big Amount */}
@@ -686,92 +686,14 @@ export function WagesPage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl overflow-hidden shadow-xs">
-              {/* Header */}
-              <div className="px-4 sm:px-5 py-3.5 bg-[#FAF8F5] border-b border-[#EFECE6] flex items-center justify-between">
-                <h3 className="text-sm sm:text-base font-bold text-[#3E1012] font-display">
-                  Laborers ({dayEntries.length})
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm font-bold text-[#242424] font-heading">
+                  Laborers Logged ({dayEntries.length})
                 </h3>
-
               </div>
 
-              {/* DESKTOP TABLE (>= 768px) */}
-              <div className="hidden md:block overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-[#EFECE6] bg-[#FAF8F5]/50 text-[11px] font-bold text-[#8C867E] uppercase tracking-wider">
-                      <th className="py-3 px-5">Laborer / Project</th>
-                      <th className="py-3 px-4">Attendance</th>
-                      <th className="py-3 px-5 text-right">Paid Amount</th>
-                      <th className="py-3 px-4 text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#EFECE6] text-sm text-[#242424]">
-                    {dayEntries.map((wage) => {
-                      const emp = employees.find((e) => e.id === wage.employee_id);
-                      const laborerName = wage.employee?.name || emp?.name || 'Laborer';
-                      const proj = projects.find((p) => p.id === wage.project_id);
-                      const projectName = (wage.project?.name && wage.project.name !== 'Project')
-                        ? wage.project.name
-                        : proj?.name || 'General Site Work';
-
-                      return (
-                        <tr key={wage.id} className="hover:bg-[#FAF8F5]/80 transition-colors">
-                          <td className="py-3.5 px-5">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
-                                <HardHat className="w-4 h-4" />
-                              </div>
-                              <div className="min-w-0">
-                                <div className="font-bold text-[#242424] font-display truncate">{laborerName}</div>
-                                <div className="flex items-center gap-1 text-xs text-[#8C867E] mt-0.5">
-                                  <Building2 className="w-3 h-3 text-[#A8A29E]" />
-                                  <span className="truncate">{projectName}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="py-3.5 px-4">{renderAttendancePill(wage.payable_units)}</td>
-
-                          <td className="py-3.5 px-5 text-right font-bold tabular-nums text-sm text-[#242424]">
-                            {formatINR(wage.amount || 0)}
-                          </td>
-
-                          <td className="py-3.5 px-4 text-center">
-                            <div className="flex items-center justify-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEdit(wage)}
-                                className="font-medium text-xs text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
-                                title="Edit wage entry"
-                                aria-label={`Edit wage for ${laborerName}`}
-                              >
-                                <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                                <span>Edit</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteWage(wage, laborerName)}
-                                disabled={deleteWageMutation.isPending}
-                                className="font-medium text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
-                                title="Delete wage entry"
-                                aria-label={`Delete wage for ${laborerName}`}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>Delete</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* MOBILE STACKED CARDS (< 768px) */}
-              <div className="md:hidden space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -793,7 +715,7 @@ export function WagesPage() {
                               <HardHat className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                              <h4 className="font-bold text-sm text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
                                 {laborerName}
                               </h4>
                             </div>
@@ -950,7 +872,7 @@ export function WagesPage() {
             <img
               src={totalWagesBanner}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-90"
+              className="absolute right-0 top-0 h-full w-auto max-w-[45%] sm:max-w-[35%] object-contain object-right pointer-events-none opacity-85 select-none"
             />
 
             {/* Header: Weekly Wages Disbursed + Big Amount */}
@@ -1052,7 +974,39 @@ export function WagesPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="hidden md:block bg-white border border-[#E2DDD5] rounded-xl overflow-hidden shadow-xs">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm font-bold text-[#242424] font-heading">
+                  Laborers Logged ({weeklyLaborerAggregation.rows.length})
+                </h3>
+                <div className="hidden md:flex items-center gap-1 bg-[#FAF8F5] p-1 border border-[#E8E4DC] rounded-xl text-xs font-semibold">
+                  <button
+                    type="button"
+                    onClick={() => setWeeklyViewMode('cards')}
+                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                      weeklyViewMode === 'cards'
+                        ? 'bg-[#5A0F12] text-white shadow-2xs'
+                        : 'text-[#6B6B6B] hover:text-[#242424]'
+                    }`}
+                  >
+                    Cards View
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWeeklyViewMode('ledger')}
+                    className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                      weeklyViewMode === 'ledger'
+                        ? 'bg-[#5A0F12] text-white shadow-2xs'
+                        : 'text-[#6B6B6B] hover:text-[#242424]'
+                    }`}
+                  >
+                    Ledger Table
+                  </button>
+                </div>
+              </div>
+
+              {/* DESKTOP LEDGER TABLE (Visible when weeklyViewMode === 'ledger') */}
+              {weeklyViewMode === 'ledger' && (
+                <div className="hidden md:block bg-white border border-[#E2DDD5] rounded-xl overflow-hidden shadow-xs">
                 <div className="px-5 py-3.5 bg-[#F7F5F0] border-b border-[#E2DDD5] flex items-center justify-between">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
                     Laborer Weekly Ledger ({weekRange.label})
@@ -1156,9 +1110,10 @@ export function WagesPage() {
                   </table>
                 </div>
               </div>
+              )}
 
-              {/* MOBILE WEEKLY STACKED CARDS (< 768px) */}
-              <div className="md:hidden space-y-3">
+              {/* WEEKLY CARDS (Visible on mobile, and on desktop when weeklyViewMode === "cards") */}
+              <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 ${weeklyViewMode === 'ledger' ? 'md:hidden' : ''}`}>
                 {weeklyLaborerAggregation.rows.map((row) => {
                   const isExpanded = expandedWeeklyLaborerId === row.employeeId;
 
@@ -1175,7 +1130,7 @@ export function WagesPage() {
                               <HardHat className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                              <h4 className="font-bold text-sm text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
                                 {row.name}
                               </h4>
                             </div>
@@ -1186,7 +1141,7 @@ export function WagesPage() {
                             <span className="block text-[10px] font-semibold text-[#8C867E] uppercase tracking-wider">
                               Weekly Total
                             </span>
-                            <span className="font-bold text-base sm:text-lg tabular-nums text-[#242424] font-sans">
+                            <span className="font-bold text-base sm:text-lg tabular-nums text-[#166534] font-sans">
                               {formatINR(row.totalPaid)}
                             </span>
                           </div>

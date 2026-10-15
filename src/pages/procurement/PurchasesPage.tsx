@@ -390,17 +390,17 @@ export const PurchasesPage: React.FC = () => {
     return (
       <div
         key={p.id}
-        className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group"
+        className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
       >
         <div>
           {/* Header: Avatar, Name, Date/Project, Status Badge */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0 mt-0.5">
                 <Package className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <h4 className="font-bold text-sm sm:text-base text-[#242424] font-display truncate">
+                <h4 className="font-bold text-sm text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
                   {productName}
                 </h4>
                 <div className="text-xs text-[#8C867E] mt-0.5">
@@ -421,10 +421,10 @@ export const PurchasesPage: React.FC = () => {
             </div>
 
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold shrink-0 border ${
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
                 isPaid
-                  ? 'bg-[#E8F8EE] text-[#1E7E34] border-[#A7F3D0]'
-                  : 'bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]'
+                  ? 'bg-[#E8F8EE] text-[#1E7E34] '
+                  : 'bg-[#FEF2F2] text-[#991B1B] '
               }`}
             >
               <span
@@ -522,9 +522,9 @@ export const PurchasesPage: React.FC = () => {
         <img
           src={procurementBannerBg}
           alt="Procurement Banner"
-          className="absolute inset-0 w-full h-full object-cover object-right sm:object-center pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent pointer-events-none" />
         
         <div className="relative z-10 flex flex-col justify-center h-full p-5 sm:p-6">
           <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
@@ -658,7 +658,7 @@ export const PurchasesPage: React.FC = () => {
                           ✓ All project purchases are fully paid!
                         </div>
                       ) : (
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                           {projectPendingPurchases.map((p) => renderPurchaseCard(p, true))}
                         </div>
                       )}
@@ -690,7 +690,7 @@ export const PurchasesPage: React.FC = () => {
                           No fully paid purchases yet.
                         </div>
                       ) : (
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                           {projectPaidPurchases.map((p) => renderPurchaseCard(p, true))}
                         </div>
                       )}
@@ -776,7 +776,7 @@ export const PurchasesPage: React.FC = () => {
                           ✓ All general purchases are fully paid!
                         </div>
                       ) : (
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                           {generalPendingPurchases.map((p) => renderPurchaseCard(p, false))}
                         </div>
                       )}
@@ -808,7 +808,7 @@ export const PurchasesPage: React.FC = () => {
                           No fully paid purchases yet.
                         </div>
                       ) : (
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
                           {generalPaidPurchases.map((p) => renderPurchaseCard(p, false))}
                         </div>
                       )}
