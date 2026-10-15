@@ -38,50 +38,6 @@ const SERVICES = [
   { id: 'site-surveying', title: 'Site Surveying', icon: Compass },
 ];
 
-function ServicesDivider() {
-  return (
-    <div className="flex items-center gap-3 my-1">
-      <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
-      <span className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.25em] text-[#C9A24A]">
-        OUR SERVICES
-      </span>
-      <div className="h-[1px] bg-gradient-to-l from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
-    </div>
-  );
-}
-
-function ServicesGrid() {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
-      {SERVICES.map((service) => {
-        const Icon = service.icon;
-        return (
-          <div
-            key={service.id}
-            className="group bg-black/50 hover:bg-black/75 border border-[#C9A24A]/60 hover:border-[#C9A24A] backdrop-blur-md rounded-xl p-2.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all duration-200 shadow-xl hover:shadow-[#C9A24A]/30 cursor-default min-h-[64px] sm:min-h-[72px]"
-          >
-            <Icon className="w-5 h-5 text-[#C9A24A] group-hover:scale-110 transition-transform duration-200 shrink-0" />
-            <span className="font-inter text-[10.5px] sm:text-[11px] font-medium text-white leading-tight">
-              {service.title}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function VisionTagline() {
-  return (
-    <div className="pt-1.5">
-      <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide text-left drop-shadow-md leading-none">
-        Your Vision . Our Expertise
-      </p>
-      <div className="w-44 h-[1.5px] bg-gradient-to-r from-[#C9A24A] via-[#C9A24A]/60 to-transparent mt-1" />
-    </div>
-  );
-}
-
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -355,12 +311,6 @@ export function LoginPage() {
               </form>
             </div>
 
-            {/* OUR SERVICES & TAGLINE SECTION (MOBILE: UNDER LOGIN CONTAINER) */}
-            <div className="block lg:hidden w-full max-w-[420px] mt-6 space-y-2">
-              <ServicesDivider />
-              <ServicesGrid />
-              <VisionTagline />
-            </div>
           </div>
 
           {/* 3. OUR SERVICES SECTION (BELOW LOGIN FORM) */}
