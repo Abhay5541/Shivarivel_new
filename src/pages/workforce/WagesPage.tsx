@@ -477,9 +477,9 @@ export function WagesPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedDate(todayStr)}
-                    className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer shrink-0 ml-2"
+                    className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shrink-0 ml-2"
                   >
-                    Jump to Today
+                    JUMP TO TODAY
                   </button>
                 ) : (
                   <span className="px-2 py-0.5 rounded-md bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
@@ -554,9 +554,9 @@ export function WagesPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
                 >
-                  Jump to Today
+                  JUMP TO TODAY
                 </button>
               )}
             </div>
@@ -581,78 +581,70 @@ export function WagesPage() {
               </div>
             </div>
 
-            {/* 4 Status Tiles Grid with Distinct Colored Backgrounds */}
-            <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 p-3 sm:p-4 pt-0">
-              {/* 1. Total Logged (Soft Blue/Slate) */}
-              <div className="bg-[#F0F5FA]/95 backdrop-blur-xs border border-[#D5E3F0] rounded-2xl p-3 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#1E3A8A] tabular-nums">
+            {/* 4 Stats Grid in a Single Line at the Bottom */}
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] bg-white/80 backdrop-blur-xs divide-x divide-[#E8E4DC] py-3 px-2 sm:px-3">
+              {/* 1. Total Logged */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] text-[#1E3A8A] flex items-center justify-center shrink-0">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E3A8A] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.totalEntries}
                   </span>
-                  <div className="w-6 h-6 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                    <Users className="w-3.5 h-3.5 text-[#1E3A8A]" />
-                  </div>
                 </div>
-                <div className="mt-1.5">
-                  <div className="text-xs sm:text-sm font-semibold text-[#1E3A8A] leading-tight">
-                    Total Logged
-                  </div>
-                  <div className="text-[10px] text-[#6B7280] font-medium leading-none mt-0.5">Workers</div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Total Logged
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
-              {/* 2. Full Days (Green with Tick) */}
-              <div className="bg-[#EAF5EE]/95 backdrop-blur-xs border border-[#C6E7D2] rounded-2xl p-3 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums">
+              {/* 2. Full Days */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.fullDays}
                   </span>
-                  <div className="w-6 h-6 rounded-full bg-[#D1EDDC] flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#166534]" />
-                  </div>
                 </div>
-                <div className="mt-1.5">
-                  <div className="text-xs sm:text-sm font-semibold text-[#166534] leading-tight">
-                    Full Days
-                  </div>
-                  <div className="text-[10px] text-[#166534]/70 font-medium leading-none mt-0.5">Workers</div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Full Days
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
-              {/* 3. Half Days (Amber with Clock) */}
-              <div className="bg-[#FEF9E7]/95 backdrop-blur-xs border border-[#FDE68A] rounded-2xl p-3.5 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#92400E] tabular-nums">
+              {/* 3. Half Days */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                    <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.halfDays}
                   </span>
-                  <div className="w-6 h-6 rounded-full bg-[#FEF08A] flex items-center justify-center shrink-0">
-                    <Clock className="w-3.5 h-3.5 text-[#92400E]" />
-                  </div>
                 </div>
-                <div className="mt-1.5">
-                  <div className="text-xs sm:text-sm font-semibold text-[#92400E] leading-tight">
-                    Half Days
-                  </div>
-                  <div className="text-[10px] text-[#92400E]/70 font-medium leading-none mt-0.5">Workers</div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Half Days
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
-              {/* 4. Absent (Rose with X mark) */}
-              <div className="bg-[#FEE2E2]/95 backdrop-blur-xs border border-[#FECACA] rounded-2xl p-3.5 sm:p-3.5 transition-all shadow-2xs flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums">
+              {/* 4. Absent */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                    <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
+                  </div>
+                  <span className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.absent}
                   </span>
-                  <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 flex items-center justify-center shrink-0">
-                    <X className="w-3.5 h-3.5 text-[#991B1B] stroke-[2.5]" />
-                  </div>
                 </div>
-                <div className="mt-1.5">
-                  <div className="text-xs sm:text-sm font-semibold text-[#991B1B] leading-tight">
-                    Absent
-                  </div>
-                  <div className="text-[10px] text-[#991B1B]/70 font-medium leading-none mt-0.5">Workers</div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Absent
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
             </div>
           </div>
@@ -684,14 +676,7 @@ export function WagesPage() {
                 <h3 className="text-sm sm:text-base font-bold text-[#3E1012] font-display">
                   Laborers ({dayEntries.length})
                 </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsLaborersDrawerOpen(true)}
-                  className="text-xs font-bold text-[#8C6D23] hover:text-[#5A0F12] flex items-center gap-1 transition-colors cursor-pointer"
-                >
-                  <span>View All</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+
               </div>
 
               {/* DESKTOP TABLE (>= 768px) */}
