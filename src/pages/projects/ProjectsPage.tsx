@@ -7,7 +7,6 @@ import {
   User,
   ArrowRight,
   Edit2,
-  SlidersHorizontal,
   Search as SearchIcon,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -18,6 +17,7 @@ import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import { useProjects, useUpdateProject } from '@/hooks/useProjects';
 import type { Project, ProjectStatus } from '@/types/projects';
+import projectBannerBg from '@/Asserts/project_banner.png';
 
 export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -236,7 +236,7 @@ export const ProjectsPage: React.FC = () => {
 
   if (isError) {
     return (
-      <PageContainer className="py-8">
+      <PageContainer className="py-8 max-w-md mx-auto">
         <ErrorState
           title="Could not load projects"
           description={error?.message || 'Unable to retrieve projects.'}
@@ -247,31 +247,29 @@ export const ProjectsPage: React.FC = () => {
   }
 
   return (
-    <PageContainer className="pb-24">
-      {/* 1. TOP HEADER & ADD BUTTON */}
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+    <PageContainer className="pb-24 select-none">
+      {/* 1. HERO BANNER (Projects Background Banner with Text) */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4">
+        <img
+          src={projectBannerBg}
+          alt="Projects Banner"
+          className="absolute inset-0 w-full h-full object-cover object-right sm:object-center pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col justify-center h-full p-5 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
             Projects
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
-            Manage and track your active construction sites
+          <p className="text-xs sm:text-sm text-white/85 font-inter mt-1 max-w-[210px] sm:max-w-xs leading-snug">
+            Manage and track your active construction sites.
           </p>
         </div>
-
-        <button
-          type="button"
-          onClick={handleOpenAddProject}
-          className="h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all shrink-0 cursor-pointer"
-        >
-          <Plus className="w-4 h-4 stroke-[2.5]" />
-          <span>Add Project</span>
-        </button>
       </div>
 
-      {/* 2. SEARCH & FILTER ROW */}
-      <div className="mb-3.5 flex items-center gap-2">
-        <div className="relative flex-1">
+      {/* 2. SEARCH & ADD PROJECT ROW */}
+      <div className="flex items-center gap-2.5 sm:gap-3 mb-4">
+        <div className="relative flex-1 min-w-0">
           <SearchIcon className="w-4 h-4 text-[#8C867E] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
@@ -280,20 +278,17 @@ export const ProjectsPage: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by project, client or location..."
-            className="w-full h-11 pl-10 pr-3.5 bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#4A0E0E] focus:bg-white transition-all"
+            className="w-full h-11 pl-10 pr-3.5 bg-white border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#4A0E0E] focus:ring-1 focus:ring-[#4A0E0E]/20 transition-all shadow-2xs"
           />
         </div>
 
         <button
           type="button"
-          onClick={() => {
-            setStatusFilter((prev) => (prev === 'all' ? 'active' : prev === 'active' ? 'completed' : 'all'));
-          }}
-          className="w-11 h-11 rounded-xl bg-[#FAF7F0] border border-[#E8E4DC] flex items-center justify-center text-[#4A0E0E] hover:bg-white active:scale-95 transition-all shrink-0 cursor-pointer"
-          title="Toggle Filter"
-          aria-label="Filter Projects"
+          onClick={handleOpenAddProject}
+          className="h-11 px-3.5 sm:px-4 rounded-xl bg-[#5A0F12] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 shadow-xs hover:bg-[#430B0D] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap shrink-0"
         >
-          <SlidersHorizontal className="w-4 h-4" />
+          <Plus className="w-4 h-4 stroke-[2.5]" />
+          <span>Add Project</span>
         </button>
       </div>
 

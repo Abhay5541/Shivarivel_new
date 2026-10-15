@@ -85,7 +85,7 @@ export function SlidingSegmentedControl<T extends string>({
       aria-label={ariaLabel}
       className={`relative ${
         fullWidth ? 'flex w-full' : 'inline-flex'
-      } items-center p-1 bg-[#F7F5F0] border border-[#E2DDD5] ${
+      } items-center p-1 bg-[#F7F5F0] dark:bg-[#1A1714] border border-[#E2DDD5] dark:border-white/10 ${
         isMd ? 'rounded-xl sm:rounded-2xl' : 'rounded-xl'
       } select-none ${className}`}
     >
@@ -94,7 +94,7 @@ export function SlidingSegmentedControl<T extends string>({
         aria-hidden="true"
         className={`absolute top-1 bottom-1 ${
           isMd ? 'rounded-lg sm:rounded-xl' : 'rounded-lg'
-        } bg-white shadow-xs border border-[#E2DDD5]/80 pointer-events-none ${
+        } bg-white dark:bg-[#2C2723] shadow-xs dark:shadow-md border border-[#E2DDD5]/80 dark:border-white/10 pointer-events-none ${
           indicatorStyle.ready
             ? 'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]'
             : 'transition-none opacity-0'
@@ -124,8 +124,8 @@ export function SlidingSegmentedControl<T extends string>({
               isMd ? 'px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-lg sm:rounded-xl' : 'px-2 sm:px-3 py-1.5 text-xs rounded-lg'
             } font-bold transition-colors duration-200 cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap active:scale-[0.98] ${
               isActive
-                ? opt.activeColorClass || 'text-[#242424]'
-                : 'text-[#6B6B6B] hover:text-[#242424]'
+                ? `${opt.activeColorClass || 'text-[#242424]'} dark:text-[#E2A855]`
+                : 'text-[#6B6B6B] dark:text-[#A8A29E] hover:text-[#242424] dark:hover:text-white'
             }`}
           >
             {opt.icon && (

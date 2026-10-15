@@ -7,7 +7,11 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isPasswordRecovery: boolean;
+  setIsPasswordRecovery: (val: boolean) => void;
   signInWithPassword: (email: string, password: string) => Promise<{ error: Error | null }>;
+  resetPasswordForEmail: (email: string) => Promise<{ error: Error | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   demoSignIn: (role?: string) => void;
 }
@@ -18,23 +22,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.location.hash.includes('type=recovery');
+    }
+    return false;
+  });
 
   useEffect(() => {
     let isMounted = true;
 
-    // 1. Initial session check
+    // 1. Initial session check & real-time server validation
     async function initSession() {
       try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) {
-          console.warn('Supabase auth getSession notice:', error.message);
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError || !sessionData?.session) {
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+          }
+          return;
         }
+
+        // Validate directly with Supabase server to verify the user still exists in database
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError || !userData?.user) {
+          // User was deleted or banned in Supabase! Wipe local session immediately.
+          console.warn('User account was deleted or banned in Supabase. Revoking session.');
+          await supabase.auth.signOut().catch(() => {});
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+          }
+          return;
+        }
+
         if (isMounted) {
-          setSession(data?.session ?? null);
-          setUser(data?.session?.user ?? null);
+          setSession(sessionData.session);
+          setUser(userData.user);
         }
       } catch (err) {
-        console.warn('Local auth initialization note:', err);
+        console.warn('Auth validation note:', err);
+        if (isMounted) {
+          setSession(null);
+          setUser(null);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -46,7 +78,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // 2. Auth state subscription
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, currentSession) => {
+      (event, currentSession) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          setIsPasswordRecovery(true);
+        }
+        if (event === 'SIGNED_OUT' || !currentSession) {
+          if (isMounted) {
+            setSession(null);
+            setUser(null);
+            setIsLoading(false);
+          }
+          return;
+        }
         if (isMounted) {
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
@@ -55,15 +98,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
+    // 3. Re-verify user existence when mobile browser tab becomes active
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data?.user) {
+          await supabase.auth.signOut().catch(() => {});
+          if (isMounted) {
+            setUser(null);
+            setSession(null);
+          }
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       isMounted = false;
       subscription?.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
   const signInWithPassword = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return { error };
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
+  };
+
+  const resetPasswordForEmail = async (email: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/login`;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
+      if (error) return { error };
+      return { error: null };
+    } catch (err) {
+      return { error: err as Error };
+    }
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
       if (error) return { error };
       return { error: null };
     } catch (err) {
@@ -79,6 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null);
       setSession(null);
+      setIsPasswordRecovery(false);
     }
   };
 
@@ -109,11 +194,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       isLoading,
       isAuthenticated: Boolean(session || user),
+      isPasswordRecovery,
+      setIsPasswordRecovery,
       signInWithPassword,
+      resetPasswordForEmail,
+      updatePassword,
       signOut,
       demoSignIn,
     }),
-    [user, session, isLoading]
+    [user, session, isLoading, isPasswordRecovery]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

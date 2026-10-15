@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ChevronUp,
   HardHat,
-  Receipt,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/Button';
@@ -27,6 +26,8 @@ import { LaborersDrawer } from '@/components/business/LaborersDrawer';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
+import wagesBannerBg from '@/Asserts/Wages banner.png';
+import totalWagesBanner from '@/Asserts/Total_wages banner.png';
 
 function getTodayISO() {
   const d = new Date();
@@ -44,18 +45,18 @@ export function WagesPage() {
   const [openInAddMode, setOpenInAddMode] = useState(false);
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
 
-  // Segment options for Daily Wages vs Weekly Overview
+  // Segment options for Daily Muster vs Weekly Wages
   const wageViewOptions = useMemo<SegmentOption<'daily' | 'weekly'>[]>(
     () => [
       {
         id: 'daily',
-        label: 'Daily Wages',
+        label: 'Daily Muster',
         icon: <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />,
         activeColorClass: 'text-[#4A0E0E]',
       },
       {
         id: 'weekly',
-        label: 'Weekly Overview',
+        label: 'Weekly Wages',
         icon: <Clock className="w-4 h-4 text-[#C99A2E]" />,
         activeColorClass: 'text-[#4A0E0E]',
       },
@@ -282,6 +283,7 @@ export function WagesPage() {
     interface LaborerWeekData {
       employeeId: string;
       name: string;
+      code: string;
       fullDays: number;
       halfDays: number;
       absentDays: number;
@@ -296,6 +298,7 @@ export function WagesPage() {
       const empId = wage.employee_id;
       const emp = employees.find((e) => e.id === empId);
       const name = wage.employee?.name || emp?.name || 'Laborer';
+      const code = wage.employee?.employee_code || emp?.employee_code || 'EMP';
       const amount = Number(wage.amount || 0);
 
       const status: AttendanceStatus =
@@ -311,6 +314,7 @@ export function WagesPage() {
         row = {
           employeeId: empId,
           name,
+          code,
           fullDays: 0,
           halfDays: 0,
           absentDays: 0,
@@ -397,49 +401,53 @@ export function WagesPage() {
         </div>
       )}
 
-      {/* 1. TOP PAGE HEADER & ACTION BUTTONS */}
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-[#242424] tracking-tight">
+      {/* 1. HERO BANNER (Wages Background Banner with Text) */}
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4">
+        <img
+          src={wagesBannerBg}
+          alt="Wages Banner"
+          className="absolute inset-0 w-full h-full object-cover object-right sm:object-center pointer-events-none"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
+        <div className="relative z-10 flex flex-col justify-center h-full p-5 sm:p-6">
+          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
             Wages
           </h1>
-          <p className="text-xs text-[#6B6B6B] mt-0.5 font-inter">
-            Record daily muster, site labor, and wage payouts
+          <p className="text-xs sm:text-sm text-white/85 font-inter mt-1 max-w-[210px] sm:max-w-xs leading-snug">
+            Manage laborers and track daily / weekly wages.
           </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              setOpenInAddMode(false);
-              setIsLaborersDrawerOpen(true);
-            }}
-            className="h-8 sm:h-9 px-3 rounded-xl border border-[#E8E4DC] bg-white text-[#4A0E0E] text-xs font-semibold flex items-center gap-1.5 shadow-2xs hover:bg-[#FAF7F0] active:scale-95 transition-all cursor-pointer whitespace-nowrap"
-          >
-            <Users className="w-3.5 h-3.5 text-[#4A0E0E]" />
-            <span className="hidden sm:inline">Laborers Directory</span>
-            <span className="sm:hidden">Laborers</span>
-          </button>
-
-          {activeTab === 'daily' && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditingWage(null);
-                setIsAddWageModalOpen(true);
-              }}
-              className="h-8 sm:h-9 px-3.5 rounded-xl bg-[#4A0E0E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs hover:bg-[#380A0A] active:scale-95 transition-all cursor-pointer whitespace-nowrap w-full sm:w-auto justify-center"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Add Wage</span>
-            </button>
-          )}
         </div>
       </div>
 
-      {/* View Switcher: [ Daily Wages ] [ Weekly Overview ] */}
-      <div className="mb-6 overflow-x-auto no-scrollbar">
+      {/* 2. PAGE ACTIONS: Laborers Directory & Add Wage Entry */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4">
+        <button
+          type="button"
+          onClick={() => {
+            setOpenInAddMode(false);
+            setIsLaborersDrawerOpen(true);
+          }}
+          className="h-11 px-3.5 sm:px-4 rounded-xl border border-[#E8E4DC] bg-white text-[#242424] text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-2xs hover:bg-[#FAF7F0] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+        >
+          <Users className="w-4 h-4 text-[#854D0E] shrink-0" />
+          <span className="truncate">Laborers Directory</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEditingWage(null);
+            setIsAddWageModalOpen(true);
+          }}
+          className="h-11 px-3.5 sm:px-4 rounded-xl bg-[#5A0F12] text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 shadow-xs hover:bg-[#430B0D] active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4 stroke-[2.5] shrink-0" />
+          <span className="truncate">Add Wage Entry</span>
+        </button>
+      </div>
+
+      {/* 3. VIEW SWITCHER: [ Daily Muster ] [ Weekly Wages ] */}
+      <div className="mb-4">
         <SlidingSegmentedControl
           options={wageViewOptions}
           value={activeTab}
@@ -456,211 +464,150 @@ export function WagesPage() {
       {activeTab === 'daily' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Date Navigator Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
-            {/* Mobile Layout (sm:hidden) */}
-            <div className="flex flex-col gap-2.5 sm:hidden">
-              {/* Selected Date & Quick Jump Row */}
-              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
-                <div className="relative flex items-center gap-2 min-w-0">
-                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
-                  <span className="font-display font-bold text-sm text-[#242424] truncate">
-                    {formattedSelectedDateShort}
-                  </span>
-                  {/* Invisible native date picker over container for instant jump */}
-                  <input
-                    type="date"
-                    max={todayStr}
-                    value={selectedDate}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const val = e.target.value;
-                        if (val <= todayStr) setSelectedDate(val);
-                      }
-                    }}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                    title="Choose a specific date"
-                    aria-label="Choose a specific date"
-                  />
-                </div>
+          <div className="bg-white border border-[#E2DDD5] rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-xs flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <button
+                type="button"
+                onClick={() => navigateDate(-1)}
+                className="w-8 h-8 rounded-lg border border-[#E8E4DC] hover:border-[#5A0F12] hover:bg-[#FAF7F0] flex items-center justify-center text-[#242424] transition-all cursor-pointer shrink-0"
+                aria-label="Previous Day"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
 
-                <div className="shrink-0 ml-2">
-                  {isSelectedDateToday ? (
-                    <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
-                      Today
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDate(todayStr)}
-                      className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
-                    >
-                      Jump to Today
-                    </button>
-                  )}
-                </div>
+              <div className="relative flex items-center gap-2 min-w-0 cursor-pointer group px-1">
+                <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
+                <span className="font-display font-bold text-xs sm:text-sm text-[#242424] truncate">
+                  {formattedSelectedDateShort}
+                </span>
+                {/* Invisible native date picker over container for instant jump */}
+                <input
+                  type="date"
+                  max={todayStr}
+                  value={selectedDate}
+                  onChange={(e) => {
+                    if (e.target.value && e.target.value <= todayStr) {
+                      setSelectedDate(e.target.value);
+                    }
+                  }}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  title="Choose a specific date"
+                  aria-label="Choose a specific date"
+                />
               </div>
 
-              {/* Quick Navigation Buttons */}
-              <div className={isSelectedDateToday ? "grid grid-cols-1" : "grid grid-cols-2 gap-2"}>
-                <Button
+              {!isSelectedDateToday && (
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigateDate(-1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                  onClick={() => navigateDate(1)}
+                  className="w-8 h-8 rounded-lg border border-[#E8E4DC] hover:border-[#5A0F12] hover:bg-[#FAF7F0] flex items-center justify-center text-[#242424] transition-all cursor-pointer shrink-0"
+                  aria-label="Next Day"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
-                </Button>
-
-                {!isSelectedDateToday && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate(1)}
-                    className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
-                  >
-                    <span>Next Day</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
-            {/* Desktop Layout (sm and up) */}
-            <div className="hidden sm:flex items-center justify-between w-full">
-              <div className="flex items-center gap-3">
-                <Button
+            <div className="shrink-0">
+              {isSelectedDateToday ? (
+                <span className="px-2.5 py-1 rounded-lg bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                  TODAY
+                </span>
+              ) : (
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigateDate(-1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                  onClick={() => setSelectedDate(todayStr)}
+                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
                 >
-                  <ChevronLeft className="w-4 h-4" />
-                  <span>{isSelectedDateToday ? 'Yesterday' : 'Previous Day'}</span>
-                </Button>
-
-                <div className="flex items-center gap-2">
-                  <div className="relative flex items-center">
-                    <span className="font-display font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
-                      <span>{formattedSelectedDate}</span>
-                    </span>
-                    <input
-                      type="date"
-                      max={todayStr}
-                      value={selectedDate}
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const val = e.target.value;
-                          if (val <= todayStr) setSelectedDate(val);
-                        }
-                      }}
-                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                      title="Choose a specific date"
-                      aria-label="Choose a specific date"
-                    />
-                  </div>
-
-                  {isSelectedDateToday ? (
-                    <span className="px-2 py-0.5 rounded-full bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
-                      Today
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDate(todayStr)}
-                      className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
-                    >
-                      Jump to Today
-                    </button>
-                  )}
-                </div>
-
-                {!isSelectedDateToday && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateDate(1)}
-                    className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
-                  >
-                    <span>Next Day</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
+                  JUMP TO TODAY
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Daily Operational Summary Card (Matches Reference Design) */}
-          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
-            {/* Header: Icon + "Today's wages paid" + Worker Count Pill */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
-                  <Receipt className="w-5 h-5 stroke-[1.75]" />
-                </div>
-                <div className="min-w-0">
-                  {isSelectedDateToday ? (
-                    <span className="text-sm sm:text-base font-medium text-[#404040]">
-                      Today&apos;s wages paid
-                    </span>
-                  ) : (
-                    <div className="leading-tight">
-                      <span className="text-xs sm:text-sm font-medium text-[#6B6B6B] block">
-                        Wages paid on
-                      </span>
-                      <span className="text-sm sm:text-base font-semibold text-[#242424] block mt-0.5">
-                        {formattedSelectedDate}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* Wage Summary Card (From Reference Design with Total_wages banner) */}
+          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs relative overflow-hidden">
+            {/* Background illustration for Today's Wages Paid */}
+            <img
+              src={totalWagesBanner}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-90"
+            />
 
-              <div className="px-3.5 py-1 rounded-full bg-[#E5F3EB] text-[#166534] text-xs sm:text-sm font-semibold tracking-wide shrink-0 self-start sm:self-center">
-                {dailySummary.totalEntries} {dailySummary.totalEntries === 1 ? 'worker' : 'workers'}
+            {/* Header: Today's Wages Paid + Big Amount */}
+            <div className="relative z-10 p-4 sm:p-5">
+              <div className="text-xs font-semibold text-[#166534]">
+                {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDateShort}`}
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold font-display tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
+                {formatINR(dailySummary.totalPaid)}
               </div>
             </div>
 
-            {/* Big Currency Amount */}
-            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
-              {formatINR(dailySummary.totalPaid)}
-            </div>
-
-            {/* 3 Status Tiles: Full Day (Green) | Half Day (Beige) | Absent (Beige) */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
-              {/* Full Day Tile */}
-              <div className="bg-[#EAF5EE] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#166534] tabular-nums">
-                  {dailySummary.fullDays}
+            {/* 4 Stats Grid with icons, bold numbers, and full non-truncated labels */}
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#EFECE6]/90 bg-white/70 backdrop-blur-xs divide-x divide-[#EFECE6]/90 py-3 px-2 sm:px-3">
+              {/* 1. Total Logged */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.totalEntries}
+                  </span>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-[#166534] mt-1">
-                  Full day
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Total Logged
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
-              {/* Half Day Tile */}
-              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
-                  {dailySummary.halfDays}
+              {/* 2. Full Days */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.fullDays}
+                  </span>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
-                  Half day
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Full Days
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
-              {/* Absent Tile */}
-              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
-                  {dailySummary.absent}
+              {/* 3. Half Days */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                    <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.halfDays}
+                  </span>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
+                  Half Days
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
+              </div>
+
+              {/* 4. Absent */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                    <Ban className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
+                    {dailySummary.absent}
+                  </span>
+                </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight">
                   Absent
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
             </div>
           </div>
@@ -686,26 +633,34 @@ export function WagesPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
-              {/* DESKTOP TABLE (>= 768px) */}
-              <div className="hidden md:block bg-white border border-[#E2DDD5] rounded-xl overflow-hidden shadow-xs">
-                <div className="px-5 py-3.5 bg-[#F7F5F0] border-b border-[#E2DDD5] flex items-center justify-between">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#4A0E0E]">
-                    Daily Muster Matrix ({dayEntries.length} Recorded)
-                  </h3>
-                </div>
+            <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl overflow-hidden shadow-xs">
+              {/* Header */}
+              <div className="px-4 sm:px-5 py-3.5 bg-[#FAF8F5] border-b border-[#EFECE6] flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-bold text-[#3E1012] font-display">
+                  Laborers ({dayEntries.length})
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsLaborersDrawerOpen(true)}
+                  className="text-xs font-bold text-[#8C6D23] hover:text-[#5A0F12] flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <span>View All</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
+              {/* DESKTOP TABLE (>= 768px) */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#E2DDD5] bg-[#FFFFFF] text-[11px] font-bold text-[#6B6B6B] uppercase tracking-wider">
-                      <th className="py-3 px-5">Laborer</th>
-                      <th className="py-3 px-4">Project / Site</th>
-                      <th className="py-3 px-4">Attendance Status</th>
-                      <th className="py-3 px-5 text-right">Amount Paid</th>
-                      <th className="py-3 px-4 text-center">Action</th>
+                    <tr className="border-b border-[#EFECE6] bg-[#FAF8F5]/50 text-[11px] font-bold text-[#8C867E] uppercase tracking-wider">
+                      <th className="py-3 px-5">Laborer / Project</th>
+                      <th className="py-3 px-4">Attendance</th>
+                      <th className="py-3 px-5 text-right">Paid Amount</th>
+                      <th className="py-3 px-4 text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E2DDD5] text-sm text-[#242424]">
+                  <tbody className="divide-y divide-[#EFECE6] text-sm text-[#242424]">
                     {dayEntries.map((wage) => {
                       const emp = employees.find((e) => e.id === wage.employee_id);
                       const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -715,15 +670,19 @@ export function WagesPage() {
                         : proj?.name || 'General Site Work';
 
                       return (
-                        <tr key={wage.id} className="hover:bg-[#F7F5F0]/60 transition-colors">
+                        <tr key={wage.id} className="hover:bg-[#FAF8F5]/80 transition-colors">
                           <td className="py-3.5 px-5">
-                            <span className="font-bold text-[#242424] font-display">{laborerName}</span>
-                          </td>
-
-                          <td className="py-3.5 px-4">
-                            <div className="flex items-center gap-1.5 text-xs text-[#242424]">
-                              <Building2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                              <span>{projectName}</span>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+                                <HardHat className="w-4 h-4" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-[#242424] font-display truncate">{laborerName}</div>
+                                <div className="flex items-center gap-1 text-xs text-[#8C867E] mt-0.5">
+                                  <Building2 className="w-3 h-3 text-[#A8A29E]" />
+                                  <span className="truncate">{projectName}</span>
+                                </div>
+                              </div>
                             </div>
                           </td>
 
@@ -734,27 +693,25 @@ export function WagesPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-center">
-                            <div className="flex items-center justify-center gap-3">
+                            <div className="flex items-center justify-center gap-1">
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(wage)}
-                                className="font-medium text-xs text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                                className="p-1.5 text-[#8C867E] hover:text-[#5A0F12] hover:bg-[#F9ECEB] rounded-lg transition-colors cursor-pointer"
                                 title="Edit wage entry"
                                 aria-label={`Edit wage for ${laborerName}`}
                               >
-                                <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-                                <span>Edit</span>
+                                <Edit2 className="w-4 h-4" />
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteWage(wage, laborerName)}
                                 disabled={deleteWageMutation.isPending}
-                                className="font-medium text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                                className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                                 title="Delete wage entry"
                                 aria-label={`Delete wage for ${laborerName}`}
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
-                                <span>Delete</span>
+                                <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </td>
@@ -765,8 +722,8 @@ export function WagesPage() {
                 </table>
               </div>
 
-              {/* MOBILE STACKED CARDS (< 768px) */}
-              <div className="md:hidden space-y-3">
+              {/* MOBILE ROWS (< 768px) */}
+              <div className="md:hidden divide-y divide-[#EFECE6]">
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -778,45 +735,39 @@ export function WagesPage() {
                   return (
                     <div
                       key={wage.id}
-                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
+                      className="p-4 hover:bg-[#FAF8F5]/60 transition-colors flex flex-col gap-2.5"
                     >
-                      <div>
-                        {/* Header: Laborer Avatar/Icon, Name, Attendance Badge */}
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
-                              <HardHat className="w-5 h-5" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
-                                {laborerName}
-                              </h4>
-                            </div>
+                      {/* Top: Avatar, Name + Project, Attendance Pill */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+                            <HardHat className="w-4 h-4" />
                           </div>
-
-                          <div className="shrink-0">
-                            {renderAttendancePill(wage.payable_units)}
+                          <div className="min-w-0">
+                            <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                              {laborerName}
+                            </h4>
+                            <div className="flex items-center gap-1.5 text-[11px] text-[#8C867E] mt-0.5">
+                              <Building2 className="w-3 h-3 text-[#A8A29E] shrink-0" />
+                              <span className="truncate">{projectName}</span>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Details: Project Name */}
-                        <div className="mt-3 space-y-1.5 text-xs text-[#6B6B6B] pl-1">
-                          <div className="flex items-center gap-2">
-                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
-                            <span className="truncate">{projectName}</span>
-                          </div>
+                        <div className="shrink-0">
+                          {renderAttendancePill(wage.payable_units)}
                         </div>
                       </div>
 
-                      {/* Bottom Action Bar: Edit, Delete, Amount Paid */}
-                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-3">
+                      {/* Bottom: Actions & Amount Paid */}
+                      <div className="flex items-center justify-between pt-2 border-t border-[#F5F2EB] text-xs">
+                        <div className="flex items-center gap-2">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(wage)}
-                            className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2 py-1 text-[#6B6B6B] hover:text-[#5A0F12] hover:bg-[#F9ECEB] rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
                           >
-                            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                            <Edit2 className="w-3.5 h-3.5" />
                             <span>Edit</span>
                           </button>
 
@@ -824,7 +775,7 @@ export function WagesPage() {
                             type="button"
                             onClick={() => handleDeleteWage(wage, laborerName)}
                             disabled={deleteWageMutation.isPending}
-                            className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="px-2 py-1 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors flex items-center gap-1 cursor-pointer font-medium"
                             title={`Delete wage for ${laborerName}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -833,8 +784,8 @@ export function WagesPage() {
                         </div>
 
                         <div className="text-right">
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
-                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
+                          <span className="text-[10px] uppercase font-bold text-[#8C867E] mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm text-[#242424] font-mono tabular-nums">
                             {formatINR(wage.amount || 0)}
                           </span>
                         </div>
@@ -939,54 +890,28 @@ export function WagesPage() {
             </div>
           </div>
 
-          {/* Weekly Operational Summary Card (Matches Daily Wages Design) */}
-          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
-            {/* Header: Icon + "Weekly wages disbursed" + Week Range Pill */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
-                  <Receipt className="w-5 h-5 stroke-[1.75]" />
-                </div>
-                <div className="leading-tight min-w-0">
-                  <span className="text-sm sm:text-base font-semibold text-[#242424] block">
-                    Weekly wages disbursed
-                  </span>
-                  <span className="text-xs text-[#6B6B6B] block mt-0.5 sm:hidden font-medium">
-                    {weekRange.label}
-                  </span>
-                </div>
-              </div>
-
-              <div className="hidden sm:inline-flex px-3.5 py-1 rounded-full bg-[#FAF7F0] border border-[#E8E4DC] text-[#6B6B6B] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
-                {weekRange.label}
+          {/* Weekly Operational Summary Banner */}
+          <div className="bg-white border border-[#E2DDD5] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="text-xs font-medium text-[#6B6B6B]">Weekly Total Wages Disbursed</div>
+              <div className="text-2xl sm:text-3xl font-bold font-display tabular-nums text-[#242424] mt-0.5">
+                {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
               </div>
             </div>
 
-            {/* Big Currency Amount */}
-            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
-              {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
-            </div>
-
-            {/* Bottom 2 Boxes: Active Laborers & Total Entries (Both in beige/stone #F4F1EA matching Half day / Absent) */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {/* Active Laborers Tile */}
-              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
+            <div className="flex items-center gap-4 text-xs text-[#6B6B6B] border-t sm:border-t-0 sm:border-l border-[#E2DDD5] pt-3 sm:pt-0 sm:pl-6">
+              <div>
+                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Active Laborers</span>
+                <span className="font-bold text-[#242424] text-sm tabular-nums">
                   {weeklyLaborerAggregation.rows.length}
-                </div>
-                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
-                  Active Laborers
-                </div>
+                </span>
               </div>
-
-              {/* Total Entries Tile */}
-              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
+              <span className="text-[#E2DDD5]">•</span>
+              <div>
+                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Total Entries</span>
+                <span className="font-bold text-[#242424] text-sm tabular-nums">
                   {weeklyEntries.length}
-                </div>
-                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
-                  Total Entries
-                </div>
+                </span>
               </div>
             </div>
           </div>
@@ -1006,7 +931,7 @@ export function WagesPage() {
                   onClick={() => setActiveTab('daily')}
                   className="h-9 px-4 border-[#E2DDD5] text-xs font-semibold"
                 >
-                  Go to Daily Wages
+                  Go to Daily Muster
                 </Button>
               </div>
             </div>
@@ -1125,116 +1050,77 @@ export function WagesPage() {
                   return (
                     <div
                       key={row.employeeId}
-                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
+                      className="bg-white border border-[#E2DDD5] rounded-xl p-4 shadow-xs space-y-3"
                     >
-                      <div>
-                        {/* Header: Laborer Avatar/Icon, Name, Days Badge */}
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
-                              <HardHat className="w-5 h-5" />
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-bold text-sm text-[#242424] font-display truncate">
-                                {row.name}
-                              </h4>
-                            </div>
-                          </div>
-
-                          <div className="shrink-0">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F8EE] text-[#1E7E34]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#1E7E34]" />
-                              <span>{row.fullDays + row.halfDays} Days</span>
-                            </span>
-                          </div>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-bold text-sm text-[#242424] font-display">{row.name}</h4>
+                          <p className="text-xs text-[#6B6B6B] mt-0.5">
+                            {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'No sites recorded'}
+                          </p>
                         </div>
-
-                        {/* Details: Sites worked and Attendance pills */}
-                        <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
-                          <div className="flex items-center gap-2">
-                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
-                            <span className="truncate">
-                              {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'General Site Work'}
-                            </span>
-                          </div>
-
-                          {/* Attendance breakdown pills */}
-                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#86EFAC]/70 text-[11px] font-semibold">
-                              <CheckCircle2 className="w-3 h-3 text-[#166534]" />
-                              <span>{row.fullDays} Full</span>
-                            </span>
-
-                            {row.halfDays > 0 && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047]/70 text-[11px] font-semibold">
-                                <Clock className="w-3 h-3 text-[#854D0E]" />
-                                <span>{row.halfDays} Half</span>
-                              </span>
-                            )}
-
-                            {row.absentDays > 0 && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]/70 text-[11px] font-semibold">
-                                <Ban className="w-3 h-3 text-[#991B1B]" />
-                                <span>{row.absentDays} Absent</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Bottom Action Bar: Accordion Toggle & Amount Paid */}
-                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)}
-                          className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
-                        >
-                          <span>{isExpanded ? 'Hide Daily Details' : 'View Daily Details'}</span>
-                          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                        </button>
 
                         <div className="text-right">
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
-                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
+                          <span className="block text-[10px] font-semibold text-[#6B6B6B] uppercase">Weekly Total</span>
+                          <span className="font-bold text-base tabular-nums text-[#242424]">
                             {formatINR(row.totalPaid)}
                           </span>
                         </div>
                       </div>
 
-                      {/* 7-Day Expanded Breakdown */}
-                      {isExpanded && (
-                        <div className="mt-3 pt-3 border-t border-[#F0EAE1] space-y-2">
-                          <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider pl-1">
-                            7-Day Daily Breakdown
-                          </div>
-                          <div className="bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
-                            {weekRange.days.map((dISO) => {
-                              const dayRec = row.dailyAmounts[dISO];
-                              const dObj = new Date(
-                                Number(dISO.split('-')[0]),
-                                Number(dISO.split('-')[1]) - 1,
-                                Number(dISO.split('-')[2])
-                              );
-                              const dayName = dObj.toLocaleDateString('en-GB', {
-                                weekday: 'short',
-                                day: 'numeric',
-                                month: 'short',
-                              });
+                      {/* Attendance breakdown pills */}
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="px-2 py-0.5 bg-[#F0FDF4] text-[#166534] border border-[#86EFAC] rounded-sm font-semibold">
+                          {row.fullDays} Full
+                        </span>
+                        <span className="px-2 py-0.5 bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047] rounded-sm font-semibold">
+                          {row.halfDays} Half
+                        </span>
+                        <span className="px-2 py-0.5 bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5] rounded-sm font-semibold">
+                          {row.absentDays} Absent
+                        </span>
+                      </div>
 
-                              return (
-                                <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E8E4DC]/60 last:border-0">
-                                  <span className="font-medium text-[#6B6B6B]">{dayName}</span>
-                                  {dayRec ? (
-                                    <span className="font-semibold text-[#242424] tabular-nums">
-                                      {dayRec.projectName} — <span className={dayRec.status === 'Absent' ? 'text-[#991B1B]' : dayRec.status === 'Half Day' ? 'text-[#854D0E]' : 'text-[#166534]'}>{dayRec.status}</span> ({formatINR(dayRec.amount)})
-                                    </span>
-                                  ) : (
-                                    <span className="text-[#99958F] italic">No work recorded</span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
+                      {/* Accordion trigger for 7-day breakdown */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)
+                        }
+                        className="w-full pt-2 border-t border-[#E2DDD5] flex items-center justify-between text-xs text-[#4A0E0E] font-semibold cursor-pointer"
+                      >
+                        <span>{isExpanded ? 'Hide Daily Breakdown' : 'View Daily Breakdown'}</span>
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="bg-[#F7F5F0] rounded-lg p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
+                          {weekRange.days.map((dISO) => {
+                            const dayRec = row.dailyAmounts[dISO];
+                            const dObj = new Date(
+                              Number(dISO.split('-')[0]),
+                              Number(dISO.split('-')[1]) - 1,
+                              Number(dISO.split('-')[2])
+                            );
+                            const dayName = dObj.toLocaleDateString('en-GB', {
+                              weekday: 'short',
+                              day: 'numeric',
+                              month: 'short',
+                            });
+
+                            return (
+                              <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E2DDD5]/70 last:border-0">
+                                <span className="font-medium text-[#6B6B6B]">{dayName}</span>
+                                {dayRec ? (
+                                  <span className="font-semibold text-[#242424] tabular-nums">
+                                    {dayRec.projectName} — {dayRec.status} ({formatINR(dayRec.amount)})
+                                  </span>
+                                ) : (
+                                  <span className="text-[#99958F] italic">No work recorded</span>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
