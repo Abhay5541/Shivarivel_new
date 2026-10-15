@@ -15,7 +15,6 @@ import {
   ChevronDown,
   ChevronUp,
   HardHat,
-  Receipt,
   X,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -357,6 +356,23 @@ export function WagesPage() {
       dayTotals,
     };
   }, [weeklyEntries, employees, projects, weekRange.days]);
+
+// Weekly attendance summary totals
+  const weeklySummary = useMemo(() => {
+    let full = 0;
+    let half = 0;
+    let absent = 0;
+    for (const r of weeklyLaborerAggregation.rows) {
+      full += r.fullDays;
+      half += r.halfDays;
+      absent += r.absentDays;
+    }
+    return {
+      totalFullDays: full,
+      totalHalfDays: half,
+      totalAbsentDays: absent,
+    };
+  }, [weeklyLaborerAggregation.rows]);
 
   // Actions
   const handleOpenEdit = (wage: DailyWage) => {
@@ -856,9 +872,9 @@ export function WagesPage() {
                 <button
                   type="button"
                   onClick={() => setWeekReferenceDate(todayStr)}
-                  className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer shrink-0 ml-2"
+                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shrink-0 ml-2"
                 >
-                  Current Week
+                  CURRENT WEEK
                 </button>
               </div>
 
@@ -921,61 +937,96 @@ export function WagesPage() {
               <button
                 type="button"
                 onClick={() => setWeekReferenceDate(todayStr)}
-                className="text-xs text-[#4A0E0E] font-semibold hover:underline cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
               >
-                Current Week
+                CURRENT WEEK
               </button>
             </div>
           </div>
 
-          {/* Weekly Operational Summary Card (Matches Daily Wages Design) */}
-          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
-            {/* Header: Icon + "Weekly wages disbursed" + Week Range Pill */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
-                  <Receipt className="w-5 h-5 stroke-[1.75]" />
-                </div>
-                <div className="leading-tight min-w-0">
-                  <span className="text-sm sm:text-base font-semibold text-[#242424] block">
-                    Weekly wages disbursed
-                  </span>
-                  <span className="text-xs text-[#6B6B6B] block mt-0.5 sm:hidden font-medium">
-                    {weekRange.label}
-                  </span>
-                </div>
-              </div>
+          {/* Weekly Summary Card (Matches Daily Wages Dashboard Design) */}
+          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs relative overflow-hidden">
+            {/* Background illustration */}
+            <img
+              src={totalWagesBanner}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none opacity-90"
+            />
 
-              <div className="hidden sm:inline-flex px-3.5 py-1 rounded-full bg-[#FAF7F0] border border-[#E8E4DC] text-[#6B6B6B] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
-                {weekRange.label}
+            {/* Header: Weekly Wages Disbursed + Big Amount */}
+            <div className="relative z-10 p-4 sm:p-5">
+              <div className="text-xs sm:text-sm font-semibold text-[#166534]">
+                Weekly Wages Disbursed ({weekRange.label})
+              </div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-display tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
+                {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
               </div>
             </div>
 
-            {/* Big Currency Amount */}
-            <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
-              {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
-            </div>
-
-            {/* Bottom 2 Boxes: Active Laborers & Total Entries (Both in beige/stone #F4F1EA matching Half day / Absent) */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {/* Active Laborers Tile */}
-              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
-                  {weeklyLaborerAggregation.rows.length}
+            {/* 4 Stats Grid in a Single Line at the Bottom */}
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] bg-white/80 backdrop-blur-xs divide-x divide-[#E8E4DC] py-3 px-2 sm:px-3">
+              {/* 1. Total Logged (Active Workers) */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] text-[#1E3A8A] flex items-center justify-center shrink-0">
+                    <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E3A8A] text-xs sm:text-sm tabular-nums leading-none">
+                    {weeklyLaborerAggregation.rows.length}
+                  </span>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
-                  Active Laborers
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Total Logged
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
               </div>
 
-              {/* Total Entries Tile */}
-              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
-                <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-sans text-[#383838] tabular-nums">
-                  {weeklyEntries.length}
+              {/* 2. Full Days */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                    {weeklySummary.totalFullDays}
+                  </span>
                 </div>
-                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
-                  Total Entries
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Full Days
                 </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Shifts</div>
+              </div>
+
+              {/* 3. Half Days */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                    <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  </div>
+                  <span className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
+                    {weeklySummary.totalHalfDays}
+                  </span>
+                </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Half Days
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Shifts</div>
+              </div>
+
+              {/* 4. Absent */}
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                    <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
+                  </div>
+                  <span className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
+                    {weeklySummary.totalAbsentDays}
+                  </span>
+                </div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                  Absent
+                </div>
+                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Shifts</div>
               </div>
             </div>
           </div>
@@ -1117,8 +1168,8 @@ export function WagesPage() {
                       className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
                     >
                       <div>
-                        {/* Header: Laborer Avatar/Icon, Name, Days Badge */}
-                        <div className="flex items-center justify-between gap-3">
+                        {/* Header: Laborer Avatar/Icon, Name, Weekly Total on Top Right */}
+                        <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
                               <HardHat className="w-5 h-5" />
@@ -1130,15 +1181,18 @@ export function WagesPage() {
                             </div>
                           </div>
 
-                          <div className="shrink-0">
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F8EE] text-[#1E7E34]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#1E7E34]" />
-                              <span>{row.fullDays + row.halfDays} Days</span>
+                          {/* Top Right: Weekly Total and Amount */}
+                          <div className="shrink-0 text-right">
+                            <span className="block text-[10px] font-semibold text-[#8C867E] uppercase tracking-wider">
+                              Weekly Total
+                            </span>
+                            <span className="font-bold text-base sm:text-lg tabular-nums text-[#242424] font-sans">
+                              {formatINR(row.totalPaid)}
                             </span>
                           </div>
                         </div>
 
-                        {/* Details: Sites worked and Attendance pills */}
+                        {/* Details: Sites worked and Attendance pills (Full, Half, Absent always visible) */}
                         <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
                           <div className="flex items-center gap-2">
                             <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
@@ -1147,31 +1201,27 @@ export function WagesPage() {
                             </span>
                           </div>
 
-                          {/* Attendance breakdown pills */}
+                          {/* Attendance breakdown pills: Full, Half, Absent */}
                           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#86EFAC]/70 text-[11px] font-semibold">
                               <CheckCircle2 className="w-3 h-3 text-[#166534]" />
                               <span>{row.fullDays} Full</span>
                             </span>
 
-                            {row.halfDays > 0 && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047]/70 text-[11px] font-semibold">
-                                <Clock className="w-3 h-3 text-[#854D0E]" />
-                                <span>{row.halfDays} Half</span>
-                              </span>
-                            )}
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047]/70 text-[11px] font-semibold">
+                              <Clock className="w-3 h-3 text-[#854D0E]" />
+                              <span>{row.halfDays} Half</span>
+                            </span>
 
-                            {row.absentDays > 0 && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]/70 text-[11px] font-semibold">
-                                <Ban className="w-3 h-3 text-[#991B1B]" />
-                                <span>{row.absentDays} Absent</span>
-                              </span>
-                            )}
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]/70 text-[11px] font-semibold">
+                              <X className="w-3 h-3 text-[#991B1B] stroke-[2.5]" />
+                              <span>{row.absentDays} Absent</span>
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Bottom Action Bar: Accordion Toggle & Amount Paid */}
+                      {/* Bottom Action Bar: Accordion Toggle */}
                       <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
                         <button
                           type="button"
@@ -1181,13 +1231,6 @@ export function WagesPage() {
                           <span>{isExpanded ? 'Hide Daily Details' : 'View Daily Details'}</span>
                           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                         </button>
-
-                        <div className="text-right">
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
-                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
-                            {formatINR(row.totalPaid)}
-                          </span>
-                        </div>
                       </div>
 
                       {/* 7-Day Expanded Breakdown */}
