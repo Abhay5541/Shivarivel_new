@@ -44,18 +44,18 @@ export function WagesPage() {
   const [openInAddMode, setOpenInAddMode] = useState(false);
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
 
-  // Segment options for Daily Muster vs Weekly Wages
+  // Segment options for Daily Wages vs Weekly Overview
   const wageViewOptions = useMemo<SegmentOption<'daily' | 'weekly'>[]>(
     () => [
       {
         id: 'daily',
-        label: 'Daily Muster',
+        label: 'Daily Wages',
         icon: <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />,
         activeColorClass: 'text-[#4A0E0E]',
       },
       {
         id: 'weekly',
-        label: 'Weekly Wages',
+        label: 'Weekly Overview',
         icon: <Clock className="w-4 h-4 text-[#C99A2E]" />,
         activeColorClass: 'text-[#4A0E0E]',
       },
@@ -441,7 +441,7 @@ export function WagesPage() {
         </div>
       </div>
 
-      {/* View Switcher: [ Daily Muster ] [ Weekly Wages ] */}
+      {/* View Switcher: [ Daily Wages ] [ Weekly Overview ] */}
       <div className="mb-6 overflow-x-auto no-scrollbar">
         <SlidingSegmentedControl
           options={wageViewOptions}
@@ -617,12 +617,9 @@ export function WagesPage() {
             </div>
 
             {/* Big Currency Amount */}
-            <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight my-4 sm:my-5 tabular-nums">
+            <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
               {formatINR(dailySummary.totalPaid)}
             </div>
-
-            {/* Thick Forest Green Divider Bar */}
-            <div className="w-full h-1.5 sm:h-2 bg-[#1B5E3B] rounded-full my-4 sm:my-5" />
 
             {/* 3 Status Tiles: Full Day (Green) | Half Day (Beige) | Absent (Beige) */}
             <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5">
@@ -930,28 +927,49 @@ export function WagesPage() {
             </div>
           </div>
 
-          {/* Weekly Operational Summary Banner */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div className="text-xs font-medium text-[#6B6B6B]">Weekly Total Wages Disbursed</div>
-              <div className="text-2xl sm:text-3xl font-bold font-display tabular-nums text-[#242424] mt-0.5">
-                {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
+          {/* Weekly Operational Summary Card (Matches Daily Wages Design) */}
+          <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+            {/* Header: Icon + "Weekly wages disbursed" + Week Range Pill */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#FBF0F0] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                  <Receipt className="w-5 h-5 stroke-[1.75]" />
+                </div>
+                <span className="text-sm sm:text-base font-medium text-[#404040] truncate">
+                  Weekly wages disbursed
+                </span>
+              </div>
+
+              <div className="px-3.5 py-1 rounded-full bg-[#FAF7F0] border border-[#E8E4DC] text-[#6B6B6B] text-xs sm:text-sm font-semibold tracking-wide shrink-0">
+                {weekRange.label}
               </div>
             </div>
 
-            <div className="flex items-center gap-4 text-xs text-[#6B6B6B] border-t sm:border-t-0 sm:border-l border-[#E2DDD5] pt-3 sm:pt-0 sm:pl-6">
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Active Laborers</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
+            {/* Big Currency Amount */}
+            <div className="text-3xl sm:text-4xl lg:text-[42px] font-normal font-serif text-[#1F1F1F] tracking-tight mt-3 sm:mt-4 mb-4 sm:mb-5 tabular-nums">
+              {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
+            </div>
+
+            {/* Bottom 2 Boxes: Active Laborers & Total Entries (Both in beige/stone #F4F1EA matching Half day / Absent) */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {/* Active Laborers Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
                   {weeklyLaborerAggregation.rows.length}
-                </span>
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Active Laborers
+                </div>
               </div>
-              <span className="text-[#E2DDD5]">•</span>
-              <div>
-                <span className="block text-[11px] font-semibold text-[#6B6B6B] uppercase">Total Entries</span>
-                <span className="font-bold text-[#242424] text-sm tabular-nums">
+
+              {/* Total Entries Tile */}
+              <div className="bg-[#F4F1EA] rounded-2xl p-3.5 sm:p-4 transition-all">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#383838] tabular-nums">
                   {weeklyEntries.length}
-                </span>
+                </div>
+                <div className="text-xs sm:text-sm font-medium text-[#6B6B6B] mt-1">
+                  Total Entries
+                </div>
               </div>
             </div>
           </div>
@@ -971,7 +989,7 @@ export function WagesPage() {
                   onClick={() => setActiveTab('daily')}
                   className="h-9 px-4 border-[#E2DDD5] text-xs font-semibold"
                 >
-                  Go to Daily Muster
+                  Go to Daily Wages
                 </Button>
               </div>
             </div>
