@@ -237,15 +237,15 @@ export function LoginPage() {
                 <h1 className="font-cinzel text-[19px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
                   SHIVARIVEL
                 </h1>
-                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
+                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A] leading-tight">
                   CONSTRUCTION &amp; INTERIORS
                 </p>
               </div>
             </div>
 
             {/* HERO STATEMENT */}
-            <div className="space-y-1">
-              <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]">
+            <div className="space-y-1 -mt-1 sm:-mt-2">
+              <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A] leading-tight">
                 BUILDING DREAMS
               </p>
               <h2 className="font-playfair text-[28px] sm:text-[34px] lg:text-[38px] font-normal text-white leading-[1.12] drop-shadow-md">
