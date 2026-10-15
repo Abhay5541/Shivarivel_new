@@ -349,31 +349,28 @@ export const ProjectDetailPage: React.FC = () => {
                   className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors cursor-pointer group"
                 >
                   <div className="min-w-0 flex-1">
-                    {/* Main title: item/material names */}
+                    {/* Main title: product/material names */}
                     <div className="flex items-start gap-2">
                       <span className="text-sm font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors leading-snug">
-                        {purchase.items && purchase.items.length > 0
-                          ? purchase.items
-                              .map(
-                                (item) =>
-                                  item.material?.name || item.description || 'Item'
-                              )
-                              .join(', ')
-                          : purchase.notes || purchase.purchase_number}
+                        {(() => {
+                          if (purchase.items && purchase.items.length > 0) {
+                            const names = purchase.items
+                              .map((item) => item.material?.name || item.description || '')
+                              .filter(Boolean)
+                              .join(', ');
+                            if (names) return names;
+                          }
+                          if (purchase.notes && !purchase.notes.toLowerCase().includes('direct purchase')) {
+                            return purchase.notes;
+                          }
+                          return 'Material Purchase';
+                        })()}
                       </span>
                     </div>
-                    {/* Subtitle: purchase number + supplier + date */}
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      <span className="text-[11px] text-[#8C867E] font-mono">
-                        {purchase.purchase_number}
-                      </span>
-                      {purchase.supplier?.name && (
-                        <span className="text-[11px] text-[#6B6B6B]">
-                          · {purchase.supplier.name}
-                        </span>
-                      )}
+                    {/* Subtitle: Date below product name + supplier */}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <div className="flex items-center gap-1 text-[11px] text-[#6B6B6B]">
-                        <Calendar className="w-3 h-3" />
+                        <Calendar className="w-3 h-3 text-[#8C867E]" />
                         <span>
                           {new Date(purchase.purchase_date).toLocaleDateString('en-IN', {
                             day: 'numeric',
@@ -382,6 +379,11 @@ export const ProjectDetailPage: React.FC = () => {
                           })}
                         </span>
                       </div>
+                      {purchase.supplier?.name && !purchase.supplier.name.toLowerCase().includes('direct purchase') && (
+                        <span className="text-[11px] text-[#6B6B6B]">
+                          · {purchase.supplier.name}
+                        </span>
+                      )}
                     </div>
 
                   </div>
@@ -487,9 +489,7 @@ export const ProjectDetailPage: React.FC = () => {
             {siteWages.slice(0, 10).map((wage) => {
               const emp = employees.find((e) => e.id === wage.employee_id);
               const name = (wage as any).employee?.name || emp?.name || 'Employee';
-              const role = emp?.worker_type || 'Laborer';
               const amount = Number((wage as any).amount || (wage as any).rate || 0);
-              const isConfirmed = wage.status === 'Confirmed';
               const wageDate = (wage as any).wage_date || wage.created_at;
 
               return (
@@ -502,9 +502,6 @@ export const ProjectDetailPage: React.FC = () => {
                       <span className="text-sm font-bold text-[#242424] font-display truncate">
                         {name}
                       </span>
-                      <span className="text-[10px] font-semibold text-[#6B6B6B] bg-[#EFECE6] px-1.5 py-0.5 rounded-sm shrink-0">
-                        {role}
-                      </span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[11px] text-[#6B6B6B]">
@@ -514,22 +511,11 @@ export const ProjectDetailPage: React.FC = () => {
                           year: 'numeric',
                         })}
                       </span>
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                          isConfirmed
-                            ? 'bg-[#E8F8EE] text-[#1E7E34]'
-                            : 'bg-amber-50 text-amber-700'
-                        }`}
-                      >
-                        {wage.status}
-                      </span>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
                     <span
-                      className={`text-sm font-bold block ${
-                        isConfirmed ? 'text-[#1E6B37]' : 'text-amber-700'
-                      }`}
+                      className="text-sm font-bold block text-[#1E6B37]"
                     >
                       {formatINR(amount)}
                     </span>

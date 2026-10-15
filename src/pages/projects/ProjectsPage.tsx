@@ -153,11 +153,6 @@ export const ProjectsPage: React.FC = () => {
                 <Building2 className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10.5px] font-bold text-[#A67C24]">
-                    {site.project_code || 'PRJ'}
-                  </span>
-                </div>
                 <h2 className="text-sm font-bold text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
                   {site.name}
                 </h2>
