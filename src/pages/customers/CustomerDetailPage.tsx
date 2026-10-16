@@ -23,6 +23,7 @@ import { LoadingState } from '@/components/ui/LoadingState';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
+import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import { useCustomer, useDeleteCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import { useWages } from '@/hooks/useWorkforce';
@@ -152,6 +153,26 @@ export const CustomerDetailPage: React.FC = () => {
   const customerSites = allProjects.filter((p) => p.customer_id === id);
   const activeProjects = customerSites.filter((p) => p.status !== 'Completed');
   const completedProjects = customerSites.filter((p) => p.status === 'Completed');
+
+  const projectFilterOptions = React.useMemo<SegmentOption<'active' | 'completed'>[]>(
+    () => [
+      {
+        id: 'active',
+        label: 'Active',
+        count: activeProjects.length,
+        dotColor: '#166534',
+        activeColorClass: 'text-[#166534]',
+      },
+      {
+        id: 'completed',
+        label: 'Completed',
+        count: completedProjects.length,
+        dotColor: '#7A7265',
+        activeColorClass: 'text-[#6B6B6B]',
+      },
+    ],
+    [activeProjects.length, completedProjects.length]
+  );
 
   const isActive = customer?.status !== 'inactive';
 
@@ -309,29 +330,14 @@ export const CustomerDetailPage: React.FC = () => {
 
         {/* Tabs: Active / Completed */}
         {customerSites.length > 0 && (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveProjectTab('active')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeProjectTab === 'active'
-                  ? 'bg-[#4A0E0E] text-white shadow-sm'
-                  : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-              }`}
-            >
-              Active ({activeProjects.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveProjectTab('completed')}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeProjectTab === 'completed'
-                  ? 'bg-[#1E6B37] text-white shadow-sm'
-                  : 'bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8]'
-              }`}
-            >
-              Completed ({completedProjects.length})
-            </button>
+          <div className="w-fit">
+            <SlidingSegmentedControl
+              options={projectFilterOptions}
+              value={activeProjectTab}
+              onChange={setActiveProjectTab}
+              size="sm"
+              ariaLabel="Filter projects"
+            />
           </div>
         )}
 
@@ -342,8 +348,6 @@ export const CustomerDetailPage: React.FC = () => {
               <EmptyState
                 icon={<Building2 className="w-6 h-6" />}
                 title="No active projects."
-                actionLabel="+ Add Project"
-                onAction={() => setIsAddSiteOpen(true)}
               />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

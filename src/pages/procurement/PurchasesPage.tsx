@@ -420,20 +420,28 @@ export const PurchasesPage: React.FC = () => {
               </div>
             </div>
 
-            <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
-                isPaid
-                  ? 'bg-[#E8F8EE] dark:bg-[#132B1C] text-[#1E7E34] dark:text-[#4ADE80] border border-[#86EFAC]/40 dark:border-[#225A38]/50'
-                  : 'bg-[#FEF2F2] dark:bg-[#2F1515] text-[#991B1B] dark:text-[#F87171] border border-[#FCA5A5]/40 dark:border-[#5C2323]/50'
-              }`}
-            >
+            <div className="flex flex-col items-end shrink-0 gap-1.5">
               <span
-                className={`w-1.5 h-1.5 rounded-full ${
-                  isPaid ? 'bg-[#1E7E34] dark:bg-[#4ADE80]' : 'bg-[#DC2626] dark:bg-[#F87171]'
+                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
+                  isPaid
+                    ? 'bg-[#E8F8EE] dark:bg-[#132B1C] text-[#1E7E34] dark:text-[#4ADE80] border border-[#86EFAC]/40 dark:border-[#225A38]/50'
+                    : 'bg-[#FEF2F2] dark:bg-[#2F1515] text-[#991B1B] dark:text-[#F87171] border border-[#FCA5A5]/40 dark:border-[#5C2323]/50'
                 }`}
-              />
-              <span>{isPaid ? 'Fully Paid' : 'Pending'}</span>
-            </span>
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isPaid ? 'bg-[#1E7E34] dark:bg-[#4ADE80]' : 'bg-[#DC2626] dark:bg-[#F87171]'
+                  }`}
+                />
+                <span>{isPaid ? 'Fully Paid' : 'Pending'}</span>
+              </span>
+
+              {item?.quantity !== undefined && item?.quantity !== null && (
+                <span className="text-[11px] sm:text-xs font-semibold text-[#5A554E] dark:text-[#C5BFB6] bg-[#F4F1EA] dark:bg-[#2A2621] px-2 py-0.5 rounded-md border border-[#E8E4DC] dark:border-white/10 tabular-nums">
+                  {item.quantity} {item.unit || ''}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* 3-Column Financial Matrix Card */}

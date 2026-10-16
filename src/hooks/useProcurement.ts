@@ -1238,7 +1238,10 @@ export function resetMemoryPurchases() {
  * or silently creates an internal supplier record so DB FKs stay intact without
  * requiring the user to manage a supplier master.
  */
-export async function resolveOrCreateSupplier(supplierName: string): Promise<Supplier> {
+export async function resolveOrCreateSupplier(
+  supplierName: string,
+  companyId: string = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef'
+): Promise<Supplier> {
   const trimmed = supplierName.trim();
   const lower = trimmed.toLowerCase();
 
@@ -1249,30 +1252,29 @@ export async function resolveOrCreateSupplier(supplierName: string): Promise<Sup
   // In test environment or SSR, skip remote network calls
   const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
   if (!isTestEnv) {
-    // 2. Check Supabase with timeout guard
     try {
-      const fetchPromise = supabase
+      let query = supabase
         .from('suppliers')
         .select('*')
-        .ilike('name', trimmed)
-        .maybeSingle();
+        .ilike('name', trimmed);
 
-      const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
-        setTimeout(() => resolve({ data: null, error: new Error('Timeout') }), 1500)
-      );
+      if (companyId) {
+        query = query.eq('company_id', companyId);
+      }
 
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
-      if (res && 'data' in res && res.data) {
-        const sup = res.data as Supplier;
+      const { data } = await query.maybeSingle();
+      if (data) {
+        const sup = data as Supplier;
         if (!memorySuppliers.some((s) => s.id === sup.id)) {
           memorySuppliers = [sup, ...memorySuppliers];
         }
         return sup;
       }
 
-      const { data: inserted, error } = await (supabase as any)
+      const { data: inserted, error: insErr } = await (supabase as any)
         .from('suppliers')
         .insert({
+          company_id: companyId,
           name: trimmed,
           status: 'active',
           category: 'General',
@@ -1280,7 +1282,7 @@ export async function resolveOrCreateSupplier(supplierName: string): Promise<Sup
         .select()
         .maybeSingle();
 
-      if (!error && inserted) {
+      if (!insErr && inserted) {
         const sup = inserted as Supplier;
         memorySuppliers = [sup, ...memorySuppliers];
         return sup;
@@ -1294,7 +1296,7 @@ export async function resolveOrCreateSupplier(supplierName: string): Promise<Sup
   const newId = `sup-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
   const created: Supplier = {
     id: newId,
-    company_id: 'comp-shivarivel-001',
+    company_id: companyId,
     name: trimmed,
     contact_person: null,
     phone: null,
@@ -1316,7 +1318,11 @@ export async function resolveOrCreateSupplier(supplierName: string): Promise<Sup
  * Resolves an existing material by free-text name (case-insensitive trim match),
  * or silently creates an internal material record so DB FKs stay intact.
  */
-export async function resolveOrCreateMaterial(productName: string, unit: string): Promise<Material> {
+export async function resolveOrCreateMaterial(
+  productName: string,
+  unit: string,
+  companyId: string = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef'
+): Promise<Material> {
   const trimmed = productName.trim();
   const lower = trimmed.toLowerCase();
 
@@ -1327,30 +1333,29 @@ export async function resolveOrCreateMaterial(productName: string, unit: string)
   // In test environment or SSR, skip remote network calls
   const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
   if (!isTestEnv) {
-    // 2. Check Supabase with timeout guard
     try {
-      const fetchPromise = supabase
+      let query = supabase
         .from('materials')
         .select('*')
-        .ilike('name', trimmed)
-        .maybeSingle();
+        .ilike('name', trimmed);
 
-      const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
-        setTimeout(() => resolve({ data: null, error: new Error('Timeout') }), 1500)
-      );
+      if (companyId) {
+        query = query.eq('company_id', companyId);
+      }
 
-      const res = await Promise.race([fetchPromise, timeoutPromise]);
-      if (res && 'data' in res && res.data) {
-        const mat = res.data as Material;
+      const { data } = await query.maybeSingle();
+      if (data) {
+        const mat = data as Material;
         if (!memoryMaterials.some((m) => m.id === mat.id)) {
           memoryMaterials = [mat, ...memoryMaterials];
         }
         return mat;
       }
 
-      const { data: inserted, error } = await (supabase as any)
+      const { data: inserted, error: insErr } = await (supabase as any)
         .from('materials')
         .insert({
+          company_id: companyId,
           name: trimmed,
           category: 'Site Materials',
           unit: unit.trim() || 'Unit',
@@ -1359,7 +1364,7 @@ export async function resolveOrCreateMaterial(productName: string, unit: string)
         .select()
         .maybeSingle();
 
-      if (!error && inserted) {
+      if (!insErr && inserted) {
         const mat = inserted as Material;
         memoryMaterials = [mat, ...memoryMaterials];
         return mat;
@@ -1373,7 +1378,7 @@ export async function resolveOrCreateMaterial(productName: string, unit: string)
   const newId = `mat-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
   const created: Material = {
     id: newId,
-    company_id: 'comp-shivarivel-001',
+    company_id: companyId,
     name: trimmed,
     category: 'Site Materials',
     unit: unit.trim() || 'Unit',
@@ -1415,10 +1420,30 @@ export function useCreateSimplePurchase() {
         throw new Error('Amount paid cannot be greater than total value.');
       }
 
-      // 2. Silently resolve supplier (if any) and material
+      // 2. Resolve target company_id dynamically
+      let targetCompanyId = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef';
+      try {
+        if (payload.project_id) {
+          const { data: prj } = await (supabase.from('projects') as any)
+            .select('company_id')
+            .eq('id', payload.project_id)
+            .maybeSingle();
+          if (prj?.company_id) targetCompanyId = prj.company_id;
+        } else {
+          const { data: supRow } = await (supabase.from('suppliers') as any)
+            .select('company_id')
+            .limit(1)
+            .maybeSingle();
+          if (supRow?.company_id) targetCompanyId = supRow.company_id;
+        }
+      } catch (err) {
+        console.warn('Company resolution fallback:', err);
+      }
+
+      // 3. Silently resolve supplier (if any) and material with companyId
       const supplierName = payload.supplier_name?.trim() || 'Direct Purchase';
-      const supplier = await resolveOrCreateSupplier(supplierName);
-      const material = await resolveOrCreateMaterial(payload.product_name, payload.unit);
+      const supplier = await resolveOrCreateSupplier(supplierName, targetCompanyId);
+      const material = await resolveOrCreateMaterial(payload.product_name, payload.unit, targetCompanyId);
 
       const totalValue = payload.total_value;
       const amountPaid = Math.min(totalValue, payload.amount_paid);
@@ -1427,14 +1452,14 @@ export function useCreateSimplePurchase() {
       const unitPrice = payload.quantity > 0 ? Math.round((totalValue / payload.quantity) * 100) / 100 : totalValue;
       const purchaseDate = payload.purchase_date || new Date().toISOString().split('T')[0];
 
-      // 3. Resolve Project details if tied to project
+      // 4. Resolve Project details if tied to project
       let projectInfo: Purchase['project'] = null;
       if (payload.project_id) {
         const storedPrj = getStoredProject(payload.project_id);
         projectInfo = storedPrj || { id: payload.project_id, name: 'Project', project_code: 'PRJ' };
       }
 
-      // 4. Memory purchase creation
+      // 5. Memory purchase creation
       const maxExistingNum = memoryPurchases.reduce((max, p) => {
         const match = p.purchase_number?.match(/PUR-(\d+)/i);
         return match ? Math.max(max, parseInt(match[1], 10)) : max;
@@ -1445,7 +1470,7 @@ export function useCreateSimplePurchase() {
 
       const newPurchase: Purchase = {
         id: newPurchaseId,
-        company_id: 'comp-shivarivel-001',
+        company_id: targetCompanyId,
         supplier_id: supplier.id,
         project_id: payload.project_id || null,
         purchase_number: purchaseNumber,
@@ -1465,7 +1490,7 @@ export function useCreateSimplePurchase() {
         items: [
           {
             id: `pi-${newPurchaseId}-1`,
-            company_id: 'comp-shivarivel-001',
+            company_id: targetCompanyId,
             purchase_id: newPurchaseId,
             material_id: material.id,
             description: payload.product_name.trim(),
@@ -1494,12 +1519,12 @@ export function useCreateSimplePurchase() {
         const newSpId = `sp-${Date.now()}`;
         const createdPayment: SupplierPayment = {
           id: newSpId,
-          company_id: 'comp-shivarivel-001',
+          company_id: targetCompanyId,
           supplier_id: supplier.id,
           payment_number: spCode,
           payment_date: purchaseDate,
           amount: amountPaid,
-          payment_method: 'Bank Transfer (NEFT / RTGS)',
+          payment_method: 'Cash',
           reference_number: null,
           status: 'Confirmed',
           notes: `Initial payment at purchase entry`,
@@ -1512,7 +1537,7 @@ export function useCreateSimplePurchase() {
           allocations: [
             {
               id: `spa-${newSpId}-1`,
-              company_id: 'comp-shivarivel-001',
+              company_id: targetCompanyId,
               payment_id: newSpId,
               purchase_id: newPurchaseId,
               amount: amountPaid,
@@ -1529,11 +1554,12 @@ export function useCreateSimplePurchase() {
       // In test environment, skip remote network calls
       const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
       if (!isTestEnv) {
-        // Try Supabase insert (omit purchase_number so Supabase trigger auto-generates next unique number)
+        // Try Supabase insert
         try {
           const { data: purchaseData, error: pErr } = await (supabase as any)
             .from('purchases')
             .insert({
+              company_id: targetCompanyId,
               supplier_id: supplier.id,
               project_id: payload.project_id || null,
               purchase_date: purchaseDate,
@@ -1546,55 +1572,74 @@ export function useCreateSimplePurchase() {
             .select()
             .maybeSingle();
 
-        if (!pErr && purchaseData) {
-          await (supabase as any)
-            .from('purchase_items')
-            .insert({
-              purchase_id: purchaseData.id,
-              material_id: material.id,
-              description: payload.product_name.trim(),
-              quantity: payload.quantity,
-              unit: payload.unit.trim(),
-              unit_price: unitPrice,
-              amount: totalValue,
-            });
+          if (!pErr && purchaseData) {
+            await (supabase as any)
+              .from('purchase_items')
+              .insert({
+                company_id: targetCompanyId,
+                purchase_id: purchaseData.id,
+                material_id: material.id,
+                description: payload.product_name.trim(),
+                quantity: payload.quantity,
+                unit: payload.unit.trim(),
+                unit_price: unitPrice,
+                amount: totalValue,
+              });
 
-          if (amountPaid > 0) {
-            await (supabase.rpc as any)('record_supplier_payment', {
-              p_supplier_id: supplier.id,
-              p_amount: amountPaid,
-              p_payment_date: purchaseDate,
-              p_payment_method: 'Bank Transfer (NEFT / RTGS)',
-              p_reference_number: null,
-              p_notes: `Initial payment for purchase`,
-              p_status: 'Confirmed',
-              p_allocations: [
-                {
+            if (amountPaid > 0) {
+              const paymentNumber = 'SP-' + Date.now().toString().slice(-6);
+              const { data: payRow, error: payErr } = await (supabase
+                .from('supplier_payments') as any)
+                .insert({
+                  company_id: targetCompanyId,
+                  supplier_id: supplier.id,
+                  payment_number: paymentNumber,
+                  payment_date: purchaseDate,
+                  amount: amountPaid,
+                  payment_method: 'Cash',
+                  reference_number: null,
+                  notes: 'Initial payment for purchase',
+                  status: 'Confirmed',
+                })
+                .select('id, company_id')
+                .maybeSingle();
+
+              if (payRow && !payErr) {
+                await (supabase.from('supplier_payment_allocations') as any).insert({
+                  company_id: payRow.company_id,
+                  payment_id: payRow.id,
                   purchase_id: purchaseData.id,
                   amount: amountPaid,
                   notes: 'Initial payment',
-                },
-              ],
-            });
-          }
+                });
+              }
+            }
 
-          // Reconcile newPurchase with the actual Supabase record ID to avoid double entries
-          newPurchase.id = purchaseData.id;
-          newPurchase.purchase_number = purchaseData.purchase_number || purchaseNumber;
-          memoryPurchases = [
-            newPurchase,
-            ...memoryPurchases.filter((p) => p.id !== newPurchaseId && p.id !== purchaseData.id),
-          ];
-          saveStoredPurchases(memoryPurchases);
+            // Reconcile newPurchase with the actual Supabase record ID to avoid double entries
+            newPurchase.id = purchaseData.id;
+            newPurchase.purchase_number = purchaseData.purchase_number || purchaseNumber;
+            memoryPurchases = [
+              newPurchase,
+              ...memoryPurchases.filter((p) => p.id !== newPurchaseId && p.id !== purchaseData.id),
+            ];
+            saveStoredPurchases(memoryPurchases);
+          } else if (pErr) {
+            console.warn('Supabase simple purchase creation error:', pErr);
+          }
+        } catch (dbErr) {
+          console.warn('Supabase simple purchase creation error; saved in local memory:', dbErr);
         }
-      } catch (dbErr) {
-        console.warn('Supabase simple purchase creation error; saved in local memory:', dbErr);
       }
-    }
 
       return newPurchase;
     },
-    onSuccess: () => {
+    onSuccess: (newPurchase) => {
+      queryClient.setQueriesData({ queryKey: ['purchases'] }, (old: Purchase[] | undefined) => {
+        if (!old) return [newPurchase];
+        const exists = old.some((p) => p.id === newPurchase.id);
+        if (exists) return old.map((p) => (p.id === newPurchase.id ? newPurchase : p));
+        return [newPurchase, ...old];
+      });
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier-balance'] });
@@ -1636,10 +1681,24 @@ export function useUpdateSimplePurchase() {
         throw new Error('Amount paid cannot be greater than total value.');
       }
 
-      // 2. Silently resolve supplier (if any) and material
+      // 2. Resolve existing record and company_id
+      const existingIdx = memoryPurchases.findIndex((p) => p.id === payload.id);
+      const existing = existingIdx >= 0 ? memoryPurchases[existingIdx] : null;
+      let targetCompanyId = existing?.company_id || '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef';
+      if (!targetCompanyId || targetCompanyId.startsWith('comp-')) {
+        try {
+          const { data: purRow } = await (supabase.from('purchases') as any)
+            .select('company_id')
+            .eq('id', payload.id)
+            .maybeSingle();
+          if (purRow?.company_id) targetCompanyId = purRow.company_id;
+        } catch {}
+      }
+
+      // 3. Silently resolve supplier (if any) and material
       const supplierName = payload.supplier_name?.trim() || 'Direct Purchase';
-      const supplier = await resolveOrCreateSupplier(supplierName);
-      const material = await resolveOrCreateMaterial(payload.product_name, payload.unit);
+      const supplier = await resolveOrCreateSupplier(supplierName, targetCompanyId);
+      const material = await resolveOrCreateMaterial(payload.product_name, payload.unit, targetCompanyId);
 
       const totalValue = payload.total_value;
       const amountPaid = Math.min(totalValue, payload.amount_paid);
@@ -1647,122 +1706,175 @@ export function useUpdateSimplePurchase() {
       const paymentStatus = derivePurchasePaymentStatus(totalValue, amountPaid);
       const unitPrice = payload.quantity > 0 ? Math.round((totalValue / payload.quantity) * 100) / 100 : totalValue;
 
-      // 3. Resolve Project details if changed
+      // 4. Resolve Project details if changed
       let projectInfo: Purchase['project'] = null;
       if (payload.project_id) {
         const storedPrj = getStoredProject(payload.project_id);
         projectInfo = storedPrj || { id: payload.project_id, name: 'Project', project_code: 'PRJ' };
       }
 
-      // 4. Update memory purchase (No duplicate created)
-      const existingIdx = memoryPurchases.findIndex((p) => p.id === payload.id);
+      // 5. Update memory purchase
+      const updatedPurchase: Purchase = {
+        ...(existing || ({} as Purchase)),
+        id: payload.id,
+        company_id: targetCompanyId,
+        supplier_id: supplier.id,
+        project_id: payload.project_id || null,
+        purchase_number: existing?.purchase_number || 'PUR-0001',
+        purchase_date: payload.purchase_date || existing?.purchase_date || new Date().toISOString().split('T')[0],
+        invoice_number: existing?.invoice_number || null,
+        status: existing?.status || 'Confirmed',
+        discount: existing?.discount || 0,
+        tax: existing?.tax || 0,
+        total_amount: totalValue,
+        due_date: existing?.due_date || null,
+        total_allocated: amountPaid,
+        outstanding_balance: balance,
+        payment_status: paymentStatus,
+        notes: payload.notes !== undefined ? payload.notes : (existing?.notes ?? null),
+        supplier,
+        project: projectInfo,
+        updated_at: new Date().toISOString(),
+        created_at: existing?.created_at || new Date().toISOString(),
+        items: [
+          {
+            id: existing?.items?.[0]?.id || `pi-${payload.id}-1`,
+            company_id: targetCompanyId,
+            purchase_id: payload.id,
+            material_id: material.id,
+            description: payload.product_name.trim(),
+            quantity: payload.quantity,
+            unit: payload.unit.trim(),
+            unit_price: unitPrice,
+            amount: totalValue,
+            notes: null,
+            created_at: existing?.items?.[0]?.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            material,
+          },
+        ],
+      };
+
       if (existingIdx >= 0) {
-        const existing = memoryPurchases[existingIdx];
-        const updatedPurchase: Purchase = {
-          ...existing,
-          supplier_id: supplier.id,
-          project_id: payload.project_id || null,
-          total_amount: totalValue,
-          total_allocated: amountPaid,
-          outstanding_balance: balance,
-          payment_status: paymentStatus,
-          notes: payload.notes !== undefined ? payload.notes : existing.notes,
-          supplier,
-          project: projectInfo,
-          updated_at: new Date().toISOString(),
-          items: [
-            {
-              id: existing.items?.[0]?.id || `pi-${payload.id}-1`,
-              company_id: existing.company_id,
-              purchase_id: payload.id,
-              material_id: material.id,
-              description: payload.product_name.trim(),
-              quantity: payload.quantity,
-              unit: payload.unit.trim(),
-              unit_price: unitPrice,
-              amount: totalValue,
-              notes: null,
-              created_at: existing.items?.[0]?.created_at || new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              material,
-            },
-          ],
-        };
         memoryPurchases[existingIdx] = updatedPurchase;
-        saveStoredPurchases(memoryPurchases);
+      } else {
+        memoryPurchases = [updatedPurchase, ...memoryPurchases];
+      }
+      saveStoredPurchases(memoryPurchases);
 
-        // In test environment, skip remote network calls
-        const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
-        if (!isTestEnv) {
-          // Try Supabase update
-          try {
-            const curStatus = existing.status || 'Confirmed';
-            if (curStatus === 'Confirmed') {
-              // Temporarily set to Draft so purchase_items can be updated without tripping financial immutability trigger
-              await (supabase as any)
-                .from('purchases')
-                .update({ status: 'Draft' })
-                .eq('id', payload.id);
-            }
-
-            if (existing.items?.[0]?.id) {
-              await (supabase as any)
-                .from('purchase_items')
-                .update({
-                  material_id: material.id,
-                  description: payload.product_name.trim(),
-                  quantity: payload.quantity,
-                  unit: payload.unit.trim(),
-                  unit_price: unitPrice,
-                  amount: totalValue,
-                  updated_at: new Date().toISOString(),
-                })
-                .eq('id', existing.items[0].id);
-            } else {
-              // Insert item if it didn't exist
-              await (supabase as any)
-                .from('purchase_items')
-                .insert({
-                  company_id: existing.company_id || '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef',
-                  purchase_id: payload.id,
-                  material_id: material.id,
-                  description: payload.product_name.trim(),
-                  quantity: payload.quantity,
-                  unit: payload.unit.trim(),
-                  unit_price: unitPrice,
-                  amount: totalValue,
-                  updated_at: new Date().toISOString(),
-                });
-            }
-
+      // In test environment, skip remote network calls
+      const isTestEnv = typeof window === 'undefined' || Boolean((globalThis as any)?.process?.env?.VITEST);
+      if (!isTestEnv) {
+        try {
+          const curStatus = existing?.status || 'Confirmed';
+          if (curStatus === 'Confirmed') {
             await (supabase as any)
               .from('purchases')
+              .update({ status: 'Draft' })
+              .eq('id', payload.id);
+          }
+
+          if (existing?.items?.[0]?.id) {
+            await (supabase as any)
+              .from('purchase_items')
               .update({
-                supplier_id: supplier.id,
-                project_id: payload.project_id || null,
-                total_amount: totalValue,
-                total_allocated: amountPaid,
-                outstanding_balance: balance,
-                payment_status: paymentStatus,
-                status: curStatus,
-                notes: payload.notes || null,
+                material_id: material.id,
+                description: payload.product_name.trim(),
+                quantity: payload.quantity,
+                unit: payload.unit.trim(),
+                unit_price: unitPrice,
+                amount: totalValue,
                 updated_at: new Date().toISOString(),
               })
-              .eq('id', payload.id);
-          } catch (dbErr) {
-            console.warn('Supabase update error; applied in local memory:', dbErr);
+              .eq('id', existing.items[0].id);
+          } else {
+            await (supabase as any)
+              .from('purchase_items')
+              .insert({
+                company_id: targetCompanyId,
+                purchase_id: payload.id,
+                material_id: material.id,
+                description: payload.product_name.trim(),
+                quantity: payload.quantity,
+                unit: payload.unit.trim(),
+                unit_price: unitPrice,
+                amount: totalValue,
+                updated_at: new Date().toISOString(),
+              });
           }
-        }
 
-        return updatedPurchase;
+          // Update purchases table ONLY with valid table columns
+          await (supabase as any)
+            .from('purchases')
+            .update({
+              supplier_id: supplier.id,
+              project_id: payload.project_id || null,
+              total_amount: totalValue,
+              status: curStatus,
+              notes: payload.notes || null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', payload.id);
+
+          // Synchronize payment allocations
+          const { data: existingAlloc } = await (supabase.from('supplier_payment_allocations') as any)
+            .select('id, payment_id, amount')
+            .eq('purchase_id', payload.id)
+            .maybeSingle();
+
+          if (amountPaid > 0) {
+            if (existingAlloc) {
+              await (supabase.from('supplier_payment_allocations') as any)
+                .update({ amount: amountPaid })
+                .eq('id', existingAlloc.id);
+              await (supabase.from('supplier_payments') as any)
+                .update({ amount: amountPaid })
+                .eq('id', existingAlloc.payment_id);
+            } else {
+              const paymentNumber = 'SP-' + Date.now().toString().slice(-6);
+              const { data: payRow } = await (supabase.from('supplier_payments') as any)
+                .insert({
+                  company_id: targetCompanyId,
+                  supplier_id: supplier.id,
+                  payment_number: paymentNumber,
+                  payment_date: new Date().toISOString().split('T')[0],
+                  amount: amountPaid,
+                  payment_method: 'Cash',
+                  notes: 'Initial payment for purchase',
+                  status: 'Confirmed',
+                })
+                .select('id, company_id')
+                .maybeSingle();
+
+              if (payRow) {
+                await (supabase.from('supplier_payment_allocations') as any).insert({
+                  company_id: payRow.company_id,
+                  payment_id: payRow.id,
+                  purchase_id: payload.id,
+                  amount: amountPaid,
+                  notes: 'Initial payment',
+                });
+              }
+            }
+          } else if (existingAlloc) {
+            await (supabase.from('supplier_payment_allocations') as any)
+              .delete()
+              .eq('id', existingAlloc.id);
+            await (supabase.from('supplier_payments') as any)
+              .delete()
+              .eq('id', existingAlloc.payment_id);
+          }
+        } catch (dbErr) {
+          console.warn('Supabase update error; applied in local memory:', dbErr);
+        }
       }
 
-      throw new Error(`Purchase with id ${payload.id} not found.`);
+      return updatedPurchase;
     },
     onSuccess: (updatedPurchase) => {
       if (updatedPurchase) {
         queryClient.setQueriesData({ queryKey: ['purchases'] }, (old: Purchase[] | undefined) => {
-          if (!old) return old;
+          if (!old) return [updatedPurchase];
           return old.map((p) => (p.id === updatedPurchase.id ? { ...p, ...updatedPurchase } : p));
         });
       }
@@ -1907,11 +2019,22 @@ export function useRecordPurchasePayment() {
           const paymentDate = new Date().toISOString().split('T')[0];
 
           let companyId = targetPurchase.company_id;
+          let supplierId = targetPurchase.supplier_id;
+          try {
+            const { data: purRow } = await (supabase
+              .from('purchases') as any)
+              .select('company_id, supplier_id')
+              .eq('id', purchaseId)
+              .maybeSingle();
+            if (purRow?.company_id) companyId = purRow.company_id;
+            if (purRow?.supplier_id) supplierId = purRow.supplier_id;
+          } catch {}
+
           if (!companyId || companyId.startsWith('comp-')) {
             const { data: supRow } = await (supabase
               .from('suppliers') as any)
               .select('company_id')
-              .eq('id', targetPurchase.supplier_id)
+              .eq('id', supplierId)
               .maybeSingle();
             if (supRow?.company_id) {
               companyId = supRow.company_id;
@@ -1922,7 +2045,7 @@ export function useRecordPurchasePayment() {
             .from('supplier_payments') as any)
             .insert({
               company_id: companyId || '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef',
-              supplier_id: targetPurchase.supplier_id,
+              supplier_id: supplierId,
               payment_number: paymentNumber,
               payment_date: paymentDate,
               amount: paymentAmount,
@@ -2013,7 +2136,13 @@ export function useRecordPurchasePayment() {
 
       return targetPurchase;
     },
-    onSuccess: () => {
+    onSuccess: (updatedPurchase) => {
+      if (updatedPurchase) {
+        queryClient.setQueriesData({ queryKey: ['purchases'] }, (old: Purchase[] | undefined) => {
+          if (!old) return [updatedPurchase];
+          return old.map((p) => (p.id === updatedPurchase.id ? { ...p, ...updatedPurchase } : p));
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       queryClient.invalidateQueries({ queryKey: ['purchase'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
