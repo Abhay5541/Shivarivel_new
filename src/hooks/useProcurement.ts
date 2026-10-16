@@ -1678,16 +1678,30 @@ export function useDeleteSimplePurchase() {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
+        // 1. Delete payment allocations referencing this purchase
+        await (supabase as any).from('supplier_payment_allocations').delete().eq('purchase_id', id);
+
+        // 2. Delete purchase items
         await (supabase as any).from('purchase_items').delete().eq('purchase_id', id);
-        await (supabase as any).from('purchases').delete().eq('id', id);
+
+        // 3. Delete the purchase record
+        const { error } = await (supabase as any).from('purchases').delete().eq('id', id);
+        if (error) {
+          console.warn('Purchase delete direct constraint, setting status Cancelled:', error.message);
+          await (supabase as any).from('purchases').update({ status: 'Cancelled' }).eq('id', id);
+        }
       } catch (err) {
         console.warn('Purchase delete error:', err);
+        await (supabase as any).from('purchases').update({ status: 'Cancelled' }).eq('id', id).catch(() => {});
       }
       memoryPurchases = memoryPurchases.filter((p) => p.id !== id);
       saveStoredPurchases(memoryPurchases);
       return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
+      queryClient.setQueryData(['purchases'], (old: Purchase[] | undefined) => {
+        return (old || []).filter((p) => p.id !== id);
+      });
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       queryClient.invalidateQueries({ queryKey: ['purchase'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });

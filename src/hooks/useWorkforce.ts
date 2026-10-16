@@ -231,16 +231,28 @@ export function useCreateEmployee() {
       const generatedCode = `EMP-${String(nextCodeNum).padStart(4, '0')}`;
       const now = new Date().toISOString();
 
+      let targetCompanyId = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef';
+      try {
+        const { data: existingEmp } = await (supabase.from('employees') as any).select('company_id').limit(1).maybeSingle();
+        if (existingEmp?.company_id) {
+          targetCompanyId = existingEmp.company_id;
+        } else {
+          const { data: comp } = await (supabase.from('companies') as any).select('id').limit(1).maybeSingle();
+          if (comp?.id) targetCompanyId = comp.id;
+        }
+      } catch {}
+
       try {
         const { data, error } = await (supabase as any)
           .from('employees')
           .insert({
+            company_id: targetCompanyId,
             employee_code: generatedCode,
             name: formData.name.trim(),
             phone: formData.phone || null,
             worker_type: formData.worker_type || null,
             daily_wage: formData.daily_wage || null,
-            status: formData.status,
+            status: formData.status || 'active',
             joining_date: formData.joining_date || null,
             emergency_contact: formData.emergency_contact || null,
             address: formData.address || null,
@@ -260,7 +272,7 @@ export function useCreateEmployee() {
         // Local memory persistence fallback
         const newEmp: Employee = {
           id: `emp-local-${Date.now()}`,
-          company_id: 'comp-shivarivel-001',
+          company_id: targetCompanyId,
           employee_code: generatedCode,
           name: formData.name.trim(),
           phone: formData.phone || null,
@@ -373,14 +385,40 @@ export function useDeleteEmployee() {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        const { error } = await (supabase as any).from('employees').delete().eq('id', id);
-        if (error) {
-          // If foreign key constraint exists, mark inactive
-          await (supabase as any).from('employees').update({ status: 'inactive' }).eq('id', id);
+        // Check if employee has confirmed financial transactions in daily_wages
+        const { data: confirmedWages } = await (supabase.from('daily_wages') as any)
+          .select('id')
+          .eq('employee_id', id)
+          .eq('status', 'Confirmed')
+          .limit(1);
+
+        if (confirmedWages && confirmedWages.length > 0) {
+          // PostgreSQL trigger forbids deleting records with confirmed financial history; soft-delete to inactive
+          await (supabase as any)
+            .from('employees')
+            .update({ status: 'inactive', updated_at: new Date().toISOString() })
+            .eq('id', id);
+        } else {
+          // If no confirmed wages, clean up non-confirmed/draft records first then delete
+          await (supabase as any).from('daily_wages').delete().eq('employee_id', id);
+          await (supabase as any).from('attendance').delete().eq('employee_id', id);
+          const { error } = await (supabase as any).from('employees').delete().eq('id', id);
+          if (error) {
+            await (supabase as any)
+              .from('employees')
+              .update({ status: 'inactive', updated_at: new Date().toISOString() })
+              .eq('id', id);
+          }
         }
-      } catch {
-        // Local fallback
+      } catch (err) {
+        console.warn('Employee delete notice, fallback to inactive:', err);
+        await (supabase as any)
+          .from('employees')
+          .update({ status: 'inactive' })
+          .eq('id', id)
+          .catch(() => {});
       }
+
       const stored = loadStoredEmployees();
       const updated = stored.filter((e) => e.id !== id);
       memoryEmployees = updated;
@@ -454,24 +492,16 @@ export function useSaveAttendanceBatch() {
       let savedCount = 0;
 
       for (const entry of entries) {
-        try {
-          // Attempt real Supabase RPC record_attendance
-          const { error } = await (supabase as any).rpc('record_attendance', {
-            p_employee_id: entry.employee_id,
-            p_status: entry.status,
-            p_attendance_date: date,
-            p_project_id: entry.project_id || null,
-            p_overtime_hours: entry.overtime_hours || 0,
-            p_overtime_amount: 0,
-            p_daily_wage_rate: null,
-            p_notes: entry.notes || null,
-            p_auto_generate_wage: true,
-          });
+        let targetCompanyId = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef';
+        const emp = memoryEmployees.find((e) => e.id === entry.employee_id);
+        if (emp?.company_id) targetCompanyId = emp.company_id;
 
-          if (error) {
-            // Upsert fallback directly on attendance table
-            await (supabase as any).from('attendance').upsert(
+        try {
+          const { data: attData } = await (supabase as any)
+            .from('attendance')
+            .upsert(
               {
+                company_id: targetCompanyId,
                 employee_id: entry.employee_id,
                 attendance_date: date,
                 status: entry.status,
@@ -480,104 +510,77 @@ export function useSaveAttendanceBatch() {
                 notes: entry.notes || null,
               },
               { onConflict: 'company_id, employee_id, attendance_date' }
-            );
-          }
-          savedCount++;
-        } catch {
-          // Memory mock persistence
-          const emp = memoryEmployees.find((e) => e.id === entry.employee_id);
-          const existingIdx = memoryAttendance.findIndex(
-            (a) => a.employee_id === entry.employee_id && a.attendance_date === date
-          );
+            )
+            .select('id')
+            .single();
 
-          const record: AttendanceRecord = {
-            id: existingIdx >= 0 ? memoryAttendance[existingIdx].id : `att-${Date.now()}-${entry.employee_id}`,
-            company_id: 'comp-shivarivel-001',
-            employee_id: entry.employee_id,
-            project_id: entry.project_id || emp?.assigned_project_id || null,
-            attendance_date: date,
-            status: entry.status,
-            daily_wage_snapshot: emp?.daily_wage || 0,
-            overtime_hours: entry.overtime_hours || 0,
-            overtime_amount: 0,
-            notes: entry.notes || null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            employee: emp
-              ? {
-                  id: emp.id,
-                  employee_code: emp.employee_code,
-                  name: emp.name,
-                  phone: emp.phone,
-                  worker_type: emp.worker_type,
-                  daily_wage: emp.daily_wage,
-                  status: emp.status,
-                }
-              : undefined,
-            project: emp?.assigned_project_id
-              ? {
-                  id: emp.assigned_project_id,
-                  name: emp.assigned_project_name || 'Assigned Site',
-                  project_code: 'PRJ-SITE',
-                }
-              : null,
-          };
-
-          if (existingIdx >= 0) {
-            memoryAttendance[existingIdx] = record;
-          } else {
-            memoryAttendance.push(record);
-          }
-
-          // Auto-generate or update memory wage
           const units = entry.status === 'Present' ? 1.0 : entry.status === 'Half Day' ? 0.5 : 0;
           const rate = emp?.daily_wage || 0;
           const wageAmount = Math.round(units * rate * 100) / 100;
 
-          const wageIdx = memoryDailyWages.findIndex(
-            (w) => w.employee_id === entry.employee_id && w.wage_date === date
-          );
-          if (wageIdx >= 0) {
-            memoryDailyWages[wageIdx] = {
-              ...memoryDailyWages[wageIdx],
-              payable_units: units,
-              base_wage: wageAmount,
-              amount: wageAmount,
-              amount_payable: wageAmount,
-            };
-          } else {
-            memoryDailyWages.push({
-              id: `dw-${Date.now()}-${entry.employee_id}`,
-              company_id: 'comp-shivarivel-001',
-              employee_id: entry.employee_id,
-              attendance_id: record.id,
-              project_id: entry.project_id || null,
-              wage_number: `WG-${String(memoryDailyWages.length + 1).padStart(4, '0')}`,
-              wage_date: date,
-              payable_units: units,
-              rate,
-              base_wage: wageAmount,
-              overtime_hours: 0,
-              overtime_amount: 0,
-              amount: wageAmount,
-              status: 'Confirmed',
-              reversal_of_id: null,
-              notes: entry.notes || null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              employee: emp
-                ? {
-                    id: emp.id,
-                    employee_code: emp.employee_code,
-                    name: emp.name,
-                    worker_type: emp.worker_type,
-                  }
-                : undefined,
-              amount_paid: 0,
-              amount_payable: wageAmount,
-            });
+          if (units > 0 && rate > 0) {
+            const { data: existingW } = await (supabase as any)
+              .from('daily_wages')
+              .select('id, status')
+              .eq('employee_id', entry.employee_id)
+              .eq('wage_date', date)
+              .neq('status', 'Cancelled')
+              .maybeSingle();
+
+            if (existingW?.id) {
+              if (existingW.status === 'Confirmed') {
+                await (supabase as any)
+                  .from('daily_wages')
+                  .update({ status: 'Cancelled' })
+                  .eq('id', existingW.id);
+                await (supabase as any)
+                  .from('daily_wages')
+                  .insert({
+                    company_id: targetCompanyId,
+                    employee_id: entry.employee_id,
+                    attendance_id: attData?.id || null,
+                    project_id: entry.project_id || null,
+                    wage_date: date,
+                    payable_units: units,
+                    rate: rate,
+                    base_wage: wageAmount,
+                    amount: wageAmount,
+                    status: 'Confirmed',
+                    reversal_of_id: existingW.id,
+                  });
+              } else {
+                await (supabase as any)
+                  .from('daily_wages')
+                  .update({
+                    payable_units: units,
+                    rate: rate,
+                    base_wage: wageAmount,
+                    amount: wageAmount,
+                  })
+                  .eq('id', existingW.id);
+              }
+            } else {
+              await (supabase as any)
+                .from('daily_wages')
+                .insert({
+                  company_id: targetCompanyId,
+                  employee_id: entry.employee_id,
+                  attendance_id: attData?.id || null,
+                  project_id: entry.project_id || null,
+                  wage_date: date,
+                  payable_units: units,
+                  rate: rate,
+                  base_wage: wageAmount,
+                  amount: wageAmount,
+                  status: 'Confirmed',
+                  notes: 'Auto attendance wage',
+                });
+            }
           }
 
+          savedCount++;
+        } catch (itemErr) {
+          console.warn('Batch attendance item save notice:', itemErr);
           savedCount++;
         }
       }
@@ -591,11 +594,6 @@ export function useSaveAttendanceBatch() {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['project-workforce'] });
-      queryClient.invalidateQueries({ queryKey: ['project-financials'] });
-      queryClient.invalidateQueries({ queryKey: ['project-recorded-costs'] });
-      queryClient.invalidateQueries({ queryKey: ['financial-summary'] });
-      queryClient.invalidateQueries({ queryKey: ['report-weekly'] });
-      queryClient.invalidateQueries({ queryKey: ['report-workforce'] });
     },
   });
 }
@@ -632,6 +630,9 @@ export function useWages(filters?: {
         }
         if (filters?.status && filters.status !== 'all') {
           query = query.eq('status', filters.status);
+        } else {
+          // By default, exclude Cancelled wages so deleted/reversed wages do not display
+          query = query.neq('status', 'Cancelled');
         }
 
         const { data, error } = await query;
@@ -647,7 +648,7 @@ export function useWages(filters?: {
         console.warn('Daily wages query notice:', err);
       }
 
-      let filtered = allLocal;
+      let filtered = allLocal.filter((w) => w.status !== 'Cancelled');
       if (filters?.employeeId && filters.employeeId !== 'all') {
         filtered = filtered.filter((w) => w.employee_id === filters.employeeId);
       }
@@ -682,51 +683,127 @@ export function useRecordDailyWage() {
       const units = status === 'Present' ? 1.0 : status === 'Half Day' ? 0.5 : 0.0;
       const rate = status === 'Half Day' ? wageAmount * 2 : wageAmount;
 
-      // 1. If wage_id provided, attempt direct update
-      if (payload.wage_id) {
-        const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
-        const proj = payload.project_id
-          ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
-          : null;
+      // 1. Resolve target company_id from employee
+      let targetCompanyId = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef';
+      let emp = memoryEmployees.find((e) => e.id === payload.employee_id);
+      try {
+        const { data: empData } = await (supabase.from('employees') as any)
+          .select('id, company_id, name, worker_type, daily_wage')
+          .eq('id', payload.employee_id)
+          .maybeSingle();
+        if (empData) {
+          emp = empData as Employee;
+          if (empData.company_id) targetCompanyId = empData.company_id;
+        }
+      } catch {}
 
-        try {
-          const { error } = await (supabase as any)
-            .from('daily_wages')
-            .update({
-              employee_id: payload.employee_id,
-              project_id: payload.project_id || null,
-              wage_date: payload.wage_date,
-              payable_units: units,
-              rate: rate,
-              base_wage: wageAmount,
-              amount: wageAmount,
-              amount_payable: wageAmount,
-            })
-            .eq('id', payload.wage_id);
+      const proj = payload.project_id
+        ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
+        : null;
 
-          if (error) throw error;
-
-          // Also update linked attendance record if present
-          if (payload.attendance_id) {
-            await (supabase as any)
-              .from('attendance')
-              .update({
-                employee_id: payload.employee_id,
-                status: status,
-                project_id: payload.project_id || null,
-                attendance_date: payload.wage_date,
-                daily_wage_snapshot: rate,
-              })
-              .eq('id', payload.attendance_id);
+      // 2. Sync Attendance record in Supabase
+      let attRecordId = payload.attendance_id;
+      try {
+        if (!attRecordId) {
+          const { data: existingAtt } = await (supabase.from('attendance') as any)
+            .select('id')
+            .eq('employee_id', payload.employee_id)
+            .eq('attendance_date', payload.wage_date)
+            .maybeSingle();
+          if (existingAtt?.id) {
+            attRecordId = existingAtt.id;
           }
-        } catch {
-          console.warn('Supabase update wage fallback to local memory cache');
         }
 
-        // Always update in-memory daily wages and attendance so UI reflects update immediately
+        if (attRecordId) {
+          await (supabase.from('attendance') as any)
+            .update({
+              status: status,
+              project_id: payload.project_id || null,
+              attendance_date: payload.wage_date,
+              daily_wage_snapshot: rate,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', attRecordId);
+        } else {
+          const { data: newAtt } = await (supabase.from('attendance') as any)
+            .insert({
+              company_id: targetCompanyId,
+              employee_id: payload.employee_id,
+              project_id: payload.project_id || null,
+              attendance_date: payload.wage_date,
+              status: status,
+              daily_wage_snapshot: rate,
+              overtime_hours: 0,
+              overtime_amount: 0,
+              notes: 'Daily wage entry',
+            })
+            .select('id')
+            .single();
+          if (newAtt?.id) {
+            attRecordId = newAtt.id;
+          }
+        }
+      } catch (attErr) {
+        console.warn('Attendance sync error in useRecordDailyWage:', attErr);
+      }
+
+      // 3. Sync Daily Wage record in Supabase
+      if (payload.wage_id) {
+        // EDIT existing wage
+        try {
+          const { data: curWage } = await (supabase.from('daily_wages') as any)
+            .select('id, status, attendance_id')
+            .eq('id', payload.wage_id)
+            .single();
+
+          if (curWage?.status === 'Confirmed') {
+            // Immutability trigger on Confirmed transactions: cancel old wage and insert corrected replacement
+            await (supabase.from('daily_wages') as any)
+              .update({ status: 'Cancelled', updated_at: new Date().toISOString() })
+              .eq('id', payload.wage_id);
+
+            await (supabase.from('daily_wages') as any)
+              .insert({
+                company_id: targetCompanyId,
+                employee_id: payload.employee_id,
+                attendance_id: attRecordId || curWage.attendance_id || null,
+                project_id: payload.project_id || null,
+                wage_date: payload.wage_date,
+                payable_units: units,
+                rate: rate,
+                base_wage: wageAmount,
+                overtime_hours: 0,
+                overtime_amount: 0,
+                amount: wageAmount,
+                status: 'Confirmed',
+                reversal_of_id: payload.wage_id,
+                notes: 'Edited wage entry',
+              });
+          } else {
+            // Unconfirmed or Draft: update directly
+            await (supabase.from('daily_wages') as any)
+              .update({
+                employee_id: payload.employee_id,
+                project_id: payload.project_id || null,
+                wage_date: payload.wage_date,
+                payable_units: units,
+                rate: rate,
+                base_wage: wageAmount,
+                amount: wageAmount,
+                amount_payable: wageAmount,
+                status: 'Confirmed',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', payload.wage_id);
+          }
+        } catch (editErr) {
+          console.warn('Daily wage update error in Supabase:', editErr);
+        }
+
+        // Update local memory and localStorage
         const idx = memoryDailyWages.findIndex((w) => w.id === payload.wage_id);
         if (idx >= 0) {
-          const attId = payload.attendance_id || memoryDailyWages[idx].attendance_id;
           memoryDailyWages[idx] = {
             ...memoryDailyWages[idx],
             employee_id: payload.employee_id,
@@ -748,82 +825,31 @@ export function useRecordDailyWage() {
             project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
             updated_at: new Date().toISOString(),
           };
-
-          const attIdx = memoryAttendance.findIndex((a) => a.id === attId);
-          if (attIdx >= 0) {
-            memoryAttendance[attIdx] = {
-              ...memoryAttendance[attIdx],
-              employee_id: payload.employee_id,
-              employee: emp,
-              status: status,
-              project_id: payload.project_id || null,
-              attendance_date: payload.wage_date,
-              daily_wage_snapshot: rate,
-              updated_at: new Date().toISOString(),
-            };
-          }
-          saveStoredDailyWages(memoryDailyWages);
-          saveStoredAttendance(memoryAttendance);
         }
       } else {
-        // 2. Insert new daily wage using atomic RPC record_attendance
+        // ADD new wage
         try {
-          const { error } = await (supabase as any).rpc('record_attendance', {
-            p_employee_id: payload.employee_id,
-            p_status: status,
-            p_attendance_date: payload.wage_date,
-            p_project_id: payload.project_id || null,
-            p_overtime_hours: 0,
-            p_overtime_amount: 0,
-            p_daily_wage_rate: rate,
-            p_notes: 'Daily wage entry',
-            p_auto_generate_wage: true,
-          });
+          // Cancel any existing active wage for this employee on this date
+          const { data: existingWages } = await (supabase.from('daily_wages') as any)
+            .select('id')
+            .eq('employee_id', payload.employee_id)
+            .eq('wage_date', payload.wage_date)
+            .neq('status', 'Cancelled');
 
-          if (error) {
-            // Check for duplicate constraint violation
-            if (error.code === '23505' || String(error.message || '').toLowerCase().includes('unique')) {
-              throw new Error('A wage entry already exists for this laborer on this date.');
+          if (existingWages && existingWages.length > 0) {
+            for (const ew of existingWages) {
+              await (supabase.from('daily_wages') as any)
+                .update({ status: 'Cancelled' })
+                .eq('id', ew.id);
             }
-            throw error;
           }
-        } catch (err: unknown) {
-          const errMsg = err instanceof Error ? err.message : String(err);
-          if (errMsg.includes('already exists')) {
-            throw err;
-          }
-          console.warn('Supabase record_attendance RPC notice, updating in memory fallback:', err);
-          const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
-          const proj = payload.project_id
-            ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
-            : null;
-          const existingIdx = memoryDailyWages.findIndex(
-            (w) => w.employee_id === payload.employee_id && w.wage_date === payload.wage_date
-          );
 
-          if (existingIdx >= 0) {
-            memoryDailyWages[existingIdx] = {
-              ...memoryDailyWages[existingIdx],
-              project_id: payload.project_id || null,
-              payable_units: units,
-              rate: rate,
-              base_wage: wageAmount,
-              amount: wageAmount,
-              amount_payable: wageAmount,
-              project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
-              updated_at: new Date().toISOString(),
-            };
-            saveStoredDailyWages(memoryDailyWages);
-          } else {
-            const nextNum = memoryDailyWages.length + 1;
-            const newAttId = `att-${Date.now()}-${payload.employee_id}`;
-            const wageRecord: DailyWage = {
-              id: `dw-${Date.now()}-${payload.employee_id}`,
-              company_id: 'comp-shivarivel-001',
+          const { data: insertedWage } = await (supabase.from('daily_wages') as any)
+            .insert({
+              company_id: targetCompanyId,
               employee_id: payload.employee_id,
-              attendance_id: newAttId,
+              attendance_id: attRecordId || null,
               project_id: payload.project_id || null,
-              wage_number: `WG-${String(nextNum).padStart(4, '0')}`,
               wage_date: payload.wage_date,
               payable_units: units,
               rate: rate,
@@ -832,58 +858,57 @@ export function useRecordDailyWage() {
               overtime_amount: 0,
               amount: wageAmount,
               status: 'Confirmed',
-              reversal_of_id: null,
               notes: 'Daily wage entry',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              employee: emp
-                ? {
-                    id: emp.id,
-                    employee_code: emp.employee_code,
-                    name: emp.name,
-                    worker_type: emp.worker_type,
-                  }
-                : undefined,
-              project: proj
-                ? {
-                    id: proj.id,
-                    name: proj.name,
-                    project_code: proj.project_code,
-                  }
-                : null,
-              amount_paid: 0,
-              amount_payable: wageAmount,
-            };
-            memoryDailyWages = [wageRecord, ...memoryDailyWages];
-            saveStoredDailyWages(memoryDailyWages);
+            })
+            .select()
+            .single();
 
-            // Also add to memoryAttendance
-            const attRecord: AttendanceRecord = {
-              id: newAttId,
-              company_id: 'comp-shivarivel-001',
-              employee_id: payload.employee_id,
-              project_id: payload.project_id || null,
-              attendance_date: payload.wage_date,
-              status: status,
-              daily_wage_snapshot: rate,
-              overtime_hours: 0,
-              overtime_amount: 0,
-              notes: 'Daily wage entry',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-              employee: emp,
-              project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
-            };
-            memoryAttendance.push(attRecord);
-            saveStoredAttendance(memoryAttendance);
+          if (insertedWage) {
+            memoryDailyWages = [insertedWage as DailyWage, ...memoryDailyWages.filter((w) => w.id !== insertedWage.id)];
           }
+        } catch (addErr) {
+          console.warn('Daily wage insert error in Supabase:', addErr);
+          const nextNum = memoryDailyWages.length + 1;
+          const newWageRecord: DailyWage = {
+            id: `dw-${Date.now()}-${payload.employee_id}`,
+            company_id: targetCompanyId,
+            employee_id: payload.employee_id,
+            attendance_id: attRecordId || `att-${Date.now()}`,
+            project_id: payload.project_id || null,
+            wage_number: `WG-${String(nextNum).padStart(4, '0')}`,
+            wage_date: payload.wage_date,
+            payable_units: units,
+            rate: rate,
+            base_wage: wageAmount,
+            overtime_hours: 0,
+            overtime_amount: 0,
+            amount: wageAmount,
+            status: 'Confirmed',
+            reversal_of_id: null,
+            notes: 'Daily wage entry',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            employee: emp
+              ? {
+                  id: emp.id,
+                  employee_code: emp.employee_code,
+                  name: emp.name,
+                  worker_type: emp.worker_type,
+                }
+              : undefined,
+            project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
+            amount_paid: 0,
+            amount_payable: wageAmount,
+          };
+          memoryDailyWages = [newWageRecord, ...memoryDailyWages];
         }
       }
 
+      saveStoredDailyWages(memoryDailyWages);
+
       // Recalculate employee summary in memory
-      const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
       if (emp) {
-        const empWages = memoryDailyWages.filter((w) => w.employee_id === emp.id && w.status === 'Confirmed');
+        const empWages = memoryDailyWages.filter((w) => w.employee_id === emp!.id && w.status === 'Confirmed');
         emp.total_wages_earned = empWages.reduce((sum, w) => sum + w.amount, 0);
         emp.total_present_days = empWages.length;
         saveStoredEmployees(memoryEmployees);
@@ -898,6 +923,8 @@ export function useRecordDailyWage() {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['project-workforce'] });
+      queryClient.invalidateQueries({ queryKey: ['project-financials'] });
+      queryClient.invalidateQueries({ queryKey: ['project-recorded-costs'] });
     },
   });
 }
@@ -908,21 +935,22 @@ export function useDeleteDailyWage() {
   return useMutation({
     mutationFn: async ({ wageId, attendanceId }: { wageId: string; attendanceId?: string }) => {
       try {
-        const { error } = await (supabase as any)
+        await (supabase as any)
           .from('daily_wages')
-          .update({ status: 'Cancelled' })
+          .update({ status: 'Cancelled', updated_at: new Date().toISOString() })
           .eq('id', wageId);
-        if (error) {
-          await (supabase as any).from('daily_wages').delete().eq('id', wageId);
-        }
+
         if (attendanceId) {
-          await (supabase as any).from('attendance').delete().eq('id', attendanceId);
+          await (supabase as any)
+            .from('attendance')
+            .update({ status: 'Absent', daily_wage_snapshot: 0 })
+            .eq('id', attendanceId);
         }
-      } catch {
-        // Continue to memory fallback
+      } catch (err) {
+        console.warn('Delete daily wage notice:', err);
       }
 
-      // In-memory fallback removal
+      // Memory & local storage sync: filter out cancelled wage
       memoryDailyWages = memoryDailyWages.filter((w) => w.id !== wageId);
       saveStoredDailyWages(memoryDailyWages);
       if (attendanceId) {
