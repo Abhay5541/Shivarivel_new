@@ -99,6 +99,8 @@ export function App() {
                   <Route path="/purchases/new" element={<PurchaseEditorPage />} />
                   <Route path="/purchases/:id" element={<PurchaseDetailPage />} />
                   <Route path="/purchases/:id/edit" element={<PurchaseEditorPage />} />
+                  <Route path="/procurement/purchases/:id" element={<PurchaseDetailPage />} />
+                  <Route path="/procurement/purchases/:id/edit" element={<PurchaseEditorPage />} />
                   <Route path="/suppliers" element={<Navigate to="/procurement" replace />} />
                   <Route path="/suppliers/*" element={<Navigate to="/procurement" replace />} />
                   <Route path="/materials" element={<Navigate to="/procurement" replace />} />

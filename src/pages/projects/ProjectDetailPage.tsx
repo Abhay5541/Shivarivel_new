@@ -12,17 +12,20 @@ import {
   ShoppingCart,
   Package,
   Calendar,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { ProjectCompletionModal } from '@/components/business/ProjectCompletionModal';
+import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { useProject, useUpdateProject } from '@/hooks/useProjects';
 import { useWages, useEmployees } from '@/hooks/useWorkforce';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useCustomer } from '@/hooks/useCustomers';
 import { formatINR } from '@/lib/utils';
+import type { Purchase } from '@/types/procurement';
 
 // Payment status badge color helper
 function paymentStatusStyle(status: string | undefined) {
@@ -37,11 +40,17 @@ export const ProjectDetailPage: React.FC = () => {
 
   const [isEditSiteOpen, setIsEditSiteOpen] = useState(false);
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
+  const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   const { data: site, isLoading: isLoadingSite, isError, error, refetch } = useProject(id);
   const { data: siteWages = [], isLoading: isLoadingWages } = useWages({ projectId: id });
   const { data: employees = [] } = useEmployees();
-  const { data: projectPurchases = [], isLoading: isLoadingPurchases } = usePurchases({
+  const {
+    data: projectPurchases = [],
+    isLoading: isLoadingPurchases,
+    refetch: refetchPurchases,
+  } = usePurchases({
     project_id: id,
   });
   const updateProjectMutation = useUpdateProject();
@@ -289,14 +298,27 @@ export const ProjectDetailPage: React.FC = () => {
               </span>
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
-            className="text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] flex items-center gap-1 cursor-pointer"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingPurchase(null);
+                setIsPurchaseModalOpen(true);
+              }}
+              className="px-2.5 py-1 text-xs font-bold text-[#4A0E0E] bg-[#4A0E0E]/5 hover:bg-[#4A0E0E]/10 rounded-lg flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
+              className="text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] flex items-center gap-1 cursor-pointer"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Purchase Total Summary */}
@@ -357,7 +379,10 @@ export const ProjectDetailPage: React.FC = () => {
               .map((purchase) => (
                 <div
                   key={purchase.id}
-                  onClick={() => navigate(`/procurement/purchases/${purchase.id}`)}
+                  onClick={() => {
+                    setEditingPurchase(purchase);
+                    setIsPurchaseModalOpen(true);
+                  }}
                   className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors cursor-pointer group"
                 >
                   <div className="min-w-0 flex-1">
@@ -399,7 +424,7 @@ export const ProjectDetailPage: React.FC = () => {
                     </div>
 
                   </div>
-                  <div className="flex items-center gap-3 shrink-0 ml-3">
+                  <div className="flex items-center gap-2.5 shrink-0 ml-3">
                     <div className="text-right">
                       <span className="text-sm font-bold text-[#242424] block">
                         {formatINR(purchase.total_amount)}
@@ -412,7 +437,9 @@ export const ProjectDetailPage: React.FC = () => {
                         {purchase.payment_status || 'Unpaid'}
                       </span>
                     </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#C9C4BB] group-hover:text-[#4A0E0E] transition-colors" />
+                    <div className="p-1 rounded-md text-[#8C867E] group-hover:text-[#4A0E0E] group-hover:bg-[#4A0E0E]/10 transition-colors">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -566,6 +593,22 @@ export const ProjectDetailPage: React.FC = () => {
         project={site}
         onConfirmComplete={handleConfirmComplete}
         isLoading={updateProjectMutation.isPending}
+      />
+
+      {/* Edit / Add Purchase Modal */}
+      <SimplePurchaseModal
+        isOpen={isPurchaseModalOpen}
+        onClose={() => {
+          setIsPurchaseModalOpen(false);
+          setEditingPurchase(null);
+        }}
+        mode="project"
+        editPurchase={editingPurchase}
+        preselectedProjectId={site?.id || id || null}
+        onSuccess={() => {
+          refetchPurchases();
+          refetch();
+        }}
       />
     </div>
   );
