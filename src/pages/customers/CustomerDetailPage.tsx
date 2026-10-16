@@ -236,7 +236,7 @@ export const CustomerDetailPage: React.FC = () => {
               <Phone className="w-4 h-4 text-[#4A0E0E] shrink-0" />
               <a
                 href={`tel:${customer.phone}`}
-                className="font-bold text-[#242424] font-mono hover:text-[#4A0E0E]"
+                className="font-bold text-[#242424] font-sans tabular-nums hover:text-[#4A0E0E]"
               >
                 {customer.phone}
               </a>

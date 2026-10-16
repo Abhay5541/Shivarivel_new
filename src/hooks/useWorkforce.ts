@@ -142,6 +142,18 @@ export function useEmployees(filters?: {
         const { data, error } = await query;
         if (!error && data) {
           remote = data as Employee[];
+          saveStoredEmployees(remote);
+          let results = remote;
+          if (filters?.status && filters.status !== 'all') {
+            results = results.filter((e) => e.status === filters.status);
+          } else {
+            results = results.filter((e) => e.status !== 'inactive');
+          }
+          if (filters?.search?.trim()) {
+            const s = filters.search.trim().toLowerCase();
+            results = results.filter((e) => e.name.toLowerCase().includes(s) || e.phone?.includes(s));
+          }
+          return results;
         } else if (error) {
           console.warn('Employees query error:', error.message);
         }
@@ -149,17 +161,7 @@ export function useEmployees(filters?: {
         console.warn('Employees query notice:', err);
       }
 
-      const remoteIds = new Set(remote.map((e) => e.id));
-      let merged: Employee[];
-      if (remote.length > 0) {
-        // Remote query succeeded: Remote is source of truth.
-        // Keep only local-only un-synced items (emp-local-) that don't exist in remote yet.
-        // Do NOT resurrect deleted remote employees from stale localStorage!
-        const unsyncedLocal = local.filter((le) => le.id.startsWith('emp-local-') && !remoteIds.has(le.id));
-        merged = [...remote, ...unsyncedLocal];
-      } else {
-        merged = local;
-      }
+      let merged = local;
 
       // Exclude inactive employees unless explicitly requested
       if (filters?.status !== 'all' && filters?.status !== 'inactive') {
@@ -292,11 +294,15 @@ export function useCreateEmployee() {
   });
 }
 
-export function useUpdateEmployee(id: string) {
+export function useUpdateEmployee(hookId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (formData: EmployeeFormData): Promise<Employee> => {
+    mutationFn: async (formData: EmployeeFormData & { id?: string }): Promise<Employee> => {
+      const id = formData.id || hookId;
+      if (!id) {
+        throw new Error('Employee ID is required to update.');
+      }
       const now = new Date().toISOString();
       try {
         const { data, error } = await (supabase as any)
@@ -350,9 +356,13 @@ export function useUpdateEmployee(id: string) {
         throw new Error('Employee not found');
       }
     },
-    onSuccess: () => {
+    onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
-      queryClient.invalidateQueries({ queryKey: ['employee', id] });
+      if (updated?.id) {
+        queryClient.invalidateQueries({ queryKey: ['employee', updated.id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['wages'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -627,6 +637,9 @@ export function useWages(filters?: {
         const { data, error } = await query;
         if (!error && data) {
           remote = data as DailyWage[];
+          memoryDailyWages = remote;
+          saveStoredDailyWages(remote);
+          return remote;
         } else if (error) {
           console.warn('Daily wages query error:', error.message);
         }
@@ -634,39 +647,7 @@ export function useWages(filters?: {
         console.warn('Daily wages query notice:', err);
       }
 
-      // KEY FIX: Merge remote results with local dataset, eliminating duplicates.
-      // Remote results from Supabase are the authoritative source of truth.
-      const remoteIds = new Set(remote.map((w) => w.id));
-      const remoteKeys = new Set(remote.map((rw) => `${rw.employee_id}_${rw.wage_date}`));
-
-      // Filter out any local temporary records that match remote by ID or (employee_id + wage_date)
-      const nonDuplicateLocal = allLocal.filter((lw) => {
-        if (remoteIds.has(lw.id)) return false; // Handled by remote
-        if (lw.employee_id && lw.wage_date && remoteKeys.has(`${lw.employee_id}_${lw.wage_date}`)) {
-          return false; // Duplicate of remote
-        }
-        return true;
-      });
-
-      const rawMerged = [...remote, ...nonDuplicateLocal];
-
-      // Final uniqueness guarantee: strictly one wage entry per (employee_id, wage_date)
-      const seen = new Set<string>();
-      const merged: DailyWage[] = [];
-      for (const w of rawMerged) {
-        const uniqueKey = `${w.employee_id}_${w.wage_date}`;
-        if (!seen.has(uniqueKey)) {
-          seen.add(uniqueKey);
-          merged.push(w);
-        }
-      }
-
-      // Persist the deduplicated merged set
-      memoryDailyWages = merged;
-      saveStoredDailyWages(merged);
-
-      // Return only the filtered view for this query
-      let filtered = merged;
+      let filtered = allLocal;
       if (filters?.employeeId && filters.employeeId !== 'all') {
         filtered = filtered.filter((w) => w.employee_id === filters.employeeId);
       }
@@ -703,10 +684,16 @@ export function useRecordDailyWage() {
 
       // 1. If wage_id provided, attempt direct update
       if (payload.wage_id) {
+        const emp = memoryEmployees.find((e) => e.id === payload.employee_id);
+        const proj = payload.project_id
+          ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
+          : null;
+
         try {
           const { error } = await (supabase as any)
             .from('daily_wages')
             .update({
+              employee_id: payload.employee_id,
               project_id: payload.project_id || null,
               wage_date: payload.wage_date,
               payable_units: units,
@@ -724,6 +711,7 @@ export function useRecordDailyWage() {
             await (supabase as any)
               .from('attendance')
               .update({
+                employee_id: payload.employee_id,
                 status: status,
                 project_id: payload.project_id || null,
                 attendance_date: payload.wage_date,
@@ -732,40 +720,50 @@ export function useRecordDailyWage() {
               .eq('id', payload.attendance_id);
           }
         } catch {
-          // Update in-memory fallback
-          const idx = memoryDailyWages.findIndex((w) => w.id === payload.wage_id);
-          const proj = payload.project_id
-            ? (getStoredProject(payload.project_id) || { id: payload.project_id, name: 'General Site Work', project_code: 'PRJ' })
-            : null;
-          if (idx >= 0) {
-            const attId = payload.attendance_id || memoryDailyWages[idx].attendance_id;
-            memoryDailyWages[idx] = {
-              ...memoryDailyWages[idx],
+          console.warn('Supabase update wage fallback to local memory cache');
+        }
+
+        // Always update in-memory daily wages and attendance so UI reflects update immediately
+        const idx = memoryDailyWages.findIndex((w) => w.id === payload.wage_id);
+        if (idx >= 0) {
+          const attId = payload.attendance_id || memoryDailyWages[idx].attendance_id;
+          memoryDailyWages[idx] = {
+            ...memoryDailyWages[idx],
+            employee_id: payload.employee_id,
+            employee: emp
+              ? {
+                  id: emp.id,
+                  employee_code: emp.employee_code,
+                  name: emp.name,
+                  worker_type: emp.worker_type,
+                }
+              : memoryDailyWages[idx].employee,
+            project_id: payload.project_id || null,
+            wage_date: payload.wage_date,
+            payable_units: units,
+            rate: rate,
+            base_wage: wageAmount,
+            amount: wageAmount,
+            amount_payable: wageAmount,
+            project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
+            updated_at: new Date().toISOString(),
+          };
+
+          const attIdx = memoryAttendance.findIndex((a) => a.id === attId);
+          if (attIdx >= 0) {
+            memoryAttendance[attIdx] = {
+              ...memoryAttendance[attIdx],
+              employee_id: payload.employee_id,
+              employee: emp,
+              status: status,
               project_id: payload.project_id || null,
-              wage_date: payload.wage_date,
-              payable_units: units,
-              rate: rate,
-              base_wage: wageAmount,
-              amount: wageAmount,
-              amount_payable: wageAmount,
-              project: proj ? { id: proj.id, name: proj.name, project_code: proj.project_code } : null,
+              attendance_date: payload.wage_date,
+              daily_wage_snapshot: rate,
               updated_at: new Date().toISOString(),
             };
-
-            const attIdx = memoryAttendance.findIndex((a) => a.id === attId);
-            if (attIdx >= 0) {
-              memoryAttendance[attIdx] = {
-                ...memoryAttendance[attIdx],
-                status: status,
-                project_id: payload.project_id || null,
-                attendance_date: payload.wage_date,
-                daily_wage_snapshot: rate,
-                updated_at: new Date().toISOString(),
-              };
-            }
-            saveStoredDailyWages(memoryDailyWages);
-            saveStoredAttendance(memoryAttendance);
           }
+          saveStoredDailyWages(memoryDailyWages);
+          saveStoredAttendance(memoryAttendance);
         }
       } else {
         // 2. Insert new daily wage using atomic RPC record_attendance

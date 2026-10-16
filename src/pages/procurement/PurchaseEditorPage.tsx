@@ -242,7 +242,7 @@ export const PurchaseEditorPage: React.FC = () => {
                 type="text"
                 {...register('invoice_number')}
                 placeholder="e.g. INV-2026-1044 or DC-8821"
-                className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono uppercase text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E] min-h-[44px]"
+                className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums uppercase text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E] min-h-[44px]"
               />
               <span className="text-[10px] text-[#6B6B6B] mt-0.5 block">
                 Must be unique per vendor (enforced by backend integrity rules)
@@ -257,7 +257,7 @@ export const PurchaseEditorPage: React.FC = () => {
                 <input
                   type="date"
                   {...register('purchase_date')}
-                  className="w-full px-3 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E] min-h-[44px]"
+                  className="w-full px-3 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E] min-h-[44px]"
                 />
               </div>
 
@@ -268,7 +268,7 @@ export const PurchaseEditorPage: React.FC = () => {
                 <input
                   type="date"
                   {...register('due_date')}
-                  className="w-full px-3 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E] min-h-[44px]"
+                  className="w-full px-3 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E] min-h-[44px]"
                 />
               </div>
             </div>
@@ -351,7 +351,7 @@ export const PurchaseEditorPage: React.FC = () => {
                           type="number"
                           step="any"
                           {...register(`items.${idx}.quantity`, { valueAsNumber: true })}
-                          className="w-full px-2 py-1.5 bg-white border border-[#E2DDD5] rounded text-xs font-mono text-right text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E]"
+                          className="w-full px-2 py-1.5 bg-white border border-[#E2DDD5] rounded text-xs font-sans tabular-nums text-right text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E]"
                         />
                       </td>
 
@@ -373,11 +373,11 @@ export const PurchaseEditorPage: React.FC = () => {
                           type="number"
                           step="any"
                           {...register(`items.${idx}.unit_price`, { valueAsNumber: true })}
-                          className="w-full px-2.5 py-1.5 bg-white border border-[#E2DDD5] rounded text-xs font-mono text-right text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E]"
+                          className="w-full px-2.5 py-1.5 bg-white border border-[#E2DDD5] rounded text-xs font-sans tabular-nums text-right text-[#242424] focus:outline-none focus:ring-1 focus:ring-[#4A0E0E]"
                         />
                       </td>
 
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-[#242424] tabular-nums">
+                      <td className="py-2.5 px-3 text-right font-sans font-bold text-[#242424] tabular-nums">
                         {formatINR(lineAmt)}
                       </td>
 
@@ -454,7 +454,7 @@ export const PurchaseEditorPage: React.FC = () => {
                         type="number"
                         step="any"
                         {...register(`items.${idx}.quantity`, { valueAsNumber: true })}
-                        className="w-full px-3 py-2 bg-white border border-[#E2DDD5] rounded text-xs font-mono min-h-[44px]"
+                        className="w-full px-3 py-2 bg-white border border-[#E2DDD5] rounded text-xs font-sans tabular-nums min-h-[44px]"
                       />
                     </div>
 
@@ -484,7 +484,7 @@ export const PurchaseEditorPage: React.FC = () => {
                         type="number"
                         step="any"
                         {...register(`items.${idx}.unit_price`, { valueAsNumber: true })}
-                        className="w-full px-3 py-2 bg-white border border-[#E2DDD5] rounded text-xs font-mono min-h-[44px]"
+                        className="w-full px-3 py-2 bg-white border border-[#E2DDD5] rounded text-xs font-sans tabular-nums min-h-[44px]"
                       />
                     </div>
 
@@ -492,7 +492,7 @@ export const PurchaseEditorPage: React.FC = () => {
                       <span className="text-[10px] font-bold text-[#6B6B6B] uppercase block">
                         Line Amount
                       </span>
-                      <span className="font-mono font-bold text-xs text-[#242424] tabular-nums block mt-1">
+                      <span className="font-sans font-bold text-xs text-[#242424] tabular-nums block mt-1">
                         {formatINR(lineAmt)}
                       </span>
                     </div>
@@ -530,7 +530,7 @@ export const PurchaseEditorPage: React.FC = () => {
                   step="any"
                   {...register('discount', { valueAsNumber: true })}
                   placeholder="0"
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono text-[#242424] min-h-[44px]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums text-[#242424] min-h-[44px]"
                 />
               </div>
 
@@ -543,7 +543,7 @@ export const PurchaseEditorPage: React.FC = () => {
                   step="any"
                   {...register('tax', { valueAsNumber: true })}
                   placeholder="0"
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono text-[#242424] min-h-[44px]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums text-[#242424] min-h-[44px]"
                 />
               </div>
             </div>
@@ -552,25 +552,25 @@ export const PurchaseEditorPage: React.FC = () => {
             <div className="bg-[#F7F5F0] p-4 rounded-xl border border-[#E2DDD5] space-y-2 text-xs">
               <div className="flex items-center justify-between text-[#6B6B6B]">
                 <span>Items Subtotal:</span>
-                <span className="font-mono font-semibold text-[#242424]">
+                <span className="font-sans tabular-nums font-semibold text-[#242424]">
                   {formatINR(itemsSubtotal)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[#6B6B6B]">
                 <span>Discount Deduction:</span>
-                <span className="font-mono text-[#A84B14]">
+                <span className="font-sans tabular-nums text-[#A84B14]">
                   - {formatINR(Number(watchedDiscount) || 0)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[#6B6B6B]">
                 <span>Taxes & Levies:</span>
-                <span className="font-mono text-[#242424]">
+                <span className="font-sans tabular-nums text-[#242424]">
                   + {formatINR(Number(watchedTax) || 0)}
                 </span>
               </div>
               <div className="pt-2 border-t border-[#E2DDD5] flex items-center justify-between font-bold text-sm">
                 <span className="text-[#242424]">Final Purchase Total:</span>
-                <span className="font-mono text-[#4A0E0E] text-base tabular-nums">
+                <span className="font-sans text-[#4A0E0E] text-base tabular-nums font-bold">
                   {formatINR(finalTotal)}
                 </span>
               </div>
@@ -609,7 +609,7 @@ export const PurchaseEditorPage: React.FC = () => {
                   step="any"
                   {...register('initial_payment_amount', { valueAsNumber: true })}
                   placeholder={finalTotal.toString()}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono font-bold text-[#1E6B37] min-h-[44px]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums font-bold text-[#1E6B37] min-h-[44px]"
                 />
               </div>
 
@@ -637,7 +637,7 @@ export const PurchaseEditorPage: React.FC = () => {
                   type="text"
                   {...register('initial_payment_reference')}
                   placeholder="e.g. UTR-992144 or Cheque 00412"
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-mono text-[#242424] min-h-[44px]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E2DDD5] rounded-lg text-xs font-sans tabular-nums text-[#242424] min-h-[44px]"
                 />
               </div>
             </div>
