@@ -463,10 +463,10 @@ export function WagesPage() {
 
       {/* 3. VIEW SWITCHER: [ Daily Wages ] [ Weekly Overview ] */}
       <div className="mb-4">
-        <SlidingSegmentedControl
+        <SlidingSegmentedControl<'daily' | 'weekly'>
           options={wageViewOptions}
           value={activeTab}
-          onChange={setActiveTab}
+          onChange={(tab: 'daily' | 'weekly') => setActiveTab(tab)}
           size="md"
           fullWidth
           ariaLabel="Wages view"
