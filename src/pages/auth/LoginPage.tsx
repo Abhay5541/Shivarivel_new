@@ -175,10 +175,45 @@ export function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/40 lg:to-transparent" />
       </div>
 
-      {/* 2. MAIN CONTENT AREA — Fits 100% within viewport height on desktop / laptop */}
+      {/* 2. MAIN CONTENT AREA */}
       <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-6 lg:py-4 max-w-[1360px] mx-auto w-full min-h-0">
+        
+        {/* MOBILE ONLY: BRAND & HERO STATEMENT (COMES ABOVE LOGIN FORM ON MOBILE) */}
+        <div className="lg:hidden text-center space-y-2 mb-4 max-w-md mx-auto pt-2">
+          {/* Brand Header & Logo on Mobile */}
+          <div className="flex items-center justify-center gap-3 mb-1">
+            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-md">
+              <img
+                src={logoImg}
+                alt="Shivarivel Official Logo"
+                className="w-full h-full object-cover scale-[1.14]"
+              />
+            </div>
+            <div className="space-y-0.5 text-left">
+              <h1 className="font-cinzel text-[20px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
+                SHIVARIVEL
+              </h1>
+              <p className="font-inter text-[9.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
+                CONSTRUCTION &amp; INTERIORS
+              </p>
+            </div>
+          </div>
+
+          {/* Hero Statement on Mobile */}
+          <p className="font-inter text-[11px] font-bold uppercase tracking-[0.3em] text-[#C9A24A] pt-1">
+            BUILDING DREAMS
+          </p>
+          <h2 className="font-playfair text-[26px] sm:text-[30px] font-normal text-white leading-tight drop-shadow-md">
+            Quality Construction.<br />
+            Beautiful Interiors.
+          </h2>
+          <p className="font-inter text-[12px] text-[#E0E6ED] font-normal leading-relaxed pt-0.5 max-w-sm mx-auto">
+            From planning to precision, we deliver spaces that inspire, last and add value.
+          </p>
+        </div>
+
         {/* 2-COLUMN RESPONSIVE LAYOUT ON LAPTOP / DESKTOP (lg:grid-cols-12), STACKED ON MOBILE */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center my-auto py-3 lg:py-0">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center my-auto py-1 lg:py-0">
           
           {/* LEFT/BOTTOM PANEL: BRAND, HERO TEXT & OUR SERVICES */}
           <div className="order-2 lg:order-1 lg:col-span-7 space-y-3.5 lg:space-y-4 text-center lg:text-left">
@@ -201,8 +236,8 @@ export function LoginPage() {
               </div>
             </div>
 
-            {/* HERO STATEMENT */}
-            <div className="space-y-1.5 pt-2 lg:pt-0.5">
+            {/* HERO STATEMENT (DESKTOP ONLY — ON MOBILE IT IS DISPLAYED ABOVE THE LOGIN FORM) */}
+            <div className="hidden lg:block space-y-1.5 pt-0.5">
               <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]">
                 BUILDING DREAMS
               </p>
@@ -210,12 +245,12 @@ export function LoginPage() {
                 Quality Construction.<br />
                 Beautiful Interiors.
               </h2>
-              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED] font-normal leading-relaxed max-w-lg mx-auto lg:mx-0 pt-0.5">
+              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED] font-normal leading-relaxed max-w-lg pt-0.5">
                 From planning to precision, we deliver spaces that inspire, last and add value.
               </p>
             </div>
 
-            {/* OUR SERVICES SECTION */}
+            {/* OUR SERVICES SECTION (UNDER LOGIN FORM ON MOBILE, ON LEFT PANEL ON DESKTOP) */}
             <div className="space-y-2 pt-0.5">
               <div className="flex items-center gap-3 my-1">
                 <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
@@ -253,27 +288,10 @@ export function LoginPage() {
             </div>
           </div>
 
-          {/* RIGHT/TOP PANEL: FLOATING CREAM LOGIN CARD (ABOVE SERVICES ON MOBILE, SIDE-BY-SIDE ON LAPTOP) */}
+          {/* RIGHT/TOP PANEL: FLOATING CREAM LOGIN CARD */}
           <div className="order-1 lg:order-2 lg:col-span-5 w-full flex justify-center lg:justify-end">
             <div className="w-full max-w-[420px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 lg:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] text-[#0A1813] border border-white/60 relative overflow-hidden transition-all">
               
-              {/* Mobile-only brand header at top of card so mobile users see the logo without scrolling */}
-              <div className="lg:hidden text-center space-y-1 pb-1">
-                <div className="w-12 h-12 mx-auto rounded-full overflow-hidden flex items-center justify-center bg-black shadow-md">
-                  <img
-                    src={logoImg}
-                    alt="Shivarivel Official Logo"
-                    className="w-full h-full object-cover scale-[1.14]"
-                  />
-                </div>
-                <h2 className="font-cinzel text-[19px] font-bold tracking-[0.16em] text-[#0A1813] uppercase mt-1">
-                  SHIVARIVEL
-                </h2>
-                <p className="font-inter text-[9.5px] font-extrabold tracking-[0.25em] text-[#0A1813] uppercase">
-                  CONSTRUCTION &amp; INTERIORS
-                </p>
-              </div>
-
               {/* Card Header with Watcher Eye Tracker */}
               <div className="text-center space-y-1">
                 <div
