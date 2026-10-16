@@ -107,7 +107,7 @@
   background: rgba(255, 255, 255, 0.6);
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
-  font-family: var(--font-heading, 'Plus Jakarta Sans', sans-serif);
+  font-family: var(--font-body, 'Inter', sans-serif);
   font-size: 13px;
   font-weight: 600;
   color: #4A0E0E;

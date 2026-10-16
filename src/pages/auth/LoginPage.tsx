@@ -38,50 +38,6 @@ const SERVICES = [
   { id: 'site-surveying', title: 'Site Surveying', icon: Compass },
 ];
 
-function ServicesDivider() {
-  return (
-    <div className="flex items-center gap-3 my-1">
-      <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
-      <span className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.25em] text-[#C9A24A]">
-        OUR SERVICES
-      </span>
-      <div className="h-[1px] bg-gradient-to-l from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
-    </div>
-  );
-}
-
-function ServicesGrid() {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
-      {SERVICES.map((service) => {
-        const Icon = service.icon;
-        return (
-          <div
-            key={service.id}
-            className="group bg-black/50 hover:bg-black/75 border border-[#C9A24A]/60 hover:border-[#C9A24A] backdrop-blur-md rounded-xl p-2.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all duration-200 shadow-xl hover:shadow-[#C9A24A]/30 cursor-default min-h-[64px] sm:min-h-[72px]"
-          >
-            <Icon className="w-5 h-5 text-[#C9A24A] group-hover:scale-110 transition-transform duration-200 shrink-0" />
-            <span className="font-inter text-[10.5px] sm:text-[11px] font-medium text-white leading-tight">
-              {service.title}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function VisionTagline() {
-  return (
-    <div className="pt-2 flex flex-col items-center text-center">
-      <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide drop-shadow-md leading-none">
-        Your Vision . Our Expertise
-      </p>
-      <div className="w-44 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A24A] to-transparent mt-1" />
-    </div>
-  );
-}
-
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -209,69 +165,137 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col justify-between overflow-y-auto font-inter select-none bg-[#071510]">
+    <div className="min-h-screen lg:h-screen lg:max-h-screen relative flex flex-col justify-between overflow-y-auto lg:overflow-hidden font-inter select-none bg-[#071510]">
       {/* 1. BRIGHT, VIVID & WARM BACKGROUND IMAGE (Background_UI.png) */}
       <div
         className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${bgImg})` }}
       >
         {/* Soft dark vignette for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/85" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/40 lg:to-transparent" />
       </div>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1200px] mx-auto w-full">
-        <div className="w-full flex flex-col items-center my-auto">
-          {/* 1. HERO STATEMENT & BRAND (ABOVE LOGIN FORM) */}
-          <div className="text-center w-full max-w-2xl mx-auto">
-            {/* BRAND HEADER & LOGO (UNIFIED LOCKUP) */}
-            <div className="flex items-center justify-center gap-3.5">
-              <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black/80 border border-[#C9A24A]/40 shadow-xl">
+      <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-8 lg:px-12 py-6 lg:py-4 max-w-[1360px] mx-auto w-full min-h-0">
+        
+        {/* MOBILE ONLY: BRAND & HERO STATEMENT (COMES ABOVE LOGIN FORM ON MOBILE) */}
+        <div className="lg:hidden text-center space-y-2 mb-4 max-w-md mx-auto pt-2">
+          {/* Brand Header & Logo on Mobile */}
+          <div className="flex items-center justify-center gap-3 mb-1">
+            <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-md">
+              <img
+                src={logoImg}
+                alt="Shivarivel Official Logo"
+                className="w-full h-full object-cover scale-[1.14]"
+              />
+            </div>
+            <div className="space-y-0.5 text-left">
+              <h1 className="font-cinzel text-[20px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
+                SHIVARIVEL
+              </h1>
+              <p className="font-inter text-[9.5px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
+                CONSTRUCTION &amp; INTERIORS
+              </p>
+            </div>
+          </div>
+
+          {/* Hero Statement on Mobile */}
+          <p className="font-inter text-[11px] font-bold uppercase tracking-[0.3em] text-[#C9A24A] pt-1">
+            BUILDING DREAMS
+          </p>
+          <h2 className="font-playfair text-[26px] sm:text-[30px] font-normal text-white leading-tight drop-shadow-md">
+            Quality Construction.<br />
+            Beautiful Interiors.
+          </h2>
+          <p className="font-inter text-[12px] text-[#E0E6ED] font-normal leading-relaxed pt-0.5 max-w-sm mx-auto">
+            From planning to precision, we deliver spaces that inspire, last and add value.
+          </p>
+        </div>
+
+        {/* 2-COLUMN RESPONSIVE LAYOUT ON LAPTOP / DESKTOP (lg:grid-cols-12), STACKED ON MOBILE */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center my-auto py-1 lg:py-0">
+          
+          {/* LEFT/BOTTOM PANEL: BRAND, HERO TEXT & OUR SERVICES */}
+          <div className="order-2 lg:order-1 lg:col-span-7 space-y-3.5 lg:space-y-4 text-center lg:text-left">
+            {/* BRAND HEADER & LOGO (VISIBLE ON DESKTOP / LAPTOP SIDE PANEL) */}
+            <div className="hidden lg:flex items-center gap-3.5">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-black shadow-lg">
                 <img
                   src={logoImg}
                   alt="Shivarivel Official SVC Logo"
                   className="w-full h-full object-cover scale-[1.14]"
                 />
               </div>
-              <div className="text-left flex flex-col justify-center">
-                <h1 className="font-cinzel text-[20px] sm:text-[23px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-md">
+              <div className="space-y-0.5">
+                <h1 className="font-cinzel text-[22px] sm:text-[26px] font-bold tracking-[0.16em] text-white uppercase leading-tight drop-shadow-lg">
                   SHIVARIVEL
                 </h1>
-                <p className="font-inter text-[9.5px] sm:text-[10.5px] font-semibold uppercase tracking-[0.28em] text-[#C9A24A] leading-snug">
+                <p className="font-inter text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.3em] text-[#C9A24A]">
                   CONSTRUCTION &amp; INTERIORS
-                </p>
-                <p className="font-inter text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]/90 leading-tight">
-                  BUILDING DREAMS
                 </p>
               </div>
             </div>
 
-            {/* HERO STATEMENT */}
-            <div className="space-y-1.5 mt-3 sm:mt-4 text-center">
-              <h2 className="font-playfair text-[24px] sm:text-[30px] lg:text-[34px] font-normal text-white leading-tight drop-shadow-md">
+            {/* HERO STATEMENT (DESKTOP ONLY — ON MOBILE IT IS DISPLAYED ABOVE THE LOGIN FORM) */}
+            <div className="hidden lg:block space-y-1.5 pt-0.5">
+              <p className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.3em] text-[#C9A24A]">
+                BUILDING DREAMS
+              </p>
+              <h2 className="font-playfair text-[28px] sm:text-[34px] lg:text-[38px] font-normal text-white leading-[1.12] drop-shadow-md">
                 Quality Construction.<br />
                 Beautiful Interiors.
               </h2>
-              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED]/85 font-normal leading-relaxed max-w-lg mx-auto">
+              <p className="font-inter text-[12px] sm:text-[13px] text-[#E0E6ED] font-normal leading-relaxed max-w-lg pt-0.5">
                 From planning to precision, we deliver spaces that inspire, last and add value.
               </p>
             </div>
 
-            {/* OUR SERVICES SECTION (DESKTOP: BALANCED EXPANDED WIDTH) */}
-            <div className="hidden lg:block w-full max-w-2xl mx-auto space-y-2 mt-4">
-              <ServicesDivider />
-              <ServicesGrid />
-              <VisionTagline />
+            {/* OUR SERVICES SECTION (UNDER LOGIN FORM ON MOBILE, ON LEFT PANEL ON DESKTOP) */}
+            <div className="space-y-2 pt-0.5">
+              <div className="flex items-center gap-3 my-1">
+                <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
+                <span className="font-inter text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.25em] text-[#C9A24A]">
+                  OUR SERVICES
+                </span>
+                <div className="h-[1px] bg-gradient-to-l from-transparent via-[#C9A24A]/60 to-[#C9A24A]/30 flex-1" />
+              </div>
+
+              {/* 4 COLUMNS X 2 ROWS TRANSLUCENT GLASS GRID (COMPACT) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                {SERVICES.map((service) => {
+                  const Icon = service.icon;
+                  return (
+                    <div
+                      key={service.id}
+                      className="group bg-black/50 hover:bg-black/75 border border-[#C9A24A]/60 hover:border-[#C9A24A] backdrop-blur-md rounded-xl p-2.5 flex flex-col items-center justify-center text-center gap-1.5 transition-all duration-200 shadow-xl hover:shadow-[#C9A24A]/30 cursor-default min-h-[64px] sm:min-h-[72px]"
+                    >
+                      <Icon className="w-5 h-5 text-[#C9A24A] group-hover:scale-110 transition-transform duration-200 shrink-0" />
+                      <span className="font-inter text-[10.5px] sm:text-[11px] font-medium text-white leading-tight">
+                        {service.title}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* CURSIVE SCRIPT TAGLINE WITH GOLD UNDERLINE FLOURISH */}
+              <div className="pt-1.5 flex flex-col items-center lg:items-start">
+                <p className="font-cursive text-[26px] sm:text-[32px] text-[#C9A24A] tracking-wide drop-shadow-md leading-none">
+                  Your Vision . Our Expertise
+                </p>
+                <div className="w-44 h-[1.5px] bg-gradient-to-r from-[#C9A24A] via-[#C9A24A]/60 to-transparent mt-1" />
+              </div>
             </div>
           </div>
 
-          {/* FLOATING CREAM LOGIN CARD (CENTERED WITH HARMONIOUS MARGIN) */}
-          <div className="w-full flex flex-col items-center mt-5 sm:mt-6">
-            <div className="w-full max-w-[410px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.65)] text-[#0A1813] border border-white/70 relative overflow-hidden transition-all">
-              {/* Card Header with Centered Official Logo */}
+          {/* RIGHT/TOP PANEL: FLOATING CREAM LOGIN CARD */}
+          <div className="order-1 lg:order-2 lg:col-span-5 w-full flex justify-center lg:justify-end">
+            <div className="w-full max-w-[420px] bg-[#F4F2EC] rounded-[24px] p-5 sm:p-6 lg:p-7 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6)] text-[#0A1813] border border-white/60 relative overflow-hidden transition-all">
+              
+              {/* Card Header with Watcher Eye Tracker */}
               <div className="text-center space-y-1">
                 <div
-                  className="flex justify-center pt-0.5 pb-0.5"
+                  className="flex justify-center pt-1.5 pb-0.5"
                   style={{ '--fill-slab': '#FFFFFF', '--fill-on': '#0A1813' } as React.CSSProperties}
                 >
                   <Watcher
@@ -364,14 +388,8 @@ export function LoginPage() {
                 </button>
               </form>
             </div>
-
-            {/* OUR SERVICES & TAGLINE SECTION (MOBILE: UNDER LOGIN CONTAINER) */}
-            <div className="block lg:hidden w-full max-w-[420px] mt-6 space-y-2">
-              <ServicesDivider />
-              <ServicesGrid />
-              <VisionTagline />
-            </div>
           </div>
+
         </div>
       </div>
 

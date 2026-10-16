@@ -114,7 +114,7 @@ export const PurchaseDetailPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E2DDD5]/70 pb-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono font-bold text-xs bg-[#4A0E0E] text-white px-2.5 py-0.5 rounded">
+              <span className="font-sans font-bold text-xs bg-[#4A0E0E] text-white px-2.5 py-0.5 rounded tabular-nums">
                 {purchase.purchase_number}
               </span>
               <span
@@ -147,7 +147,7 @@ export const PurchaseDetailPage: React.FC = () => {
                   {purchase.supplier.name}
                 </Link>
                 {purchase.supplier.phone && (
-                  <span className="text-[#6B6B6B] font-mono text-[11px]">
+                  <span className="text-[#6B6B6B] font-sans tabular-nums text-[11px]">
                     (+91 {purchase.supplier.phone})
                   </span>
                 )}
@@ -160,7 +160,7 @@ export const PurchaseDetailPage: React.FC = () => {
             <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wider block">
               Total Invoiced
             </span>
-            <p className="text-xl sm:text-2xl font-bold font-mono text-[#242424] mt-0.5 tabular-nums">
+            <p className="text-xl sm:text-2xl font-bold font-sans text-[#242424] mt-0.5 tabular-nums">
               {formatINR(purchase.total_amount)}
             </p>
             <span
@@ -190,7 +190,7 @@ export const PurchaseDetailPage: React.FC = () => {
                   >
                     {purchase.project.name}
                   </Link>
-                  <span className="font-mono text-[11px] text-[#6B6B6B]">
+                  <span className="font-sans tabular-nums text-[11px] text-[#6B6B6B]">
                     {purchase.project.project_code}
                   </span>
                 </div>
@@ -204,7 +204,7 @@ export const PurchaseDetailPage: React.FC = () => {
             <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wider block">
               Purchase & Due Dates
             </span>
-            <div className="mt-0.5 font-mono text-[#242424] space-y-0.5">
+            <div className="mt-0.5 font-sans tabular-nums text-[#242424] space-y-0.5">
               <div>Invoice Date: {purchase.purchase_date}</div>
               {purchase.due_date && (
                 <div className="text-[11px] text-[#6B6B6B]">Payment Due: {purchase.due_date}</div>
@@ -216,7 +216,7 @@ export const PurchaseDetailPage: React.FC = () => {
             <span className="text-[10px] font-bold text-[#6B6B6B] uppercase tracking-wider block">
               Supplier GSTIN
             </span>
-            <span className="font-mono font-bold text-[#242424] block mt-0.5">
+            <span className="font-sans font-bold tabular-nums text-[#242424] block mt-0.5">
               {purchase.supplier?.gst_number || '—'}
             </span>
           </div>
@@ -253,7 +253,7 @@ export const PurchaseDetailPage: React.FC = () => {
             <tbody className="divide-y divide-[#E2DDD5]/60">
               {(purchase.items || []).map((item, idx) => (
                 <tr key={item.id} className="hover:bg-[#F7F5F0]/30">
-                  <td className="py-3 px-4 font-mono text-[#6B6B6B]">{idx + 1}</td>
+                  <td className="py-3 px-4 font-sans tabular-nums text-[#6B6B6B]">{idx + 1}</td>
                   <td className="py-3 px-4">
                     <div className="font-bold text-[#242424]">
                       {item.material?.name || item.description || 'Material Item'}
@@ -264,14 +264,14 @@ export const PurchaseDetailPage: React.FC = () => {
                       </span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-medium text-[#242424]">
+                  <td className="py-3 px-4 text-right font-sans tabular-nums font-medium text-[#242424]">
                     {item.quantity}
                   </td>
                   <td className="py-3 px-4 text-[#6B6B6B]">{item.unit}</td>
-                  <td className="py-3 px-4 text-right font-mono text-[#242424]">
+                  <td className="py-3 px-4 text-right font-sans tabular-nums text-[#242424]">
                     {formatINR(item.unit_price)}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-[#242424]">
+                  <td className="py-3 px-4 text-right font-sans tabular-nums font-bold text-[#242424]">
                     {formatINR(item.amount)}
                   </td>
                 </tr>
@@ -290,26 +290,26 @@ export const PurchaseDetailPage: React.FC = () => {
             {purchase.discount > 0 && (
               <div className="flex justify-between text-[#6B6B6B]">
                 <span>Discount Deduction:</span>
-                <span className="font-mono text-[#A84B14]">- {formatINR(purchase.discount)}</span>
+                <span className="font-sans tabular-nums text-[#A84B14]">- {formatINR(purchase.discount)}</span>
               </div>
             )}
             {purchase.tax > 0 && (
               <div className="flex justify-between text-[#6B6B6B]">
                 <span>Tax / GST:</span>
-                <span className="font-mono text-[#242424]">+ {formatINR(purchase.tax)}</span>
+                <span className="font-sans tabular-nums text-[#242424]">+ {formatINR(purchase.tax)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-sm pt-1 border-t border-[#E2DDD5]">
               <span className="text-[#242424]">Total Amount:</span>
-              <span className="font-mono text-[#4A0E0E]">{formatINR(purchase.total_amount)}</span>
+              <span className="font-sans tabular-nums text-[#4A0E0E]">{formatINR(purchase.total_amount)}</span>
             </div>
             <div className="flex justify-between text-[#1E6B37] font-semibold text-xs">
               <span>Paid / Allocated:</span>
-              <span className="font-mono">{formatINR(paid)}</span>
+              <span className="font-sans tabular-nums">{formatINR(paid)}</span>
             </div>
             <div className="flex justify-between font-bold text-xs pt-1 border-t border-[#E2DDD5]/60">
               <span className="text-[#A84B14]">Balance Due:</span>
-              <span className="font-mono text-[#A84B14]">{formatINR(outstanding)}</span>
+              <span className="font-sans tabular-nums text-[#A84B14]">{formatINR(outstanding)}</span>
             </div>
           </div>
         </div>
@@ -351,7 +351,7 @@ export const PurchaseDetailPage: React.FC = () => {
                 className="flex items-center justify-between p-3 bg-[#F7F5F0]/50 rounded-lg border border-[#E2DDD5]/60 text-xs"
               >
                 <div>
-                  <span className="font-mono font-bold text-[#4A0E0E]">
+                  <span className="font-sans font-bold tabular-nums text-[#4A0E0E]">
                     {alloc.paymentNumber}
                   </span>
                   <span className="text-[#6B6B6B] ml-2">
@@ -363,7 +363,7 @@ export const PurchaseDetailPage: React.FC = () => {
                 </div>
 
                 <div className="text-right">
-                  <span className="font-mono font-bold text-[#1E6B37]">
+                  <span className="font-sans font-bold tabular-nums text-[#1E6B37]">
                     {formatINR(alloc.allocatedAmount)}
                   </span>
                 </div>
