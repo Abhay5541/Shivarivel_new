@@ -149,8 +149,8 @@ export const CustomerDetailPage: React.FC = () => {
     }
   };
 
-  // Filter projects for this customer
-  const customerSites = allProjects.filter((p) => p.customer_id === id);
+  // Filter projects for this customer (exclude Cancelled projects)
+  const customerSites = allProjects.filter((p) => p.customer_id === id && p.status !== 'Cancelled');
   const activeProjects = customerSites.filter((p) => p.status !== 'Completed');
   const completedProjects = customerSites.filter((p) => p.status === 'Completed');
 

@@ -71,10 +71,10 @@ export type CompanyProfileFormData = z.infer<typeof companyProfileFormSchema>;
 
 export const initialCompanyProfile: CompanyProfile = {
   id: 'comp-shivarivel-001',
-  name: 'Shivarivel Construction & Interiors',
+  name: 'Shivarivel Constructions & Interiors',
   owner_name: 'K. Senthil Nathan',
   address: '14, South Car Street, Sankarankovil, Tenkasi District, Tamil Nadu - 627756',
-  phone: '+91 94431 87654',
+  phone: '+91 73394 57041',
   alternate_phone: '+91 98421 23344',
   email: 'contact@shivarivel.com',
   website: null,

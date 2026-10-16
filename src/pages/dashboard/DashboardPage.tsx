@@ -299,7 +299,7 @@ export function DashboardPage() {
               <p className="text-xs text-white/70 font-medium">No projects added yet.</p>
               <button
                 type="button"
-                onClick={() => navigate('/projects/new')}
+                onClick={() => navigate('/projects?new=1')}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-[#C9A24A] text-xs font-semibold text-[#E5C378] hover:bg-[#C9A24A]/10 active:scale-95 transition-all cursor-pointer"
               >
                 <span>+ Add First Project</span>

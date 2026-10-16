@@ -17,7 +17,9 @@ function loadStoredProjects(): Project[] {
       const stored = localStorage.getItem(PROJECTS_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter((p: Project) => p.status !== 'Cancelled');
+        }
       }
     } catch {}
   }
@@ -27,7 +29,8 @@ function loadStoredProjects(): Project[] {
 function saveStoredProjects(projects: Project[]) {
   if (typeof window !== 'undefined') {
     try {
-      localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+      const valid = projects.filter((p) => p.status !== 'Cancelled');
+      localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(valid));
     } catch (e) {
       console.warn('Failed to save projects to localStorage:', e);
     }
@@ -67,6 +70,8 @@ export function useProjects(options: UseProjectsOptions = {}) {
 
         if (status && status !== 'all') {
           query = query.eq('status', status);
+        } else {
+          query = query.neq('status', 'Cancelled');
         }
 
         if (search && search.trim()) {
@@ -77,9 +82,9 @@ export function useProjects(options: UseProjectsOptions = {}) {
         const { data, error } = await query;
         if (!error && data) {
           remoteProjects = (data as unknown as Project[]) || [];
-          memoryProjects = remoteProjects;
-          saveStoredProjects(remoteProjects);
-          return remoteProjects;
+          memoryProjects = remoteProjects.filter((p) => p.status !== 'Cancelled');
+          saveStoredProjects(memoryProjects);
+          return memoryProjects;
         } else if (error) {
           console.warn('Supabase projects query returned error; using local fallback:', error.message);
         }
@@ -88,8 +93,8 @@ export function useProjects(options: UseProjectsOptions = {}) {
       }
 
       // Offline / network failure fallback only:
-      memoryProjects = local;
-      let combined = local;
+      memoryProjects = local.filter((p) => p.status !== 'Cancelled');
+      let combined = memoryProjects;
 
       let filtered = [...combined];
       if (customerId) {
@@ -97,6 +102,8 @@ export function useProjects(options: UseProjectsOptions = {}) {
       }
       if (status && status !== 'all') {
         filtered = filtered.filter((p) => p.status === status);
+      } else {
+        filtered = filtered.filter((p) => p.status !== 'Cancelled');
       }
       if (search && search.trim()) {
         const s = search.toLowerCase();
@@ -515,40 +522,84 @@ export function useDeleteProject() {
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // 1. Unlink child purchases
       try {
-        // 1. Unlink child purchases so foreign key doesn't block project deletion
         await (supabase.from('purchases') as any)
           .update({ project_id: null })
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Purchases unlink notice:', e);
+      }
 
-        // 2. Unlink daily wages and attendance
+      // 2. Unlink daily wages and attendance
+      try {
         await (supabase.from('daily_wages') as any)
           .update({ project_id: null })
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Daily wages unlink notice:', e);
+      }
 
+      try {
         await (supabase.from('attendance') as any)
           .update({ project_id: null })
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Attendance unlink notice:', e);
+      }
 
-        // 3. Unlink tasks and customer payments
+      // 3. Unlink tasks and clean customer payments
+      try {
         await (supabase.from('tasks') as any)
           .update({ project_id: null })
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Tasks unlink notice:', e);
+      }
 
+      try {
         await (supabase.from('customer_payments') as any)
-          .update({ project_id: null })
+          .delete()
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Customer payments cleanup notice:', e);
+      }
 
-        // 4. Delete progress tracking and site reports
+      // 4. Delete progress tracking, site reports, and documents
+      try {
         await (supabase.from('work_progress') as any)
           .delete()
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Work progress delete notice:', e);
+      }
 
+      try {
         await (supabase.from('daily_site_reports') as any)
           .delete()
           .eq('project_id', id);
+      } catch (e) {
+        console.warn('Daily site reports delete notice:', e);
+      }
 
-        // 5. Delete project from Supabase
+      try {
+        await (supabase.from('expenses') as any)
+          .update({ project_id: null })
+          .eq('project_id', id);
+      } catch (e) {
+        console.warn('Expenses unlink notice:', e);
+      }
+
+      try {
+        await (supabase.from('documents') as any)
+          .delete()
+          .eq('project_id', id);
+      } catch (e) {
+        console.warn('Documents delete notice:', e);
+      }
+
+      // 5. Delete project from Supabase
+      try {
         const { error } = await supabase.from('projects').delete().eq('id', id);
         if (error) {
           console.warn('Supabase direct project delete notice:', error.message);
@@ -565,13 +616,13 @@ export function useDeleteProject() {
           .catch(() => {});
       }
 
-      memoryProjects = memoryProjects.filter((p) => p.id !== id);
+      memoryProjects = memoryProjects.filter((p) => p.id !== id && p.status !== 'Cancelled');
       saveStoredProjects(memoryProjects);
       return id;
     },
     onSuccess: (id) => {
       queryClient.setQueryData(['projects'], (old: Project[] | undefined) => {
-        return (old || []).filter((p) => p.id !== id);
+        return (old || []).filter((p) => p.id !== id && p.status !== 'Cancelled');
       });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project', id] });

@@ -43,14 +43,8 @@
   padding: 2px 0;
   background: transparent;
   border: none;
-  cursor: pointer;
-  transition: opacity 200ms ease;
-}
-.glass-header-brand:hover {
-  opacity: 0.9;
-}
-.glass-header-brand:active {
-  transform: scale(0.98);
+  cursor: default;
+  user-select: none;
 }
 
 .glass-brand-mark {

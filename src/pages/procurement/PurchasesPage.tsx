@@ -14,6 +14,7 @@ import {
   Wallet,
   Scale,
   Coins,
+  X,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { usePurchases, useDeleteSimplePurchase } from '@/hooks/useProcurement';
@@ -212,10 +213,20 @@ export const PurchasesPage: React.FC = () => {
     });
   };
 
+  // Filter by specific project if passed via query param ?projectId=...
+  const filterProjectId = searchParams.get('projectId');
+  const filteredProject = filterProjectId ? projectMap.get(filterProjectId) : undefined;
+
   // 1. PROJECT PURCHASES DATA & TOTALS
   const allProjectPurchases = useMemo(() => {
-    return purchases.filter((p) => Boolean(p.project_id));
-  }, [purchases]);
+    return purchases.filter((p) => {
+      if (!p.project_id) return false;
+      if (filterProjectId) {
+        return p.project_id === filterProjectId;
+      }
+      return true;
+    });
+  }, [purchases, filterProjectId]);
 
   const filteredProjectPurchases = useMemo(() => {
     if (!search.trim()) return allProjectPurchases;
@@ -600,6 +611,31 @@ export const PurchasesPage: React.FC = () => {
         />
       </div>
 
+      {/* Active Project Filter Notice */}
+      {filterProjectId && activeTab === 'project' && (
+        <div className="mb-4 bg-[#FAF4ED] dark:bg-[#261E17] border border-[#ECD9C6] dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs animate-filter-slide">
+          <div className="flex items-center gap-2 min-w-0">
+            <Building2 className="w-4 h-4 text-[#A84B14] shrink-0" />
+            <span className="text-[#6B6B6B] dark:text-[#A8A29E] shrink-0">Filtered by:</span>
+            <span className="font-bold text-[#7A272A] dark:text-[#E2A855] truncate">
+              {filteredProject?.name || 'Current Project'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const nextParams = new URLSearchParams(searchParams);
+              nextParams.delete('projectId');
+              setSearchParams(nextParams);
+            }}
+            className="text-xs font-bold text-[#4A0E0E] dark:text-[#E2A855] hover:underline flex items-center gap-1 shrink-0 ml-2 cursor-pointer"
+          >
+            <span>All Projects</span>
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {isLoading ? (
         <TableSkeleton rows={4} />
       ) : isError ? (
@@ -863,7 +899,7 @@ export const PurchasesPage: React.FC = () => {
         }}
         mode={purchaseModalMode}
         editPurchase={editingPurchase}
-        preselectedProjectId={null}
+        preselectedProjectId={filterProjectId || null}
         onSuccess={() => refetch()}
       />
 

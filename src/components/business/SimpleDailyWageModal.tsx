@@ -76,15 +76,30 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
         const initEmpId = preselectedEmployeeId || (employees.length > 0 ? employees[0].id : '');
         setEmployeeId(initEmpId);
 
-        const initProjId = preselectedProjectId || (projects.length > 0 ? projects[0].id : '');
+        let initProjId = preselectedProjectId || '';
+        if (!initProjId && projects.length > 0) {
+          // If the first project already has an entry for this worker on this date, pick an open project
+          const availableProj = projects.find(
+            (p) =>
+              !allWages.some(
+                (w) =>
+                  w.employee_id === initEmpId &&
+                  w.wage_date === initDate &&
+                  (w.project_id || '') === p.id &&
+                  w.status !== 'Cancelled'
+              )
+          );
+          initProjId = availableProj ? availableProj.id : projects[0].id;
+        }
         setProjectId(initProjId);
 
         setAttendance('Present');
-        setWage('');
+        const defaultEmp = employees.find((e) => e.id === initEmpId);
+        setWage(defaultEmp?.daily_wage ? String(defaultEmp.daily_wage) : '');
       }
       setErrorMsg(null);
     }
-  }, [isOpen, existingWage, preselectedDate, preselectedEmployeeId, preselectedProjectId, employees, projects]);
+  }, [isOpen, existingWage, preselectedDate, preselectedEmployeeId, preselectedProjectId, employees, projects, allWages]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -106,17 +121,22 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Duplicate detection check
+  // Duplicate detection check: a laborer can work on multiple different projects on the same date,
+  // but cannot have duplicate entries for the same project on the same date.
   const duplicateEntry = allWages.find(
     (w) =>
       w.employee_id === employeeId &&
       w.wage_date === date &&
+      (w.project_id || '') === (projectId || '') &&
       w.status !== 'Cancelled' &&
       (!activeWageRecord || w.id !== activeWageRecord.id)
   );
 
   const selectedLaborer = employees.find((e) => e.id === employeeId);
   const laborerDisplayName = selectedLaborer?.name || 'This laborer';
+
+  const selectedProjObj = projects.find((p) => p.id === (duplicateEntry?.project_id || projectId));
+  const duplicateProjectName = selectedProjObj?.name ? `for "${selectedProjObj.name}"` : 'for this project/site';
 
   const handleAttendanceChange = (newStatus: AttendanceStatus) => {
     setAttendance(newStatus);
@@ -172,7 +192,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
     }
 
     if (duplicateEntry && (!activeWageRecord || duplicateEntry.id !== activeWageRecord.id)) {
-      setErrorMsg(`${laborerDisplayName} already has a wage entry for this date.`);
+      setErrorMsg(`${laborerDisplayName} already has a wage entry ${duplicateProjectName} on this date. Please edit the previous record.`);
       return;
     }
 
@@ -257,11 +277,16 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
             <div className="p-3 bg-[#FEF3C7] border border-[#FDE047] rounded-xl flex items-start gap-2.5 text-xs text-[#92400E]">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#B45309]" />
               <div className="flex-1">
-                <span className="font-semibold">{laborerDisplayName} already has a wage entry for this date.</span>
+                <span className="font-semibold">
+                  {laborerDisplayName} already has a wage entry {duplicateProjectName} on this date.
+                </span>
+                <p className="mt-0.5 text-[#78350F]">
+                  You can choose a different project or edit the existing record.
+                </p>
                 <button
                   type="button"
                   onClick={handleLoadDuplicateForEdit}
-                  className="block mt-1 font-bold underline hover:text-[#78350F] cursor-pointer"
+                  className="block mt-1.5 font-bold underline hover:text-[#78350F] cursor-pointer"
                 >
                   Edit Existing Record →
                 </button>
@@ -298,7 +323,10 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
                 type="date"
                 required
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setErrorMsg(null);
+                }}
                 className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               />
             </div>
@@ -314,7 +342,14 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
               <select
                 required
                 value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value)}
+                onChange={(e) => {
+                  setEmployeeId(e.target.value);
+                  setErrorMsg(null);
+                  const emp = employees.find((em) => em.id === e.target.value);
+                  if (!activeWageRecord && emp?.daily_wage) {
+                    setWage(String(emp.daily_wage));
+                  }
+                }}
                 className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               >
                 <option value="" disabled>
@@ -338,15 +373,28 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
               <Building2 className="w-4 h-4 text-[#6B6B6B] absolute left-3 top-3" />
               <select
                 value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
+                onChange={(e) => {
+                  setProjectId(e.target.value);
+                  setErrorMsg(null);
+                }}
                 className="w-full h-10 pl-9 pr-3 bg-white border border-[#E2DDD5] rounded-lg text-sm [@media(pointer:coarse)]:text-base text-[#242424] focus:outline-hidden focus:border-[#4A0E0E] focus:ring-2 focus:ring-[#4A0E0E]/15 transition-all"
               >
                 <option value="">-- No Specific Site --</option>
-                {projects.map((proj) => (
-                  <option key={proj.id} value={proj.id}>
-                    {proj.name}
-                  </option>
-                ))}
+                {projects.map((proj) => {
+                  const alreadyHas = allWages.some(
+                    (w) =>
+                      w.employee_id === employeeId &&
+                      w.wage_date === date &&
+                      (w.project_id || '') === proj.id &&
+                      w.status !== 'Cancelled' &&
+                      (!activeWageRecord || w.id !== activeWageRecord.id)
+                  );
+                  return (
+                    <option key={proj.id} value={proj.id}>
+                      {proj.name} {alreadyHas ? '• (Already recorded)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>

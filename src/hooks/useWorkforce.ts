@@ -525,13 +525,20 @@ export function useSaveAttendanceBatch() {
           const wageAmount = Math.round(units * rate * 100) / 100;
 
           if (units > 0 && rate > 0) {
-            const { data: existingW } = await (supabase as any)
+            let wageQuery = (supabase as any)
               .from('daily_wages')
               .select('id, status')
               .eq('employee_id', entry.employee_id)
               .eq('wage_date', date)
-              .neq('status', 'Cancelled')
-              .maybeSingle();
+              .neq('status', 'Cancelled');
+
+            if (entry.project_id) {
+              wageQuery = wageQuery.eq('project_id', entry.project_id);
+            } else {
+              wageQuery = wageQuery.is('project_id', null);
+            }
+
+            const { data: existingW } = await wageQuery.maybeSingle();
 
             if (existingW?.id) {
               if (existingW.status === 'Confirmed') {
@@ -835,12 +842,20 @@ export function useRecordDailyWage() {
       } else {
         // ADD new wage
         try {
-          // Cancel any existing active wage for this employee on this date
-          const { data: existingWages } = await (supabase.from('daily_wages') as any)
+          // Cancel any existing active wage for this employee on this date FOR THIS SAME PROJECT
+          let wageQuery = (supabase.from('daily_wages') as any)
             .select('id')
             .eq('employee_id', payload.employee_id)
             .eq('wage_date', payload.wage_date)
             .neq('status', 'Cancelled');
+
+          if (payload.project_id) {
+            wageQuery = wageQuery.eq('project_id', payload.project_id);
+          } else {
+            wageQuery = wageQuery.is('project_id', null);
+          }
+
+          const { data: existingWages } = await wageQuery;
 
           if (existingWages && existingWages.length > 0) {
             for (const ew of existingWages) {
@@ -848,13 +863,35 @@ export function useRecordDailyWage() {
                 .update({ status: 'Cancelled' })
                 .eq('id', ew.id);
             }
+            memoryDailyWages = memoryDailyWages.map((w) =>
+              existingWages.some((ew: any) => ew.id === w.id)
+                ? { ...w, status: 'Cancelled' as const }
+                : w
+            );
+          }
+
+          // Check if this attendance_id is already bound to another active wage
+          let wageAttId: string | null = attRecordId || null;
+          if (wageAttId) {
+            const { data: wageUsingAtt } = await (supabase.from('daily_wages') as any)
+              .select('id')
+              .eq('attendance_id', wageAttId)
+              .neq('status', 'Cancelled')
+              .maybeSingle();
+
+            if (wageUsingAtt?.id) {
+              // Another active wage for this worker on this date already owns this attendance_id.
+              // Daily wages table has unique constraint on active (company_id, attendance_id).
+              // Keep attendance_id null to allow multiple projects on the same day.
+              wageAttId = null;
+            }
           }
 
           const { data: insertedWage } = await (supabase.from('daily_wages') as any)
             .insert({
               company_id: targetCompanyId,
               employee_id: payload.employee_id,
-              attendance_id: attRecordId || null,
+              attendance_id: wageAttId,
               project_id: payload.project_id || null,
               wage_date: payload.wage_date,
               payable_units: units,

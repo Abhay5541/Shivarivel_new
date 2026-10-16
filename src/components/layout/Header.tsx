@@ -122,23 +122,19 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => navigate('/dashboard')}
-                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-2xs ${
+                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full border flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 ${
                   isDark
                     ? 'border-white/15 bg-white/10 text-white hover:bg-white/20'
-                    : 'border-[#E2DDD5] bg-white text-[#242424] hover:bg-white'
+                    : 'border-[#E2DDD5] bg-white text-[#242424] hover:bg-[#F3EFEA]'
                 }`}
                 aria-label="Back to dashboard"
+                title="Back to Dashboard"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             )}
 
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="glass-header-brand"
-              aria-label="Go to dashboard"
-            >
+            <div className="glass-header-brand">
               <div className="glass-brand-mark">
                 <img
                   src={logoImg}
@@ -158,7 +154,7 @@ export function Header({ onOpenQuickAdd }: HeaderProps) {
                   CONSTRUCTION &amp; INTERIORS
                 </span>
               </div>
-            </button>
+            </div>
           </div>
 
           {/* ── Desktop Center Nav: The Magnifying Dock ───── */}
