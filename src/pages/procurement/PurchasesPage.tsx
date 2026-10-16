@@ -48,32 +48,32 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
   const duePercent = total > 0 ? Math.max(0, 100 - paidPercent) : 0;
 
   return (
-    <div className="bg-white border border-[#E8E4DC] rounded-3xl p-5 sm:p-6 shadow-2xs">
+    <div className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-3xl p-5 sm:p-6 shadow-2xs transition-colors">
       {/* 1. Header with Coins Symbol */}
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-lg bg-[#F5EDE2] text-[#8C6D23] flex items-center justify-center shrink-0">
-          <Coins className="w-3.5 h-3.5 text-[#8C6D23]" />
+        <div className="w-6 h-6 rounded-lg bg-[#F5EDE2] dark:bg-[#2A241C] text-[#8C6D23] dark:text-[#E2A855] flex items-center justify-center shrink-0">
+          <Coins className="w-3.5 h-3.5 text-[#8C6D23] dark:text-[#E2A855]" />
         </div>
-        <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6B6B] block">
+        <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#6B6B6B] dark:text-[#A8A29E] block">
           {title}
         </span>
       </div>
 
       {/* 2. Big Total Currency Display */}
-      <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] tracking-tight my-2 sm:my-2.5 tabular-nums">
+      <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] dark:text-white tracking-tight my-2 sm:my-2.5 tabular-nums">
         {formatINR(total)}
       </div>
 
       {/* 3. Progress Track & Fill Bar */}
-      <div className="w-full h-2 sm:h-2.5 bg-[#EDE8DC] rounded-full overflow-hidden mt-3 sm:mt-4">
+      <div className="w-full h-2 sm:h-2.5 bg-[#EDE8DC] dark:bg-white/10 rounded-full overflow-hidden mt-3 sm:mt-4">
         <div
-          className="h-full bg-[#1B5E3B] rounded-full transition-all duration-500"
+          className="h-full bg-[#1B5E3B] dark:bg-[#22C55E] rounded-full transition-all duration-500"
           style={{ width: `${paidPercent}%` }}
         />
       </div>
 
       {/* 4. Ratio Labels: % Paid & % Due */}
-      <div className="flex items-center justify-between text-xs sm:text-sm font-medium text-[#6B6B6B] mt-2 mb-4 sm:mb-5">
+      <div className="flex items-center justify-between text-xs sm:text-sm font-medium text-[#6B6B6B] dark:text-[#A8A29E] mt-2 mb-4 sm:mb-5">
         <span>{paidPercent}% paid</span>
         <span>{duePercent}% due</span>
       </div>
@@ -81,33 +81,33 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
       {/* 5. Bottom Two Tiles: PAID (Wallet) and BALANCE (Scale) */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {/* PAID TILE with Wallet Symbol */}
-        <div className="bg-[#EAF5EE] border border-[#C6E7D2] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
+        <div className="bg-[#EAF5EE] dark:bg-[#132B1C] border border-[#C6E7D2] dark:border-[#225A38]/50 rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] uppercase">
-              <span className="w-2 h-2 rounded-full bg-[#166534]" />
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] dark:text-[#4ADE80] uppercase">
+              <span className="w-2 h-2 rounded-full bg-[#166534] dark:bg-[#4ADE80]" />
               <span>PAID</span>
             </div>
-            <div className="w-6 h-6 rounded-full bg-[#D1EDDC] flex items-center justify-center shrink-0">
-              <Wallet className="w-3.5 h-3.5 text-[#166534]" />
+            <div className="w-6 h-6 rounded-full bg-[#D1EDDC] dark:bg-[#1D442B] flex items-center justify-center shrink-0">
+              <Wallet className="w-3.5 h-3.5 text-[#166534] dark:text-[#4ADE80]" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] tabular-nums mt-1.5">
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] dark:text-[#4ADE80] tabular-nums mt-1.5">
             {formatINR(paid)}
           </div>
         </div>
 
         {/* BALANCE TILE with Scale Symbol */}
-        <div className="bg-[#FDF0F0] border border-[#FECACA] rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
+        <div className="bg-[#FDF0F0] dark:bg-[#2F1515] border border-[#FECACA] dark:border-[#5C2323]/50 rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] uppercase">
-              <span className="w-2 h-2 rounded-full bg-[#991B1B]" />
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] dark:text-[#F87171] uppercase">
+              <span className="w-2 h-2 rounded-full bg-[#991B1B] dark:bg-[#F87171]" />
               <span>BALANCE</span>
             </div>
-            <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 flex items-center justify-center shrink-0">
-              <Scale className="w-3.5 h-3.5 text-[#991B1B]" />
+            <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 dark:bg-[#4D1F1F] flex items-center justify-center shrink-0">
+              <Scale className="w-3.5 h-3.5 text-[#991B1B] dark:text-[#F87171]" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] tabular-nums mt-1.5">
+          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] dark:text-[#F87171] tabular-nums mt-1.5">
             {formatINR(balance)}
           </div>
         </div>
@@ -390,29 +390,29 @@ export const PurchasesPage: React.FC = () => {
     return (
       <div
         key={p.id}
-        className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
+        className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
       >
         <div>
           {/* Header: Avatar, Name, Date/Project, Status Badge */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-10 h-10 rounded-full bg-[#FBEFEF] dark:bg-[#2A1616] text-[#4A0E0E] dark:text-[#E2A855] flex items-center justify-center shrink-0 mt-0.5">
                 <Package className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <h4 className="font-bold text-sm text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
+                <h4 className="font-bold text-sm text-[#242424] dark:text-[#F5F5F4] font-inter group-hover:text-[#4A0E0E] dark:group-hover:text-[#E2A855] transition-colors truncate">
                   {productName}
                 </h4>
-                <div className="text-xs text-[#8C867E] mt-0.5">
+                <div className="text-xs text-[#8C867E] dark:text-[#A8A29E] mt-0.5">
                   {p.purchase_date}
                 </div>
                 {isProject && resolvedProjectName && (
                   <div className="mt-1.5 flex items-center">
                     <span
                       title={resolvedProjectName}
-                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF4ED] text-[#7A272A] border border-[#ECD9C6] text-[11px] sm:text-xs font-semibold max-w-full"
+                      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FAF4ED] dark:bg-[#261E17] text-[#7A272A] dark:text-[#E2A855] border border-[#ECD9C6] dark:border-white/10 text-[11px] sm:text-xs font-semibold max-w-full"
                     >
-                      <Building2 className="w-3.5 h-3.5 text-[#A84B14] shrink-0" />
+                      <Building2 className="w-3.5 h-3.5 text-[#A84B14] dark:text-[#E2A855] shrink-0" />
                       <span className="truncate">{resolvedProjectName}</span>
                     </span>
                   </div>
@@ -423,13 +423,13 @@ export const PurchasesPage: React.FC = () => {
             <span
               className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold shrink-0 ${
                 isPaid
-                  ? 'bg-[#E8F8EE] text-[#1E7E34] '
-                  : 'bg-[#FEF2F2] text-[#991B1B] '
+                  ? 'bg-[#E8F8EE] dark:bg-[#132B1C] text-[#1E7E34] dark:text-[#4ADE80] border border-[#86EFAC]/40 dark:border-[#225A38]/50'
+                  : 'bg-[#FEF2F2] dark:bg-[#2F1515] text-[#991B1B] dark:text-[#F87171] border border-[#FCA5A5]/40 dark:border-[#5C2323]/50'
               }`}
             >
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  isPaid ? 'bg-[#1E7E34]' : 'bg-[#DC2626]'
+                  isPaid ? 'bg-[#1E7E34] dark:bg-[#4ADE80]' : 'bg-[#DC2626] dark:bg-[#F87171]'
                 }`}
               />
               <span>{isPaid ? 'Fully Paid' : 'Pending'}</span>
@@ -437,30 +437,30 @@ export const PurchasesPage: React.FC = () => {
           </div>
 
           {/* 3-Column Financial Matrix Card */}
-          <div className="grid grid-cols-3 gap-2 bg-[#FAF8F5] border border-[#EFECE6] rounded-xl p-2.5 text-center mt-3.5 mb-1">
+          <div className="grid grid-cols-3 gap-2 bg-[#FAF8F5] dark:bg-[#231F1B] border border-[#EFECE6] dark:border-white/10 rounded-xl p-2.5 text-center mt-3.5 mb-1">
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block">
                 Total
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#242424] font-sans tabular-nums">
+              <span className="text-xs sm:text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-sans tabular-nums">
                 {formatINR(totalVal)}
               </span>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block">
                 Paid
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#166534] font-sans tabular-nums">
+              <span className="text-xs sm:text-sm font-bold text-[#166534] dark:text-[#4ADE80] font-sans tabular-nums">
                 {formatINR(paidAmt)}
               </span>
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block">
                 Balance
               </span>
               <span
                 className={`text-xs sm:text-sm font-bold font-sans tabular-nums ${
-                  bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
+                  bal > 0 ? 'text-[#991B1B] dark:text-[#F87171]' : 'text-[#166534] dark:text-[#4ADE80]'
                 }`}
               >
                 {formatINR(bal)}
@@ -470,14 +470,14 @@ export const PurchasesPage: React.FC = () => {
         </div>
 
         {/* Bottom Action Bar: Edit, Delete, Payment Action */}
-        <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+        <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] dark:border-white/10 flex items-center justify-between text-xs">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => handleEditPurchase(p)}
-              className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+              className="font-medium text-[#6B6B6B] dark:text-[#A8A29E] hover:text-[#4A0E0E] dark:hover:text-[#E2A855] flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+              <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B] dark:text-[#A8A29E]" />
               <span>Edit</span>
             </button>
 
@@ -485,7 +485,7 @@ export const PurchasesPage: React.FC = () => {
               type="button"
               onClick={() => handleDeletePurchase(p)}
               disabled={deletePurchaseMutation.isPending}
-              className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+              className="font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
               title={`Delete purchase ${productName}`}
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -504,8 +504,8 @@ export const PurchasesPage: React.FC = () => {
                 <span>Update Payment</span>
               </button>
             ) : (
-              <div className="flex items-center gap-1 text-xs font-bold text-[#166534]">
-                <CheckCircle2 className="w-4 h-4 text-[#166534]" />
+              <div className="flex items-center gap-1 text-xs font-bold text-[#166534] dark:text-[#4ADE80]">
+                <CheckCircle2 className="w-4 h-4 text-[#166534] dark:text-[#4ADE80]" />
                 <span>Paid in full</span>
               </div>
             )}
@@ -547,7 +547,7 @@ export const PurchasesPage: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search product or project..."
-            className="w-full h-11 pl-10 pr-3.5 bg-white/95 border border-[#E8E4DC] rounded-xl text-xs sm:text-sm text-[#242424] placeholder:text-[#8C867E] focus:outline-none focus:border-[#5A0F12] focus:ring-1 focus:ring-[#5A0F12]/20 transition-all shadow-2xs"
+            className="w-full h-11 pl-10 pr-3.5 bg-white/95 dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-xl text-xs sm:text-sm text-[#242424] dark:text-[#F5F5F4] placeholder:text-[#8C867E] dark:placeholder:text-[#78716C] focus:outline-none focus:border-[#5A0F12] dark:focus:border-[#E2A855] focus:ring-1 focus:ring-[#5A0F12]/20 transition-all shadow-2xs"
           />
         </div>
 
@@ -606,15 +606,15 @@ export const PurchasesPage: React.FC = () => {
 
               {/* Pending Payment Alert Strip */}
               {projectPendingPurchases.length > 0 && projectPaymentFilter !== 'paid' && (
-                <div className="bg-[#FEF6E9] border border-[#F5E2B8] rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
+                <div className="bg-[#FEF6E9] dark:bg-[#261E14] border border-[#F5E2B8] dark:border-[#5C451E]/60 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-[#C99A2E]" />
-                    <span className="font-bold text-[#784D09]">
+                    <span className="font-bold text-[#784D09] dark:text-[#E2A855]">
                       {projectPendingPurchases.length} Pending {projectPendingPurchases.length === 1 ? 'Payment' : 'Payments'}
                     </span>
                   </div>
                   {projectPendingBalance > 0 && (
-                    <span className="font-extrabold text-[#991B1B] tabular-nums font-sans text-xs sm:text-sm">
+                    <span className="font-extrabold text-[#991B1B] dark:text-[#F87171] tabular-nums font-sans text-xs sm:text-sm">
                       {formatINR(projectPendingBalance)} pending
                     </span>
                   )}
@@ -724,15 +724,15 @@ export const PurchasesPage: React.FC = () => {
 
               {/* Pending Payment Alert Strip */}
               {generalPendingPurchases.length > 0 && generalPaymentFilter !== 'paid' && (
-                <div className="bg-[#FEF6E9] border border-[#F5E2B8] rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
+                <div className="bg-[#FEF6E9] dark:bg-[#261E14] border border-[#F5E2B8] dark:border-[#5C451E]/60 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-[#C99A2E]" />
-                    <span className="font-bold text-[#784D09]">
+                    <span className="font-bold text-[#784D09] dark:text-[#E2A855]">
                       {generalPendingPurchases.length} Pending {generalPendingPurchases.length === 1 ? 'Payment' : 'Payments'}
                     </span>
                   </div>
                   {generalPendingBalance > 0 && (
-                    <span className="font-extrabold text-[#991B1B] tabular-nums font-sans text-xs sm:text-sm">
+                    <span className="font-extrabold text-[#991B1B] dark:text-[#F87171] tabular-nums font-sans text-xs sm:text-sm">
                       {formatINR(generalPendingBalance)} pending
                     </span>
                   )}
