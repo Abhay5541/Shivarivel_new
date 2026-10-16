@@ -102,18 +102,24 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <span className="font-bold text-[#242424]">{productName}</span>
               <span className="text-[#6B6B6B] font-medium">{purchase.purchase_date}</span>
             </div>
-            <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[#E2DDD5]/70 text-center">
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">Total</span>
-                <span className="text-xs font-bold text-[#242424]">{formatINR(currentTotal)}</span>
+            <div className="grid grid-cols-3 gap-2 pt-1 border-t border-[#E2DDD5]/70 text-center overflow-hidden">
+              <div className="min-w-0">
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block truncate">Total</span>
+                <span className="text-xs font-bold text-[#242424] truncate block" title={formatINR(currentTotal)}>
+                  {formatINR(currentTotal)}
+                </span>
               </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">Paid</span>
-                <span className="text-xs font-bold text-[#166534]">{formatINR(currentPaid)}</span>
+              <div className="min-w-0">
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block truncate">Paid</span>
+                <span className="text-xs font-bold text-[#166534] truncate block" title={formatINR(currentPaid)}>
+                  {formatINR(currentPaid)}
+                </span>
               </div>
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block">Balance</span>
-                <span className="text-xs font-bold text-[#991B1B]">{formatINR(currentBalance)}</span>
+              <div className="min-w-0">
+                <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] block truncate">Balance</span>
+                <span className="text-xs font-bold text-[#991B1B] truncate block" title={formatINR(currentBalance)}>
+                  {formatINR(currentBalance)}
+                </span>
               </div>
             </div>
           </div>
@@ -147,14 +153,18 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
 
             {/* Balance Preview */}
             {numPayment > 0 && numPayment <= currentBalance && (
-              <div className="p-3 bg-[#DCFCE7]/30 border border-[#166534]/20 rounded-xl text-xs flex items-center justify-between">
-                <div>
-                  <span className="text-[#6B6B6B] block">New Paid Amount:</span>
-                  <span className="font-bold text-[#166534]">{formatINR(projectedPaid)}</span>
+              <div className="p-3 bg-[#DCFCE7]/30 border border-[#166534]/20 rounded-xl text-xs flex items-center justify-between gap-2 overflow-hidden">
+                <div className="min-w-0">
+                  <span className="text-[#6B6B6B] block truncate">New Paid Amount:</span>
+                  <span className="font-bold text-[#166534] truncate block" title={formatINR(projectedPaid)}>
+                    {formatINR(projectedPaid)}
+                  </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-[#6B6B6B] block">Remaining Balance:</span>
-                  <span className="font-bold text-[#991B1B]">{formatINR(projectedBalance)}</span>
+                <div className="min-w-0 text-right">
+                  <span className="text-[#6B6B6B] block truncate">Remaining Balance:</span>
+                  <span className="font-bold text-[#991B1B] truncate block" title={formatINR(projectedBalance)}>
+                    {formatINR(projectedBalance)}
+                  </span>
                 </div>
               </div>
             )}

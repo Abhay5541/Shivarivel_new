@@ -60,7 +60,10 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
       </div>
 
       {/* 2. Big Total Currency Display */}
-      <div className="text-3xl sm:text-4xl lg:text-[40px] font-bold font-sans text-[#1F1F1F] dark:text-white tracking-tight my-2 sm:my-2.5 tabular-nums">
+      <div
+        className="text-2xl sm:text-3xl lg:text-[38px] font-bold font-sans text-[#1F1F1F] dark:text-white tracking-tight my-2 sm:my-2.5 tabular-nums truncate block"
+        title={formatINR(total)}
+      >
         {formatINR(total)}
       </div>
 
@@ -81,33 +84,39 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
       {/* 5. Bottom Two Tiles: PAID (Wallet) and BALANCE (Scale) */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         {/* PAID TILE with Wallet Symbol */}
-        <div className="bg-[#EAF5EE] dark:bg-[#132B1C] border border-[#C6E7D2] dark:border-[#225A38]/50 rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] dark:text-[#4ADE80] uppercase">
-              <span className="w-2 h-2 rounded-full bg-[#166534] dark:bg-[#4ADE80]" />
+        <div className="bg-[#EAF5EE] dark:bg-[#132B1C] border border-[#C6E7D2] dark:border-[#225A38]/50 rounded-2xl p-3 sm:p-4 transition-all shadow-2xs min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#166534] dark:text-[#4ADE80] uppercase truncate">
+              <span className="w-2 h-2 rounded-full bg-[#166534] dark:bg-[#4ADE80] shrink-0" />
               <span>PAID</span>
             </div>
             <div className="w-6 h-6 rounded-full bg-[#D1EDDC] dark:bg-[#1D442B] flex items-center justify-center shrink-0">
               <Wallet className="w-3.5 h-3.5 text-[#166534] dark:text-[#4ADE80]" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-sans text-[#166534] dark:text-[#4ADE80] tabular-nums mt-1.5">
+          <div
+            className="text-base sm:text-xl lg:text-2xl font-bold font-sans text-[#166534] dark:text-[#4ADE80] tabular-nums mt-1.5 truncate block"
+            title={formatINR(paid)}
+          >
             {formatINR(paid)}
           </div>
         </div>
 
         {/* BALANCE TILE with Scale Symbol */}
-        <div className="bg-[#FDF0F0] dark:bg-[#2F1515] border border-[#FECACA] dark:border-[#5C2323]/50 rounded-2xl p-3.5 sm:p-4 transition-all shadow-2xs">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] dark:text-[#F87171] uppercase">
-              <span className="w-2 h-2 rounded-full bg-[#991B1B] dark:bg-[#F87171]" />
+        <div className="bg-[#FDF0F0] dark:bg-[#2F1515] border border-[#FECACA] dark:border-[#5C2323]/50 rounded-2xl p-3 sm:p-4 transition-all shadow-2xs min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-[#991B1B] dark:text-[#F87171] uppercase truncate">
+              <span className="w-2 h-2 rounded-full bg-[#991B1B] dark:bg-[#F87171] shrink-0" />
               <span>BALANCE</span>
             </div>
             <div className="w-6 h-6 rounded-full bg-[#FCA5A5]/40 dark:bg-[#4D1F1F] flex items-center justify-center shrink-0">
               <Scale className="w-3.5 h-3.5 text-[#991B1B] dark:text-[#F87171]" />
             </div>
           </div>
-          <div className="text-xl sm:text-2xl font-bold font-sans text-[#991B1B] dark:text-[#F87171] tabular-nums mt-1.5">
+          <div
+            className="text-base sm:text-xl lg:text-2xl font-bold font-sans text-[#991B1B] dark:text-[#F87171] tabular-nums mt-1.5 truncate block"
+            title={formatINR(balance)}
+          >
             {formatINR(balance)}
           </div>
         </div>
@@ -437,7 +446,10 @@ export const PurchasesPage: React.FC = () => {
               </span>
 
               {item?.quantity !== undefined && item?.quantity !== null && (
-                <span className="text-[11px] sm:text-xs font-semibold text-[#5A554E] dark:text-[#C5BFB6] bg-[#F4F1EA] dark:bg-[#2A2621] px-2 py-0.5 rounded-md border border-[#E8E4DC] dark:border-white/10 tabular-nums">
+                <span
+                  title={`${item.quantity} ${item.unit || ''}`}
+                  className="text-[11px] sm:text-xs font-semibold text-[#5A554E] dark:text-[#C5BFB6] bg-[#F4F1EA] dark:bg-[#2A2621] px-2 py-0.5 rounded-md border border-[#E8E4DC] dark:border-white/10 tabular-nums max-w-[120px] truncate block"
+                >
                   {item.quantity} {item.unit || ''}
                 </span>
               )}
@@ -445,31 +457,38 @@ export const PurchasesPage: React.FC = () => {
           </div>
 
           {/* 3-Column Financial Matrix Card */}
-          <div className="grid grid-cols-3 gap-2 bg-[#FAF8F5] dark:bg-[#231F1B] border border-[#EFECE6] dark:border-white/10 rounded-xl p-2.5 text-center mt-3.5 mb-1">
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block">
+          <div className="grid grid-cols-3 gap-1 sm:gap-2 bg-[#FAF8F5] dark:bg-[#231F1B] border border-[#EFECE6] dark:border-white/10 rounded-xl p-2 sm:p-2.5 text-center mt-3.5 mb-1 overflow-hidden">
+            <div className="min-w-0 px-0.5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block truncate">
                 Total
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-sans tabular-nums">
+              <span
+                className="text-xs sm:text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-sans tabular-nums block truncate"
+                title={formatINR(totalVal)}
+              >
                 {formatINR(totalVal)}
               </span>
             </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block">
+            <div className="min-w-0 px-0.5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block truncate">
                 Paid
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#166534] dark:text-[#4ADE80] font-sans tabular-nums">
+              <span
+                className="text-xs sm:text-sm font-bold text-[#166534] dark:text-[#4ADE80] font-sans tabular-nums block truncate"
+                title={formatINR(paidAmt)}
+              >
                 {formatINR(paidAmt)}
               </span>
             </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block">
+            <div className="min-w-0 px-0.5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block truncate">
                 Balance
               </span>
               <span
-                className={`text-xs sm:text-sm font-bold font-sans tabular-nums ${
+                className={`text-xs sm:text-sm font-bold font-sans tabular-nums block truncate ${
                   bal > 0 ? 'text-[#991B1B] dark:text-[#F87171]' : 'text-[#166534] dark:text-[#4ADE80]'
                 }`}
+                title={formatINR(bal)}
               >
                 {formatINR(bal)}
               </span>

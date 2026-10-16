@@ -175,17 +175,17 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                         {labour.days} {labour.days === 1 ? 'day' : 'days'} worked
                       </span>
                     </div>
-                    <span className="text-sm font-bold text-[#1E6B37]">
+                    <span className="text-sm font-bold text-[#1E6B37] shrink-0 truncate max-w-[120px]" title={formatINR(labour.total)}>
                       {formatINR(labour.total)}
                     </span>
                   </div>
                 ))}
                 {/* Total row */}
-                <div className="flex items-center justify-between px-4 py-3 bg-[#F7F5F0]">
-                  <span className="text-xs font-bold text-[#242424] uppercase tracking-wide">
+                <div className="flex items-center justify-between px-4 py-3 bg-[#F7F5F0] overflow-hidden gap-2">
+                  <span className="text-xs font-bold text-[#242424] uppercase tracking-wide truncate">
                     Total Wages
                   </span>
-                  <span className="text-base font-bold text-[#1E6B37]">
+                  <span className="text-base font-bold text-[#1E6B37] shrink-0 truncate" title={formatINR(summary.totalWages)}>
                     {formatINR(summary.totalWages)}
                   </span>
                 </div>
