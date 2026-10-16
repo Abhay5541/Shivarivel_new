@@ -15,6 +15,7 @@ interface SimpleSiteModalProps {
   preselectedCustomerId?: string | null;
   defaultLocation?: string | null;
   onSuccess?: (site: Project) => void;
+  onDeleteSuccess?: () => void;
 }
 
 export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
@@ -25,6 +26,7 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
   preselectedCustomerId,
   defaultLocation,
   onSuccess,
+  onDeleteSuccess,
 }) => {
   const isEditing = Boolean(site);
   const { data: customers = [] } = useCustomers();
@@ -136,6 +138,9 @@ export const SimpleSiteModal: React.FC<SimpleSiteModalProps> = ({
     try {
       await deleteProjectMutation.mutateAsync(site.id);
       setIsConfirmDeleteOpen(false);
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Unable to delete site.';

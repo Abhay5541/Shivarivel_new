@@ -6,13 +6,15 @@ import {
   User,
   Edit2,
   Users2,
-  ArrowRight,
   CheckCircle2,
   RefreshCw,
   ShoppingCart,
   Package,
   Calendar,
   Plus,
+  ChevronDown,
+  ChevronUp,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { LoadingState } from '@/components/ui/LoadingState';
@@ -20,12 +22,16 @@ import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { ProjectCompletionModal } from '@/components/business/ProjectCompletionModal';
 import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
+import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { useProject, useUpdateProject } from '@/hooks/useProjects';
 import { useWages, useEmployees } from '@/hooks/useWorkforce';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useCustomer } from '@/hooks/useCustomers';
+import { useCompanySettings } from '@/hooks/useSettings';
+import { downloadProjectCompletionPDF } from '@/lib/projectReportPdf';
 import { formatINR } from '@/lib/utils';
 import type { Purchase } from '@/types/procurement';
+import type { DailyWage } from '@/types/workforce';
 
 // Payment status badge color helper
 function paymentStatusStyle(status: string | undefined) {
@@ -42,9 +48,13 @@ export const ProjectDetailPage: React.FC = () => {
   const [isCompletionModalOpen, setIsCompletionModalOpen] = useState(false);
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+  const [showAllPurchases, setShowAllPurchases] = useState(false);
+  const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
+  const [isWageModalOpen, setIsWageModalOpen] = useState(false);
+  const [showAllWages, setShowAllWages] = useState(false);
 
   const { data: site, isLoading: isLoadingSite, isError, error, refetch } = useProject(id);
-  const { data: siteWages = [], isLoading: isLoadingWages } = useWages({ projectId: id });
+  const { data: siteWages = [], isLoading: isLoadingWages, refetch: refetchWages } = useWages({ projectId: id });
   const { data: employees = [] } = useEmployees();
   const {
     data: projectPurchases = [],
@@ -55,12 +65,25 @@ export const ProjectDetailPage: React.FC = () => {
   });
   const updateProjectMutation = useUpdateProject();
 
+  // Confirmed purchases for this project & displayed subset
+  const confirmedPurchases = React.useMemo(
+    () => projectPurchases.filter((p) => p.status === 'Confirmed'),
+    [projectPurchases]
+  );
+  const displayedPurchases = showAllPurchases
+    ? confirmedPurchases
+    : confirmedPurchases.slice(0, 4);
+
+  // Displayed wages subset (4 items default, toggleable)
+  const displayedWages = showAllWages ? siteWages : siteWages.slice(0, 4);
+
   // Fallback: load customer directly if project join didn't include it
   const { data: fallbackCustomer } = useCustomer(
     !site?.customer && site?.customer_id ? site.customer_id : undefined
   );
 
   const resolvedCustomer = site?.customer || fallbackCustomer;
+  const { data: companySettings } = useCompanySettings();
   const isCompleted = site?.status === 'Completed';
 
   // Calculate site wage breakdown (all wages, not just confirmed)
@@ -87,12 +110,11 @@ export const ProjectDetailPage: React.FC = () => {
 
   // Purchase totals
   const purchaseTotals = React.useMemo(() => {
-    const confirmed = projectPurchases.filter((p) => p.status === 'Confirmed');
-    const total = confirmed.reduce((sum, p) => sum + p.total_amount, 0);
-    const paid = confirmed.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
+    const total = confirmedPurchases.reduce((sum, p) => sum + p.total_amount, 0);
+    const paid = confirmedPurchases.reduce((sum, p) => sum + (p.total_allocated || 0), 0);
     const outstanding = Math.max(0, total - paid);
-    return { total, paid, outstanding, count: confirmed.length };
-  }, [projectPurchases]);
+    return { total, paid, outstanding, count: confirmedPurchases.length };
+  }, [confirmedPurchases]);
 
   const handleConfirmComplete = async () => {
     if (!site) return;
@@ -117,6 +139,62 @@ export const ProjectDetailPage: React.FC = () => {
     } catch (err) {
       console.warn('Failed to reopen project:', err);
     }
+  };
+
+  const handleDownloadProjectReport = async () => {
+    if (!site) return;
+    const confirmedPurchasesList = projectPurchases.filter((p) => p.status === 'Confirmed');
+
+    await downloadProjectCompletionPDF({
+      project: {
+        id: site.id,
+        name: site.name,
+        project_code: site.project_code,
+        status: site.status,
+        site_address: site.site_address,
+        start_date: site.start_date,
+        target_completion_date: site.expected_end_date,
+        actual_completion_date: site.actual_end_date || new Date().toISOString(),
+        created_at: site.created_at,
+      },
+      customer: resolvedCustomer || null,
+      company: companySettings || null,
+      wages: {
+        totalWages: siteWageBreakdown.totalSiteWages,
+        totalDays: siteWageBreakdown.items.reduce((s, i) => s + i.days, 0),
+        uniqueLabourers: siteWageBreakdown.items.length,
+        items: siteWageBreakdown.items.map((item) => {
+          const emp = employees.find((e) => e.name === item.employeeName);
+          return {
+            employeeName: item.employeeName,
+            trade: (emp as any)?.trade || (emp as any)?.worker_type || emp?.worker_type || 'Field Labour',
+            days: item.days,
+            total: item.total,
+          };
+        }),
+      },
+      procurement: {
+        totalPurchased: purchaseTotals.total,
+        totalPaid: purchaseTotals.paid,
+        totalOutstanding: purchaseTotals.outstanding,
+        items: confirmedPurchasesList.map((p) => {
+          const item = p.items?.[0];
+          const prodName =
+            p.items && p.items.length > 0
+              ? p.items.map((i) => i.material?.name || i.description || '').filter(Boolean).join(', ')
+              : p.notes || 'Material Purchase';
+
+          return {
+            date: p.purchase_date,
+            productName: prodName,
+            supplierName: p.supplier?.name || 'Supplier',
+            quantity: item?.quantity ? `${item.quantity} ${item.unit || ''}` : null,
+            amount: p.total_amount,
+            paymentStatus: p.payment_status || 'Unpaid',
+          };
+        }),
+      },
+    });
   };
 
   if (isLoadingSite) {
@@ -225,15 +303,25 @@ export const ProjectDetailPage: React.FC = () => {
           </Button>
 
           {isCompleted ? (
-            <button
-              type="button"
-              onClick={handleReopenProject}
-              disabled={updateProjectMutation.isPending}
-              className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8] rounded-xl transition-colors cursor-pointer disabled:opacity-60"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Reopen Project</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleDownloadProjectReport}
+                className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 bg-[#4A0E0E] text-white hover:bg-[#380A0A] rounded-xl transition-all shadow-sm active:scale-95 cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5 text-amber-300" />
+                <span>Download Report (PDF)</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleReopenProject}
+                disabled={updateProjectMutation.isPending}
+                className="h-10 px-3.5 text-xs font-bold flex items-center gap-1.5 bg-[#EFECE6] text-[#6B6B6B] hover:bg-[#E5E1D8] rounded-xl transition-colors cursor-pointer disabled:opacity-60"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Reopen</span>
+              </button>
+            </div>
           ) : (
             <button
               type="button"
@@ -250,34 +338,53 @@ export const ProjectDetailPage: React.FC = () => {
 
       {/* ── Completed Summary Banner ─────────────────────────────── */}
       {isCompleted && (
-        <div className="bg-gradient-to-r from-[#E8F8EE] to-[#F0FAF4] border border-[#1E7E34]/20 rounded-2xl p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <CheckCircle2 className="w-5 h-5 text-[#1E7E34]" />
-            <h2 className="text-sm font-bold text-[#1E7E34] uppercase tracking-wide">
-              Project Completed — Summary
-            </h2>
+        <div className="bg-gradient-to-br from-[#E8F8EE] via-[#F0FAF4] to-[#E8F8EE] border border-[#1E7E34]/25 rounded-2xl p-4 sm:p-5 shadow-2xs">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-[#1E7E34]" />
+              <h2 className="text-sm font-bold text-[#1E7E34] uppercase tracking-wide">
+                Project Completed — Summary
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={handleDownloadProjectReport}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#1E7E34] hover:bg-[#16652B] text-white text-xs font-bold rounded-lg shadow-2xs active:scale-95 transition-all cursor-pointer"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>PDF Report</span>
+            </button>
           </div>
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center bg-white/70 backdrop-blur-xs rounded-xl p-3 border border-[#1E7E34]/15">
             <div>
-              <span className="text-2xl font-bold text-[#242424] block">
+              <span className="text-lg sm:text-xl font-bold text-[#242424] block">
                 {siteWageBreakdown.items.length}
               </span>
-              <span className="text-[11px] text-[#6B6B6B] block truncate">Labourers</span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Labourers</span>
             </div>
-            <div className="min-w-0">
-              <span className="text-xl sm:text-2xl font-bold text-[#242424] block truncate">
+            <div>
+              <span className="text-lg sm:text-xl font-bold text-[#242424] block truncate">
                 {siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
               </span>
-              <span className="text-[11px] text-[#6B6B6B] block truncate">Man-days</span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Man-days</span>
             </div>
-            <div className="min-w-0">
+            <div>
               <span
-                className="text-sm sm:text-base font-bold text-[#1E6B37] block truncate"
+                className="text-lg sm:text-xl font-bold text-[#1E6B37] block truncate"
                 title={formatINR(siteWageBreakdown.totalSiteWages)}
               >
                 {formatINR(siteWageBreakdown.totalSiteWages)}
               </span>
-              <span className="text-[11px] text-[#6B6B6B] block truncate">Total Wages</span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Total Wages</span>
+            </div>
+            <div>
+              <span
+                className="text-lg sm:text-xl font-bold text-[#4A0E0E] block truncate"
+                title={formatINR(purchaseTotals.total)}
+              >
+                {formatINR(purchaseTotals.total)}
+              </span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Procurement</span>
             </div>
           </div>
         </div>
@@ -294,7 +401,7 @@ export const ProjectDetailPage: React.FC = () => {
             </h2>
             {!isLoadingPurchases && (
               <span className="text-xs bg-[#4A0E0E]/10 text-[#4A0E0E] px-2 py-0.5 rounded-full font-bold">
-                {projectPurchases.filter((p) => p.status === 'Confirmed').length}
+                {confirmedPurchases.length}
               </span>
             )}
           </div>
@@ -305,18 +412,17 @@ export const ProjectDetailPage: React.FC = () => {
                 setEditingPurchase(null);
                 setIsPurchaseModalOpen(true);
               }}
-              className="px-2.5 py-1 text-xs font-bold text-[#4A0E0E] bg-[#4A0E0E]/5 hover:bg-[#4A0E0E]/10 rounded-lg flex items-center gap-1 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 hover:opacity-95 transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+              style={{
+                backgroundColor: '#4A0E0E',
+                color: '#FFFFFF',
+                borderRadius: '8px',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px',
+              }}
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Add</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
-              className="text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] flex items-center gap-1 cursor-pointer"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -357,7 +463,7 @@ export const ProjectDetailPage: React.FC = () => {
         {/* Purchase List */}
         {isLoadingPurchases ? (
           <div className="py-8 text-center text-xs text-[#6B6B6B]">Loading purchases...</div>
-        ) : projectPurchases.filter((p) => p.status === 'Confirmed').length === 0 ? (
+        ) : confirmedPurchases.length === 0 ? (
           <div className="p-8 text-center space-y-2">
             <Package className="w-8 h-8 text-[#6B6B6B] mx-auto opacity-40" />
             <p className="text-xs font-semibold text-[#6B6B6B]">
@@ -373,85 +479,98 @@ export const ProjectDetailPage: React.FC = () => {
           </div>
         ) : (
           <div className="divide-y divide-[#E8E4DC]">
-            {projectPurchases
-              .filter((p) => p.status === 'Confirmed')
-              .slice(0, 10)
-              .map((purchase) => (
-                <div
-                  key={purchase.id}
-                  onClick={() => {
-                    setEditingPurchase(purchase);
-                    setIsPurchaseModalOpen(true);
-                  }}
-                  className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors cursor-pointer group"
-                >
-                  <div className="min-w-0 flex-1">
-                    {/* Main title: product/material names */}
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors leading-snug">
-                        {(() => {
-                          if (purchase.items && purchase.items.length > 0) {
-                            const names = purchase.items
-                              .map((item) => item.material?.name || item.description || '')
-                              .filter(Boolean)
-                              .join(', ');
-                            if (names) return names;
-                          }
-                          if (purchase.notes && !purchase.notes.toLowerCase().includes('direct purchase')) {
-                            return purchase.notes;
-                          }
-                          return 'Material Purchase';
-                        })()}
-                      </span>
-                    </div>
-                    {/* Subtitle: Date below product name + supplier */}
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <div className="flex items-center gap-1 text-[11px] text-[#6B6B6B]">
-                        <Calendar className="w-3 h-3 text-[#8C867E]" />
-                        <span>
-                          {new Date(purchase.purchase_date).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: '2-digit',
-                          })}
-                        </span>
-                      </div>
-                      {purchase.supplier?.name && !purchase.supplier.name.toLowerCase().includes('direct purchase') && (
-                        <span className="text-[11px] text-[#6B6B6B]">
-                          · {purchase.supplier.name}
-                        </span>
-                      )}
-                    </div>
-
+            {displayedPurchases.map((purchase) => (
+              <div
+                key={purchase.id}
+                onClick={() => {
+                  setEditingPurchase(purchase);
+                  setIsPurchaseModalOpen(true);
+                }}
+                className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors cursor-pointer group"
+              >
+                <div className="min-w-0 flex-1">
+                  {/* Main title: product/material names */}
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-bold text-[#242424] group-hover:text-[#4A0E0E] transition-colors leading-snug">
+                      {(() => {
+                        if (purchase.items && purchase.items.length > 0) {
+                          const names = purchase.items
+                            .map((item) => item.material?.name || item.description || '')
+                            .filter(Boolean)
+                            .join(', ');
+                          if (names) return names;
+                        }
+                        if (purchase.notes && !purchase.notes.toLowerCase().includes('direct purchase')) {
+                          return purchase.notes;
+                        }
+                        return 'Material Purchase';
+                      })()}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-2.5 shrink-0 ml-3">
-                    <div className="text-right">
-                      <span className="text-sm font-bold text-[#242424] block">
-                        {formatINR(purchase.total_amount)}
-                      </span>
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${paymentStatusStyle(
-                          purchase.payment_status
-                        )}`}
-                      >
-                        {purchase.payment_status || 'Unpaid'}
+                  {/* Subtitle: Date below product name + supplier */}
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <div className="flex items-center gap-1 text-[11px] text-[#6B6B6B]">
+                      <Calendar className="w-3 h-3 text-[#8C867E]" />
+                      <span>
+                        {new Date(purchase.purchase_date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: '2-digit',
+                        })}
                       </span>
                     </div>
-                    <div className="p-1 rounded-md text-[#8C867E] group-hover:text-[#4A0E0E] group-hover:bg-[#4A0E0E]/10 transition-colors">
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </div>
+                    {purchase.supplier?.name && !purchase.supplier.name.toLowerCase().includes('direct purchase') && (
+                      <span className="text-[11px] text-[#6B6B6B]">
+                        · {purchase.supplier.name}
+                      </span>
+                    )}
+                  </div>
+
+                </div>
+                <div className="flex items-center gap-2.5 shrink-0 ml-3">
+                  <div className="text-right">
+                    <span className="text-sm font-bold text-[#242424] block">
+                      {formatINR(purchase.total_amount)}
+                    </span>
+                    <span
+                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${paymentStatusStyle(
+                        purchase.payment_status
+                      )}`}
+                    >
+                      {purchase.payment_status || 'Unpaid'}
+                    </span>
+                  </div>
+                  <div className="p-1 rounded-md text-[#8C867E] group-hover:text-[#4A0E0E] group-hover:bg-[#4A0E0E]/10 transition-colors">
+                    <Edit2 className="w-3.5 h-3.5" />
                   </div>
                 </div>
-              ))}
-            {projectPurchases.filter((p) => p.status === 'Confirmed').length > 10 && (
-              <div className="px-5 py-3 text-center">
+              </div>
+            ))}
+            {confirmedPurchases.length > 4 && (
+              <div className="px-5 py-3 text-center bg-[#FAFAF8] border-t border-[#E8E4DC] flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAllPurchases((prev) => !prev)}
+                  className="text-xs font-bold text-[#4A0E0E] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>
+                    {showAllPurchases
+                      ? 'Show Less (4 items)'
+                      : `View all ${confirmedPurchases.length} items`}
+                  </span>
+                  {showAllPurchases ? (
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <span className="text-[#D5D0C7]">|</span>
                 <button
                   type="button"
                   onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
-                  className="text-xs font-bold text-[#4A0E0E] cursor-pointer"
+                  className="text-xs font-semibold text-[#8C867E] hover:text-[#4A0E0E] transition-colors cursor-pointer"
                 >
-                  View all {projectPurchases.filter((p) => p.status === 'Confirmed').length}{' '}
-                  purchases →
+                  Open in Purchases tab →
                 </button>
               </div>
             )}
@@ -474,13 +593,26 @@ export const ProjectDetailPage: React.FC = () => {
               </span>
             )}
           </div>
-          <Link
-            to="/wages"
-            className="text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] flex items-center gap-1 transition-colors"
-          >
-            <span>View All</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingWage(null);
+                setIsWageModalOpen(true);
+              }}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 hover:opacity-95 transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+              style={{
+                backgroundColor: '#4A0E0E',
+                color: '#FFFFFF',
+                borderRadius: '8px',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px',
+              }}
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <span>Add</span>
+            </button>
+          </div>
         </div>
 
         {/* Wages Total Summary */}
@@ -516,16 +648,20 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-xs font-semibold text-[#6B6B6B]">
               No daily wages recorded for this project.
             </p>
-            <Link
-              to="/wages"
-              className="text-xs font-bold text-[#4A0E0E] underline"
+            <button
+              type="button"
+              onClick={() => {
+                setEditingWage(null);
+                setIsWageModalOpen(true);
+              }}
+              className="text-xs font-bold text-[#4A0E0E] underline cursor-pointer"
             >
               Add wages →
-            </Link>
+            </button>
           </div>
         ) : (
           <div className="divide-y divide-[#E8E4DC]">
-            {siteWages.slice(0, 10).map((wage) => {
+            {displayedWages.map((wage) => {
               const emp = employees.find((e) => e.id === wage.employee_id);
               const name = (wage as any).employee?.name || emp?.name || 'Employee';
               const amount = Number((wage as any).amount || (wage as any).rate || 0);
@@ -534,11 +670,15 @@ export const ProjectDetailPage: React.FC = () => {
               return (
                 <div
                   key={wage.id}
-                  className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors"
+                  onClick={() => {
+                    setEditingWage(wage);
+                    setIsWageModalOpen(true);
+                  }}
+                  className="px-5 py-3.5 flex items-center justify-between hover:bg-[#F7F5F0] transition-colors cursor-pointer group"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-[#242424] font-inter truncate">
+                      <span className="text-sm font-bold text-[#242424] font-inter truncate group-hover:text-[#4A0E0E] transition-colors">
                         {name}
                       </span>
                     </div>
@@ -552,26 +692,48 @@ export const ProjectDetailPage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <span
-                      className="text-sm font-bold block text-[#1E6B37]"
-                    >
-                      {formatINR(amount)}
-                    </span>
-                    <span className="text-[10px] text-[#8C867E]">
-                      {wage.payable_units ? `${wage.payable_units} day` : '1 day'}
-                    </span>
+                  <div className="flex items-center gap-2.5 shrink-0 ml-3">
+                    <div className="text-right">
+                      <span
+                        className="text-sm font-bold block text-[#1E6B37]"
+                      >
+                        {formatINR(amount)}
+                      </span>
+                      <span className="text-[10px] text-[#8C867E]">
+                        {wage.payable_units ? `${wage.payable_units} day` : '1 day'}
+                      </span>
+                    </div>
+                    <div className="p-1 rounded-md text-[#8C867E] group-hover:text-[#4A0E0E] group-hover:bg-[#4A0E0E]/10 transition-colors">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </div>
                   </div>
                 </div>
               );
             })}
-            {siteWages.length > 10 && (
-              <div className="px-5 py-3 text-center bg-[#FAFAF8]">
+            {siteWages.length > 4 && (
+              <div className="px-5 py-3 text-center bg-[#FAFAF8] border-t border-[#E8E4DC] flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAllWages((prev) => !prev)}
+                  className="text-xs font-bold text-[#4A0E0E] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>
+                    {showAllWages
+                      ? 'Show Less (4 items)'
+                      : `View all ${siteWages.length} items`}
+                  </span>
+                  {showAllWages ? (
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  )}
+                </button>
+                <span className="text-[#D5D0C7]">|</span>
                 <Link
                   to="/wages"
-                  className="text-xs font-bold text-[#4A0E0E] hover:underline cursor-pointer"
+                  className="text-xs font-semibold text-[#8C867E] hover:text-[#4A0E0E] transition-colors cursor-pointer"
                 >
-                  View all {siteWages.length} wage entries →
+                  Open in Wages tab →
                 </Link>
               </div>
             )}
@@ -584,6 +746,7 @@ export const ProjectDetailPage: React.FC = () => {
         isOpen={isEditSiteOpen}
         onClose={() => setIsEditSiteOpen(false)}
         site={site}
+        onDeleteSuccess={() => navigate('/projects')}
       />
 
       {/* Project Completion Modal */}
@@ -591,6 +754,7 @@ export const ProjectDetailPage: React.FC = () => {
         isOpen={isCompletionModalOpen}
         onClose={() => setIsCompletionModalOpen(false)}
         project={site}
+        customer={resolvedCustomer}
         onConfirmComplete={handleConfirmComplete}
         isLoading={updateProjectMutation.isPending}
       />
@@ -607,6 +771,21 @@ export const ProjectDetailPage: React.FC = () => {
         preselectedProjectId={site?.id || id || null}
         onSuccess={() => {
           refetchPurchases();
+          refetch();
+        }}
+      />
+
+      {/* Edit / Add Wage Modal */}
+      <SimpleDailyWageModal
+        isOpen={isWageModalOpen}
+        onClose={() => {
+          setIsWageModalOpen(false);
+          setEditingWage(null);
+        }}
+        preselectedProjectId={site?.id || id || null}
+        existingWage={editingWage}
+        onSuccess={() => {
+          refetchWages();
           refetch();
         }}
       />

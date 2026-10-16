@@ -7,6 +7,7 @@ import {
   User,
   ArrowRight,
   Edit2,
+  Trash2,
   Search as SearchIcon,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
@@ -14,8 +15,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
-import { useProjects, useUpdateProject } from '@/hooks/useProjects';
+import { useProjects, useUpdateProject, useDeleteProject } from '@/hooks/useProjects';
 import type { Project, ProjectStatus } from '@/types/projects';
 import projectBannerBg from '@/Asserts/project_banner.png';
 
@@ -26,8 +28,22 @@ export const ProjectsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [isSiteModalOpen, setIsSiteModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
 
   const updateProjectMutation = useUpdateProject();
+  const deleteProjectMutation = useDeleteProject();
+
+  const handleDeleteProject = (e: React.MouseEvent, site: Project) => {
+    e.stopPropagation();
+    setDeletingProject(site);
+  };
+
+  const confirmDeleteProject = async () => {
+    if (deletingProject) {
+      await deleteProjectMutation.mutateAsync(deletingProject.id);
+      setDeletingProject(null);
+    }
+  };
 
   // Auto-open modal if navigated with ?new=1 or ?new=true
   useEffect(() => {
@@ -48,10 +64,11 @@ export const ProjectsPage: React.FC = () => {
     refetch,
   } = useProjects();
 
-  // Status counts
-  const allCount = sites.length;
-  const activeCount = sites.filter((s) => s.status !== 'Completed').length;
-  const completedCount = sites.filter((s) => s.status === 'Completed').length;
+  // Status counts (exclude Cancelled / deleted projects)
+  const nonCancelledSites = useMemo(() => sites.filter((s) => s.status !== 'Cancelled'), [sites]);
+  const allCount = nonCancelledSites.length;
+  const activeCount = nonCancelledSites.filter((s) => s.status !== 'Completed').length;
+  const completedCount = nonCancelledSites.filter((s) => s.status === 'Completed').length;
 
   const projectFilterOptions = useMemo<SegmentOption<'all' | 'active' | 'completed'>[]>(
     () => [
@@ -84,7 +101,7 @@ export const ProjectsPage: React.FC = () => {
 
   // Search & status filtering
   const filteredSites = useMemo(() => {
-    let list = sites;
+    let list = nonCancelledSites;
 
     if (statusFilter === 'active') {
       list = list.filter((s) => s.status !== 'Completed');
@@ -206,16 +223,29 @@ export const ProjectsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Action Bar: Edit Project & View Details */}
+        {/* Bottom Action Bar: Edit Project, Delete & View Details */}
         <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
-          <button
-            type="button"
-            onClick={(e) => handleOpenEditProject(e, site)}
-            className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
-          >
-            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
-            <span>Edit</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={(e) => handleOpenEditProject(e, site)}
+              className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+              <span>Edit</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => handleDeleteProject(e, site)}
+              disabled={deleteProjectMutation.isPending}
+              className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+              title="Delete Project"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete</span>
+            </button>
+          </div>
 
           <span className="font-bold text-[#4A0E0E] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
             <span>View Details</span>
@@ -338,6 +368,15 @@ export const ProjectsPage: React.FC = () => {
         }}
         site={editingProject}
         onSuccess={handleSiteCreated}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmDeleteModal
+        isOpen={Boolean(deletingProject)}
+        onClose={() => setDeletingProject(null)}
+        onConfirm={confirmDeleteProject}
+        itemName={deletingProject?.name}
+        isLoading={deleteProjectMutation.isPending}
       />
     </PageContainer>
   );

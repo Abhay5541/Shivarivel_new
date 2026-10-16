@@ -78,7 +78,7 @@ export function App() {
 
                   {/* 2. PROJECTS MODULE */}
                   <Route path="/projects" element={<ProjectsPage />} />
-                  <Route path="/projects/new" element={<ProjectEditorPage />} />
+                  <Route path="/projects/new" element={<Navigate to="/projects?new=1" replace />} />
                   <Route path="/projects/:id" element={<ProjectDetailPage />} />
                   <Route path="/projects/:id/edit" element={<ProjectEditorPage />} />
 
