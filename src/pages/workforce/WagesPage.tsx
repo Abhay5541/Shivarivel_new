@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Calendar as CalendarIcon,
@@ -44,6 +44,9 @@ export function WagesPage() {
   const [isLaborersDrawerOpen, setIsLaborersDrawerOpen] = useState(false);
   const [openInAddMode, setOpenInAddMode] = useState(false);
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
+
+  const dailyDateInputRef = useRef<HTMLInputElement>(null);
+  const weeklyDateInputRef = useRef<HTMLInputElement>(null);
 
   // Segment options for Daily Wages vs Weekly Overview
   const wageViewOptions = useMemo<SegmentOption<'daily' | 'weekly'>[]>(
@@ -481,26 +484,39 @@ export function WagesPage() {
       {activeTab === 'daily' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Date Selector Bar (Matching Weekly Overview Structure) */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
+          <div className="bg-white dark:bg-[#1A1714] border border-[#E2DDD5] dark:border-white/10 rounded-xl p-3 sm:p-4 shadow-xs transition-colors">
             {/* Mobile Layout (sm:hidden) */}
             <div className="flex flex-col gap-2.5 sm:hidden">
-              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
-                  <span className="font-inter font-bold text-sm text-[#242424] truncate">
+              <div className="flex items-center justify-between bg-[#F7F5F0] dark:bg-[#231F1B] border border-[#E2DDD5] dark:border-white/10 rounded-lg px-3 py-2">
+                <div className="relative flex items-center gap-2 min-w-0 cursor-pointer group">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="font-inter font-bold text-sm text-[#242424] dark:text-[#F5F5F4] truncate group-hover:text-[#4A0E0E] dark:group-hover:text-[#E2A855] transition-colors">
                     {formattedSelectedDateShort}
                   </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8C867E] dark:text-[#A8A29E] shrink-0" />
+                  <input
+                    ref={dailyDateInputRef}
+                    type="date"
+                    value={selectedDate}
+                    max={todayStr}
+                    onChange={(e) => {
+                      if (e.target.value) setSelectedDate(e.target.value);
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full pointer-events-auto"
+                    title="Click to open calendar"
+                    aria-label="Select date"
+                  />
                 </div>
                 {!isSelectedDateToday ? (
                   <button
                     type="button"
                     onClick={() => setSelectedDate(todayStr)}
-                    className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shrink-0 ml-2"
+                    className="relative z-10 px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shrink-0 ml-2 shadow-2xs"
                   >
                     JUMP TO TODAY
                   </button>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-md bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                  <span className="px-2 py-0.5 rounded-md bg-[#FDF9EE] dark:bg-[#2A241C] text-[#854D0E] dark:text-[#E2A855] border border-[#FDE047] dark:border-[#C9A24A]/40 text-[10px] font-bold uppercase tracking-wider">
                     TODAY
                   </span>
                 )}
@@ -512,7 +528,7 @@ export function WagesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => navigateDate(-1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                  className="h-9 w-full border-[#E2DDD5] dark:border-white/15 text-xs font-semibold text-[#242424] dark:text-[#F5F5F4] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] bg-white dark:bg-[#231F1B]"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous Day</span>
@@ -524,7 +540,7 @@ export function WagesPage() {
                   size="sm"
                   disabled={isSelectedDateToday}
                   onClick={() => navigateDate(1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E] disabled:opacity-40"
+                  className="h-9 w-full border-[#E2DDD5] dark:border-white/15 text-xs font-semibold text-[#242424] dark:text-[#F5F5F4] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] disabled:opacity-40 bg-white dark:bg-[#231F1B]"
                 >
                   <span>Next Day</span>
                   <ChevronRight className="w-4 h-4" />
@@ -540,16 +556,34 @@ export function WagesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => navigateDate(-1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                  className="h-9 px-3 border-[#E2DDD5] dark:border-white/15 text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] bg-white dark:bg-[#231F1B] text-[#242424] dark:text-[#F5F5F4]"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous Day</span>
                 </Button>
 
-                <span className="font-inter font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
-                  <span>{formattedSelectedDate}</span>
-                </span>
+                <div className="relative inline-flex items-center">
+                  <div
+                    className="font-inter font-bold text-sm sm:text-base text-[#242424] dark:text-[#F5F5F4] px-2.5 py-1.5 rounded-lg border border-transparent hover:border-[#E2DDD5] dark:hover:border-white/15 hover:bg-[#FAF7F0] dark:hover:bg-[#231F1B] transition-all flex items-center gap-2 cursor-pointer group"
+                    title="Click to open calendar"
+                  >
+                    <CalendarIcon className="w-4 h-4 text-[#C99A2E] group-hover:scale-110 transition-transform shrink-0" />
+                    <span>{formattedSelectedDate}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-[#8C867E] dark:text-[#A8A29E] transition-transform group-hover:translate-y-0.5 shrink-0" />
+                  </div>
+                  <input
+                    ref={dailyDateInputRef}
+                    type="date"
+                    value={selectedDate}
+                    max={todayStr}
+                    onChange={(e) => {
+                      if (e.target.value) setSelectedDate(e.target.value);
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full pointer-events-auto"
+                    title="Click to open calendar"
+                    aria-label="Select date"
+                  />
+                </div>
 
                 <Button
                   type="button"
@@ -557,7 +591,7 @@ export function WagesPage() {
                   size="sm"
                   disabled={isSelectedDateToday}
                   onClick={() => navigateDate(1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E] disabled:opacity-40"
+                  className="h-9 px-3 border-[#E2DDD5] dark:border-white/15 text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] disabled:opacity-40 bg-white dark:bg-[#231F1B] text-[#242424] dark:text-[#F5F5F4]"
                 >
                   <span>Next Day</span>
                   <ChevronRight className="w-4 h-4" />
@@ -565,14 +599,14 @@ export function WagesPage() {
               </div>
 
               {isSelectedDateToday ? (
-                <span className="px-2.5 py-1 rounded-lg bg-[#FDF9EE] text-[#854D0E] border border-[#FDE047] text-[10px] font-bold uppercase tracking-wider">
+                <span className="px-2.5 py-1 rounded-lg bg-[#FDF9EE] dark:bg-[#2A241C] text-[#854D0E] dark:text-[#E2A855] border border-[#FDE047] dark:border-[#C9A24A]/40 text-[10px] font-bold uppercase tracking-wider">
                   TODAY
                 </span>
               ) : (
                 <button
                   type="button"
                   onClick={() => setSelectedDate(todayStr)}
-                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shadow-2xs"
                 >
                   JUMP TO TODAY
                 </button>
@@ -581,117 +615,117 @@ export function WagesPage() {
           </div>
 
           {/* Wage Summary Card (Kishore's Card with 4 Distinct Colored Status Tiles) */}
-          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs relative overflow-hidden">
+          <div className="bg-[#FAF8F5] dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-2xl shadow-xs relative overflow-hidden transition-colors">
             {/* Background illustration for Today's Wages Paid */}
             <img
               src={totalWagesBanner}
               alt=""
-              className="absolute right-0 top-0 h-full w-auto max-w-[45%] sm:max-w-[35%] object-contain object-right pointer-events-none opacity-85 select-none"
+              className="absolute right-0 top-0 h-full w-auto max-w-[45%] sm:max-w-[35%] object-contain object-right pointer-events-none opacity-85 dark:opacity-30 select-none"
             />
 
             {/* Header: Today's Wages Paid + Big Amount */}
             <div className="relative z-10 p-4 sm:p-5">
-              <div className="text-xs sm:text-sm font-semibold text-[#166534]">
+              <div className="text-xs sm:text-sm font-semibold text-[#166534] dark:text-[#4ADE80]">
                 {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDate}`}
               </div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] dark:text-white mt-0.5 tracking-tight">
                 {formatINR(dailySummary.totalPaid)}
               </div>
             </div>
 
             {/* 4 Stats Grid in a Single Line at the Bottom */}
-            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] bg-white/80 backdrop-blur-xs divide-x divide-[#E8E4DC] py-3 px-2 sm:px-3">
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] dark:border-white/10 bg-white/80 dark:bg-[#231F1B]/90 backdrop-blur-xs divide-x divide-[#E8E4DC] dark:divide-white/10 py-3 px-2 sm:px-3">
               {/* 1. Total Logged */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] text-[#1E3A8A] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] dark:bg-[#1E3A8A]/40 text-[#1E3A8A] dark:text-[#93C5FD] flex items-center justify-center shrink-0">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#1E3A8A] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#1E3A8A] dark:text-[#93C5FD] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.totalEntries}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Total Logged
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 2. Full Days */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] dark:bg-[#166534]/40 text-[#1E7E34] dark:text-[#86EFAC] flex items-center justify-center shrink-0">
                     <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#1E7E34] dark:text-[#86EFAC] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.fullDays}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Full Days
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 3. Half Days */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] dark:bg-[#854D0E]/40 text-[#B45309] dark:text-[#FDE047] flex items-center justify-center shrink-0">
                     <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#B45309] dark:text-[#FDE047] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.halfDays}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Half Days
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 4. Absent */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] dark:bg-[#991B1B]/40 text-[#991B1B] dark:text-[#FCA5A5] flex items-center justify-center shrink-0">
                     <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
                   </div>
-                  <span className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#991B1B] dark:text-[#FCA5A5] text-xs sm:text-sm tabular-nums leading-none">
                     {dailySummary.absent}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Absent
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Workers</div>
               </div>
             </div>
           </div>
 
           {/* DAILY MUSTER SHEET (DESKTOP & MOBILE) */}
           {isWagesLoading ? (
-            <div className="bg-white border border-[#E2DDD5] rounded-xl p-8 text-center text-xs text-[#6B6B6B]">
+            <div className="bg-white dark:bg-[#1A1714] border border-[#E2DDD5] dark:border-white/10 rounded-xl p-8 text-center text-xs text-[#6B6B6B] dark:text-[#A8A29E]">
               Loading daily wages...
             </div>
           ) : dayEntries.length === 0 ? (
             /* Empty State */
-            <div className="bg-white border border-[#E2DDD5] rounded-xl p-8 sm:p-12 text-center space-y-3 shadow-xs">
-              <div className="w-12 h-12 rounded-full bg-[#F7F5F0] border border-[#E2DDD5] flex items-center justify-center mx-auto text-[#6B6B6B]">
+            <div className="bg-white dark:bg-[#1A1714] border border-[#E2DDD5] dark:border-white/10 rounded-xl p-8 sm:p-12 text-center space-y-3 shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-[#F7F5F0] dark:bg-[#231F1B] border border-[#E2DDD5] dark:border-white/10 flex items-center justify-center mx-auto text-[#6B6B6B] dark:text-[#A8A29E]">
                 <CalendarIcon className="w-6 h-6 text-[#C99A2E]" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-[#242424] font-inter">
+                <h3 className="text-base font-bold text-[#242424] dark:text-[#F5F5F4] font-inter">
                   No wage entries for this day.
                 </h3>
-                <p className="text-xs sm:text-sm text-[#6B6B6B] max-w-sm mx-auto">
+                <p className="text-xs sm:text-sm text-[#6B6B6B] dark:text-[#A8A29E] max-w-sm mx-auto">
                   Mark attendance and daily cash payments for site laborers who worked on {formattedSelectedDate}.
                 </p>
               </div>
             </div>
           ) : (
-            <div className="bg-white/95 backdrop-blur-xs border border-[#E8E4DC] rounded-2xl overflow-hidden shadow-xs">
+            <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E8E4DC] dark:border-white/10 rounded-2xl overflow-hidden shadow-xs">
               {/* Header */}
-              <div className="px-4 sm:px-5 py-3.5 bg-[#FAF8F5] border-b border-[#EFECE6] flex items-center justify-between">
-                <h3 className="text-sm sm:text-base font-bold text-[#3E1012] font-inter">
+              <div className="px-4 sm:px-5 py-3.5 bg-[#FAF8F5] dark:bg-[#231F1B] border-b border-[#EFECE6] dark:border-white/10 flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-bold text-[#3E1012] dark:text-[#E2A855] font-inter">
                   Laborers Logged ({dayEntries.length})
                 </h3>
               </div>
@@ -700,14 +734,14 @@ export function WagesPage() {
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#EFECE6] bg-[#FAF8F5]/50 text-[11px] font-bold text-[#8C867E] uppercase tracking-wider">
+                    <tr className="border-b border-[#EFECE6] dark:border-white/10 bg-[#FAF8F5]/50 dark:bg-[#231F1B]/60 text-[11px] font-bold text-[#8C867E] dark:text-[#A8A29E] uppercase tracking-wider">
                       <th className="py-3 px-5">Laborer / Project</th>
                       <th className="py-3 px-4">Attendance</th>
                       <th className="py-3 px-5 text-right">Paid Amount</th>
                       <th className="py-3 px-4 text-center">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#EFECE6] text-sm text-[#242424]">
+                  <tbody className="divide-y divide-[#EFECE6] dark:divide-white/10 text-sm text-[#242424] dark:text-[#F5F5F4]">
                     {dayEntries.map((wage) => {
                       const emp = employees.find((e) => e.id === wage.employee_id);
                       const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -717,15 +751,15 @@ export function WagesPage() {
                         : proj?.name || 'General Site Work';
 
                       return (
-                        <tr key={wage.id} className="hover:bg-[#FAF8F5]/80 transition-colors">
+                        <tr key={wage.id} className="hover:bg-[#FAF8F5]/80 dark:hover:bg-[#231F1B]/60 transition-colors">
                           <td className="py-3.5 px-5">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-[#F9ECEB] text-[#5A0F12] flex items-center justify-center shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-[#F9ECEB] dark:bg-[#2A1616] text-[#5A0F12] dark:text-[#E2A855] flex items-center justify-center shrink-0">
                                 <HardHat className="w-4 h-4" />
                               </div>
                               <div className="min-w-0">
-                                <div className="font-bold text-[#242424] font-inter truncate">{laborerName}</div>
-                                <div className="flex items-center gap-1 text-xs text-[#8C867E] mt-0.5">
+                                <div className="font-bold text-[#242424] dark:text-[#F5F5F4] font-inter truncate">{laborerName}</div>
+                                <div className="flex items-center gap-1 text-xs text-[#8C867E] dark:text-[#A8A29E] mt-0.5">
                                   <Building2 className="w-3 h-3 text-[#A8A29E]" />
                                   <span className="truncate">{projectName}</span>
                                 </div>
@@ -735,7 +769,7 @@ export function WagesPage() {
 
                           <td className="py-3.5 px-4">{renderAttendancePill(wage.payable_units)}</td>
 
-                          <td className="py-3.5 px-5 text-right font-bold tabular-nums text-sm text-[#242424] font-sans">
+                          <td className="py-3.5 px-5 text-right font-bold tabular-nums text-sm text-[#242424] dark:text-[#F5F5F4] font-sans">
                             {formatINR(wage.amount || 0)}
                           </td>
 
@@ -744,18 +778,18 @@ export function WagesPage() {
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(wage)}
-                                className="font-medium text-xs text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                                className="font-medium text-xs text-[#6B6B6B] dark:text-[#A8A29E] hover:text-[#4A0E0E] dark:hover:text-[#E2A855] flex items-center gap-1 transition-colors cursor-pointer"
                                 title="Edit wage entry"
                                 aria-label={`Edit wage for ${laborerName}`}
                               >
-                                <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                                <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B] dark:text-[#A8A29E]" />
                                 <span>Edit</span>
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteWage(wage, laborerName)}
                                 disabled={deleteWageMutation.isPending}
-                                className="font-medium text-xs text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                                className="font-medium text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
                                 title="Delete wage entry"
                                 aria-label={`Delete wage for ${laborerName}`}
                               >
@@ -772,7 +806,7 @@ export function WagesPage() {
               </div>
 
               {/* MOBILE ROWS (< 768px) - Unified container with divide-y and NO GAP */}
-              <div className="md:hidden divide-y divide-[#EFECE6]">
+              <div className="md:hidden divide-y divide-[#EFECE6] dark:divide-white/10">
                 {dayEntries.map((wage) => {
                   const emp = employees.find((e) => e.id === wage.employee_id);
                   const laborerName = wage.employee?.name || emp?.name || 'Laborer';
@@ -784,21 +818,21 @@ export function WagesPage() {
                   return (
                     <div
                       key={wage.id}
-                      className="p-3.5 sm:p-4 hover:bg-[#FAF8F5]/60 transition-colors flex flex-col justify-between"
+                      className="p-3.5 sm:p-4 hover:bg-[#FAF8F5]/60 dark:hover:bg-[#231F1B]/60 transition-colors flex flex-col justify-between"
                     >
                       <div>
                         {/* Header: Laborer Avatar/Icon, Name, Attendance Badge */}
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="w-9 h-9 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-[#FBEFEF] dark:bg-[#2A1616] text-[#4A0E0E] dark:text-[#E2A855] flex items-center justify-center shrink-0">
                               <HardHat className="w-4 h-4" />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-bold text-sm text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
+                              <h4 className="font-bold text-sm text-[#242424] dark:text-[#F5F5F4] font-inter group-hover:text-[#4A0E0E] dark:group-hover:text-[#E2A855] transition-colors truncate">
                                 {laborerName}
                               </h4>
-                              <div className="flex items-center gap-1.5 text-xs text-[#6B6B6B] mt-0.5">
-                                <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                              <div className="flex items-center gap-1.5 text-xs text-[#6B6B6B] dark:text-[#A8A29E] mt-0.5">
+                                <Building2 className="w-3.5 h-3.5 text-[#8C867E] dark:text-[#A8A29E] shrink-0" />
                                 <span className="truncate">{projectName}</span>
                               </div>
                             </div>
@@ -811,14 +845,14 @@ export function WagesPage() {
                       </div>
 
                       {/* Bottom Action Bar: Edit, Delete, Amount Paid */}
-                      <div className="mt-3 pt-2.5 border-t border-[#F0EAE1]/70 flex items-center justify-between text-xs">
+                      <div className="mt-3 pt-2.5 border-t border-[#F0EAE1]/70 dark:border-white/10 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-3">
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(wage)}
-                            className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                            className="font-medium text-[#6B6B6B] dark:text-[#A8A29E] hover:text-[#4A0E0E] dark:hover:text-[#E2A855] flex items-center gap-1 transition-colors cursor-pointer"
                           >
-                            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B]" />
+                            <Edit2 className="w-3.5 h-3.5 text-[#6B6B6B] dark:text-[#A8A29E]" />
                             <span>Edit</span>
                           </button>
 
@@ -826,7 +860,7 @@ export function WagesPage() {
                             type="button"
                             onClick={() => handleDeleteWage(wage, laborerName)}
                             disabled={deleteWageMutation.isPending}
-                            className="font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer"
+                            className="font-medium text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
                             title={`Delete wage for ${laborerName}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -835,8 +869,8 @@ export function WagesPage() {
                         </div>
 
                         <div className="text-right">
-                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] font-medium mr-1.5">Paid:</span>
-                          <span className="font-bold text-sm sm:text-base text-[#242424] font-sans tabular-nums">
+                          <span className="text-[10px] uppercase tracking-wider text-[#6B6B6B] dark:text-[#A8A29E] font-medium mr-1.5">Paid:</span>
+                          <span className="font-bold text-sm sm:text-base text-[#242424] dark:text-[#F5F5F4] font-sans tabular-nums">
                             {formatINR(wage.amount || 0)}
                           </span>
                         </div>
@@ -856,20 +890,32 @@ export function WagesPage() {
       {activeTab === 'weekly' && (
         <div key={activeTab} className="space-y-4 animate-filter-slide">
           {/* Week Selector Bar */}
-          <div className="bg-white border border-[#E2DDD5] rounded-xl p-3 sm:p-4 shadow-xs">
+          <div className="bg-white dark:bg-[#1A1714] border border-[#E2DDD5] dark:border-white/10 rounded-xl p-3 sm:p-4 shadow-xs transition-colors">
             {/* Mobile Layout (sm:hidden) */}
             <div className="flex flex-col gap-2.5 sm:hidden">
-              <div className="flex items-center justify-between bg-[#F7F5F0] border border-[#E2DDD5] rounded-lg px-3 py-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0" />
-                  <span className="font-inter font-bold text-sm text-[#242424] truncate">
+              <div className="flex items-center justify-between bg-[#F7F5F0] dark:bg-[#231F1B] border border-[#E2DDD5] dark:border-white/10 rounded-lg px-3 py-2">
+                <div className="relative flex items-center gap-2 min-w-0 cursor-pointer group">
+                  <CalendarIcon className="w-4 h-4 text-[#C99A2E] shrink-0 group-hover:scale-110 transition-transform" />
+                  <span className="font-inter font-bold text-sm text-[#242424] dark:text-[#F5F5F4] truncate group-hover:text-[#4A0E0E] dark:group-hover:text-[#E2A855] transition-colors">
                     {weekRange.label}
                   </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8C867E] dark:text-[#A8A29E] shrink-0" />
+                  <input
+                    ref={weeklyDateInputRef}
+                    type="date"
+                    value={weekReferenceDate}
+                    onChange={(e) => {
+                      if (e.target.value) setWeekReferenceDate(e.target.value);
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full pointer-events-auto"
+                    title="Click to open calendar"
+                    aria-label="Select week date"
+                  />
                 </div>
                 <button
                   type="button"
                   onClick={() => setWeekReferenceDate(todayStr)}
-                  className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shrink-0 ml-2"
+                  className="relative z-10 px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shrink-0 ml-2 shadow-2xs"
                 >
                   CURRENT WEEK
                 </button>
@@ -881,7 +927,7 @@ export function WagesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => navigateWeek(-1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                  className="h-9 w-full border-[#E2DDD5] dark:border-white/15 text-xs font-semibold text-[#242424] dark:text-[#F5F5F4] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] bg-white dark:bg-[#231F1B]"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous Week</span>
@@ -892,7 +938,7 @@ export function WagesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => navigateWeek(1)}
-                  className="h-9 w-full border-[#E2DDD5] text-xs font-semibold text-[#242424] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E]"
+                  className="h-9 w-full border-[#E2DDD5] dark:border-white/15 text-xs font-semibold text-[#242424] dark:text-[#F5F5F4] cursor-pointer justify-center gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] bg-white dark:bg-[#231F1B]"
                 >
                   <span>Next Week</span>
                   <ChevronRight className="w-4 h-4" />
@@ -908,23 +954,40 @@ export function WagesPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => navigateWeek(-1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                  className="h-9 px-3 border-[#E2DDD5] dark:border-white/15 text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] bg-white dark:bg-[#231F1B] text-[#242424] dark:text-[#F5F5F4]"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous Week</span>
                 </Button>
 
-                <span className="font-inter font-bold text-sm sm:text-base text-[#242424] px-2 flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-[#C99A2E]" />
-                  <span>{weekRange.label}</span>
-                </span>
+                <div className="relative inline-flex items-center">
+                  <div
+                    className="font-inter font-bold text-sm sm:text-base text-[#242424] dark:text-[#F5F5F4] px-2.5 py-1.5 rounded-lg border border-transparent hover:border-[#E2DDD5] dark:hover:border-white/15 hover:bg-[#FAF7F0] dark:hover:bg-[#231F1B] transition-all flex items-center gap-2 cursor-pointer group"
+                    title="Click to open calendar and select a week"
+                  >
+                    <CalendarIcon className="w-4 h-4 text-[#C99A2E] group-hover:scale-110 transition-transform shrink-0" />
+                    <span>{weekRange.label}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-[#8C867E] dark:text-[#A8A29E] transition-transform group-hover:translate-y-0.5 shrink-0" />
+                  </div>
+                  <input
+                    ref={weeklyDateInputRef}
+                    type="date"
+                    value={weekReferenceDate}
+                    onChange={(e) => {
+                      if (e.target.value) setWeekReferenceDate(e.target.value);
+                    }}
+                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full pointer-events-auto"
+                    title="Click to open calendar"
+                    aria-label="Select week date"
+                  />
+                </div>
 
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => navigateWeek(1)}
-                  className="h-9 px-3 border-[#E2DDD5] text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E]"
+                  className="h-9 px-3 border-[#E2DDD5] dark:border-white/15 text-xs font-medium cursor-pointer gap-1 hover:border-[#4A0E0E] dark:hover:border-[#E2A855] bg-white dark:bg-[#231F1B] text-[#242424] dark:text-[#F5F5F4]"
                 >
                   <span>Next Week</span>
                   <ChevronRight className="w-4 h-4" />
@@ -934,7 +997,7 @@ export function WagesPage() {
               <button
                 type="button"
                 onClick={() => setWeekReferenceDate(todayStr)}
-                className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-lg bg-[#5A0F12] text-white text-[10px] font-bold uppercase tracking-wider hover:bg-[#430B0D] transition-colors cursor-pointer shadow-2xs"
               >
                 CURRENT WEEK
               </button>
@@ -942,88 +1005,88 @@ export function WagesPage() {
           </div>
 
           {/* Weekly Summary Card (Matches Daily Wages Dashboard Design) */}
-          <div className="bg-[#FAF8F5] border border-[#E8E4DC] rounded-2xl shadow-xs relative overflow-hidden">
+          <div className="bg-[#FAF8F5] dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-2xl shadow-xs relative overflow-hidden transition-colors">
             {/* Background illustration */}
             <img
               src={totalWagesBanner}
               alt=""
-              className="absolute right-0 top-0 h-full w-auto max-w-[45%] sm:max-w-[35%] object-contain object-right pointer-events-none opacity-85 select-none"
+              className="absolute right-0 top-0 h-full w-auto max-w-[45%] sm:max-w-[35%] object-contain object-right pointer-events-none opacity-85 dark:opacity-30 select-none"
             />
 
             {/* Header: Weekly Wages Disbursed + Big Amount */}
             <div className="relative z-10 p-4 sm:p-5">
-              <div className="text-xs sm:text-sm font-semibold text-[#166534]">
+              <div className="text-xs sm:text-sm font-semibold text-[#166534] dark:text-[#4ADE80]">
                 Weekly Wages Disbursed ({weekRange.label})
               </div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] mt-0.5 tracking-tight">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] dark:text-white mt-0.5 tracking-tight">
                 {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
               </div>
             </div>
 
             {/* 4 Stats Grid in a Single Line at the Bottom */}
-            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] bg-white/80 backdrop-blur-xs divide-x divide-[#E8E4DC] py-3 px-2 sm:px-3">
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] dark:border-white/10 bg-white/80 dark:bg-[#231F1B]/90 backdrop-blur-xs divide-x divide-[#E8E4DC] dark:divide-white/10 py-3 px-2 sm:px-3">
               {/* 1. Total Logged (Active Workers) */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] text-[#1E3A8A] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] dark:bg-[#1E3A8A]/40 text-[#1E3A8A] dark:text-[#93C5FD] flex items-center justify-center shrink-0">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#1E3A8A] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#1E3A8A] dark:text-[#93C5FD] text-xs sm:text-sm tabular-nums leading-none">
                     {weeklyLaborerAggregation.rows.length}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Total Logged
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Workers</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Workers</div>
               </div>
 
               {/* 2. Full Days */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] text-[#1E7E34] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#E8F8EE] dark:bg-[#166534]/40 text-[#1E7E34] dark:text-[#86EFAC] flex items-center justify-center shrink-0">
                     <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#1E7E34] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#1E7E34] dark:text-[#86EFAC] text-xs sm:text-sm tabular-nums leading-none">
                     {weeklySummary.totalFullDays}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Full Days
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Shifts</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Shifts</div>
               </div>
 
               {/* 3. Half Days */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] text-[#B45309] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEF9E7] dark:bg-[#854D0E]/40 text-[#B45309] dark:text-[#FDE047] flex items-center justify-center shrink-0">
                     <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#B45309] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#B45309] dark:text-[#FDE047] text-xs sm:text-sm tabular-nums leading-none">
                     {weeklySummary.totalHalfDays}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Half Days
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Shifts</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Shifts</div>
               </div>
 
               {/* 4. Absent */}
               <div className="px-1.5 sm:px-2 flex flex-col justify-between">
                 <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] text-[#991B1B] flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#FEE2E2] dark:bg-[#991B1B]/40 text-[#991B1B] dark:text-[#FCA5A5] flex items-center justify-center shrink-0">
                     <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
                   </div>
-                  <span className="font-extrabold text-[#991B1B] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#991B1B] dark:text-[#FCA5A5] text-xs sm:text-sm tabular-nums leading-none">
                     {weeklySummary.totalAbsentDays}
                   </span>
                 </div>
-                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] leading-tight truncate">
+                <div className="text-[10px] sm:text-[11px] font-bold text-[#242424] dark:text-[#F5F5F4] leading-tight truncate">
                   Absent
                 </div>
-                <div className="text-[9px] text-[#8C867E] leading-none mt-0.5">Shifts</div>
+                <div className="text-[9px] text-[#8C867E] dark:text-[#A8A29E] leading-none mt-0.5">Shifts</div>
               </div>
             </div>
           </div>
@@ -1195,17 +1258,17 @@ export function WagesPage() {
                   return (
                     <div
                       key={row.employeeId}
-                      className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
+                      className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
                     >
                       <div>
                         {/* Header: Laborer Avatar/Icon, Name, Weekly Total on Top Right */}
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-[#FBEFEF] dark:bg-[#2A1616] text-[#4A0E0E] dark:text-[#E2A855] flex items-center justify-center shrink-0">
                               <HardHat className="w-5 h-5" />
                             </div>
                             <div className="min-w-0">
-                              <h4 className="font-bold text-sm text-[#242424] font-inter group-hover:text-[#4A0E0E] transition-colors truncate">
+                              <h4 className="font-bold text-sm text-[#242424] dark:text-[#F5F5F4] font-inter group-hover:text-[#4A0E0E] dark:group-hover:text-[#E2A855] transition-colors truncate">
                                 {row.name}
                               </h4>
                             </div>
@@ -1213,19 +1276,19 @@ export function WagesPage() {
 
                           {/* Top Right: Weekly Total and Amount */}
                           <div className="shrink-0 text-right">
-                            <span className="block text-[10px] font-semibold text-[#8C867E] uppercase tracking-wider">
+                            <span className="block text-[10px] font-semibold text-[#8C867E] dark:text-[#A8A29E] uppercase tracking-wider">
                               Weekly Total
                             </span>
-                            <span className="font-bold text-base sm:text-lg tabular-nums text-[#166534] font-sans">
+                            <span className="font-bold text-base sm:text-lg tabular-nums text-[#166534] dark:text-[#4ADE80] font-sans">
                               {formatINR(row.totalPaid)}
                             </span>
                           </div>
                         </div>
 
                         {/* Details: Sites worked and Attendance pills (Full, Half, Absent always visible) */}
-                        <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] pl-1">
+                        <div className="mt-3 space-y-2 text-xs text-[#6B6B6B] dark:text-[#A8A29E] pl-1">
                           <div className="flex items-center gap-2">
-                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
+                            <Building2 className="w-3.5 h-3.5 text-[#8C867E] dark:text-[#A8A29E] shrink-0" />
                             <span className="truncate">
                               {row.projects.size > 0 ? Array.from(row.projects).join(', ') : 'General Site Work'}
                             </span>
@@ -1233,18 +1296,18 @@ export function WagesPage() {
 
                           {/* Attendance breakdown pills: Full, Half, Absent */}
                           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] text-[#166534] border border-[#86EFAC]/70 text-[11px] font-semibold">
-                              <CheckCircle2 className="w-3 h-3 text-[#166534]" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#F0FDF4] dark:bg-[#132B1C] text-[#166534] dark:text-[#4ADE80] border border-[#86EFAC]/70 dark:border-[#225A38]/50 text-[11px] font-semibold">
+                              <CheckCircle2 className="w-3 h-3 text-[#166534] dark:text-[#4ADE80]" />
                               <span>{row.fullDays} Full</span>
                             </span>
 
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] text-[#854D0E] border border-[#FDE047]/70 text-[11px] font-semibold">
-                              <Clock className="w-3 h-3 text-[#854D0E]" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEFCE8] dark:bg-[#2A2414] text-[#854D0E] dark:text-[#FDE047] border border-[#FDE047]/70 dark:border-[#854D0E]/50 text-[11px] font-semibold">
+                              <Clock className="w-3 h-3 text-[#854D0E] dark:text-[#FDE047]" />
                               <span>{row.halfDays} Half</span>
                             </span>
 
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] text-[#991B1B] border border-[#FCA5A5]/70 text-[11px] font-semibold">
-                              <X className="w-3 h-3 text-[#991B1B] stroke-[2.5]" />
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FEF2F2] dark:bg-[#2F1515] text-[#991B1B] dark:text-[#F87171] border border-[#FCA5A5]/70 dark:border-[#5C2323]/50 text-[11px] font-semibold">
+                              <X className="w-3 h-3 text-[#991B1B] dark:text-[#F87171] stroke-[2.5]" />
                               <span>{row.absentDays} Absent</span>
                             </span>
                           </div>
@@ -1252,11 +1315,11 @@ export function WagesPage() {
                       </div>
 
                       {/* Bottom Action Bar: Accordion Toggle */}
-                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] flex items-center justify-between text-xs">
+                      <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] dark:border-white/10 flex items-center justify-between text-xs">
                         <button
                           type="button"
                           onClick={() => setExpandedWeeklyLaborerId(isExpanded ? null : row.employeeId)}
-                          className="font-medium text-[#6B6B6B] hover:text-[#4A0E0E] flex items-center gap-1 transition-colors cursor-pointer"
+                          className="font-medium text-[#6B6B6B] dark:text-[#A8A29E] hover:text-[#4A0E0E] dark:hover:text-[#E2A855] flex items-center gap-1 transition-colors cursor-pointer"
                         >
                           <span>{isExpanded ? 'Hide Daily Details' : 'View Daily Details'}</span>
                           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1265,11 +1328,11 @@ export function WagesPage() {
 
                       {/* 7-Day Expanded Breakdown */}
                       {isExpanded && (
-                        <div className="mt-3 pt-3 border-t border-[#F0EAE1] space-y-2">
-                          <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider pl-1">
+                        <div className="mt-3 pt-3 border-t border-[#F0EAE1] dark:border-white/10 space-y-2">
+                          <div className="text-[10.5px] font-bold text-[#6B6B6B] dark:text-[#A8A29E] uppercase tracking-wider pl-1">
                             7-Day Daily Breakdown
                           </div>
-                          <div className="bg-[#FAF7F0] border border-[#E8E4DC] rounded-xl p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
+                          <div className="bg-[#FAF7F0] dark:bg-[#231F1B] border border-[#E8E4DC] dark:border-white/10 rounded-xl p-2.5 space-y-1.5 text-xs animate-in fade-in duration-100">
                             {weekRange.days.map((dISO) => {
                               const dayRec = row.dailyAmounts[dISO];
                               const dObj = new Date(
@@ -1284,11 +1347,11 @@ export function WagesPage() {
                               });
 
                               return (
-                                <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E8E4DC]/60 last:border-0">
-                                  <span className="font-medium text-[#6B6B6B]">{dayName}</span>
+                                <div key={dISO} className="flex items-center justify-between py-1 border-b border-[#E8E4DC]/60 dark:border-white/10 last:border-0">
+                                  <span className="font-medium text-[#6B6B6B] dark:text-[#A8A29E]">{dayName}</span>
                                   {dayRec ? (
-                                    <span className="font-semibold text-[#242424] tabular-nums">
-                                      {dayRec.projectName} — <span className={dayRec.status === 'Absent' ? 'text-[#991B1B]' : dayRec.status === 'Half Day' ? 'text-[#854D0E]' : 'text-[#166534]'}>{dayRec.status}</span> ({formatINR(dayRec.amount)})
+                                    <span className="font-semibold text-[#242424] dark:text-[#F5F5F4] tabular-nums">
+                                      {dayRec.projectName} — <span className={dayRec.status === 'Absent' ? 'text-[#991B1B] dark:text-[#F87171]' : dayRec.status === 'Half Day' ? 'text-[#854D0E] dark:text-[#FDE047]' : 'text-[#166534] dark:text-[#4ADE80]'}>{dayRec.status}</span> ({formatINR(dayRec.amount)})
                                     </span>
                                   ) : (
                                     <span className="text-[#99958F] italic">No work recorded</span>

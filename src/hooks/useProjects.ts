@@ -268,14 +268,29 @@ export function useCreateProject() {
 
   return useMutation({
     mutationFn: async (payload: ProjectFormData) => {
+      // Resolve company_id dynamically from existing records or company table
+      let targetCompanyId = '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef';
+      try {
+        const { data: existingPrj } = await (supabase.from('projects') as any).select('company_id').limit(1).maybeSingle();
+        if (existingPrj?.company_id) {
+          targetCompanyId = existingPrj.company_id;
+        } else {
+          const { data: comp } = await (supabase.from('companies') as any).select('id').limit(1).maybeSingle();
+          if (comp?.id) targetCompanyId = comp.id;
+        }
+      } catch {}
+
+      const cleanCustomerId = payload.customer_id && payload.customer_id.trim() ? payload.customer_id.trim() : null;
+
       const { data, error } = await (supabase
         .from('projects') as any)
         .insert({
-          customer_id: payload.customer_id || null,
+          company_id: targetCompanyId,
+          customer_id: cleanCustomerId,
           name: payload.name.trim(),
           description: payload.description?.trim() || null,
           site_address: payload.site_address?.trim() || null,
-          status: payload.status,
+          status: payload.status || 'Active',
           start_date: payload.start_date || null,
           expected_end_date: payload.expected_end_date || null,
           contract_value: payload.contract_value ?? null,
@@ -295,13 +310,12 @@ export function useCreateProject() {
         const newCode = `PRJ-${nextCodeNum.toString().padStart(4, '0')}`;
 
         // Find customer if available from existing project or memory or Supabase
-        let linkedCustomer = memoryProjects.find((p) => p.customer_id === payload.customer_id)?.customer;
-        if (!linkedCustomer && payload.customer_id) {
+        let linkedCustomer = memoryProjects.find((p) => p.customer_id === cleanCustomerId)?.customer;
+        if (!linkedCustomer && cleanCustomerId) {
           try {
-            const { data: custData } = await supabase
-              .from('customers')
+            const { data: custData } = await (supabase.from('customers') as any)
               .select('id, name, phone, email, address')
-              .eq('id', payload.customer_id)
+              .eq('id', cleanCustomerId)
               .single();
             if (custData) {
               linkedCustomer = custData as any;
@@ -311,8 +325,8 @@ export function useCreateProject() {
 
         const createdProject: Project = {
           id: newProjId,
-          company_id: 'comp-shivarivel-001',
-          customer_id: payload.customer_id,
+          company_id: targetCompanyId,
+          customer_id: cleanCustomerId || '',
           enquiry_id: payload.enquiry_id || null,
           estimate_id: payload.estimate_id || null,
           project_code: newCode,
@@ -363,19 +377,27 @@ export function useUpdateProject() {
 
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: Partial<ProjectFormData> }) => {
+      const cleanCustomerId =
+        payload.customer_id !== undefined
+          ? payload.customer_id && payload.customer_id.trim()
+            ? payload.customer_id.trim()
+            : null
+          : undefined;
+
       const { data, error } = await (supabase
         .from('projects') as any)
         .update({
-          customer_id: payload.customer_id !== undefined ? payload.customer_id : undefined,
-          name: payload.name !== undefined ? payload.name.trim() : undefined,
-          description: payload.description !== undefined ? payload.description?.trim() || null : undefined,
-          site_address: payload.site_address !== undefined ? payload.site_address?.trim() || null : undefined,
-          status: payload.status,
-          start_date: payload.start_date || null,
-          expected_end_date: payload.expected_end_date || null,
-          contract_value: payload.contract_value !== undefined ? payload.contract_value : undefined,
-          assigned_to: payload.assigned_to || null,
-          notes: payload.notes !== undefined ? payload.notes?.trim() || null : undefined,
+          ...(cleanCustomerId !== undefined && { customer_id: cleanCustomerId }),
+          ...(payload.name !== undefined && { name: payload.name.trim() }),
+          ...(payload.description !== undefined && { description: payload.description?.trim() || null }),
+          ...(payload.site_address !== undefined && { site_address: payload.site_address?.trim() || null }),
+          ...(payload.status !== undefined && { status: payload.status }),
+          ...(payload.start_date !== undefined && { start_date: payload.start_date || null }),
+          ...(payload.expected_end_date !== undefined && { expected_end_date: payload.expected_end_date || null }),
+          ...(payload.contract_value !== undefined && { contract_value: payload.contract_value }),
+          ...(payload.assigned_to !== undefined && { assigned_to: payload.assigned_to || null }),
+          ...(payload.notes !== undefined && { notes: payload.notes?.trim() || null }),
+          updated_at: new Date().toISOString(),
         })
         .eq('id', id)
         .select(`
@@ -388,12 +410,12 @@ export function useUpdateProject() {
         console.warn('Supabase project update error; updating in local memory for evaluation:', error.message);
         const idx = memoryProjects.findIndex((p) => p.id === id);
         if (idx >= 0) {
-          const custId = payload.customer_id !== undefined ? payload.customer_id : memoryProjects[idx].customer_id;
+          const custId = cleanCustomerId !== undefined ? cleanCustomerId : memoryProjects[idx].customer_id;
           const existingWithCust = memoryProjects.find((p) => p.customer_id === custId && p.customer);
           memoryProjects[idx] = {
             ...memoryProjects[idx],
             ...payload,
-            customer_id: custId,
+            customer_id: custId || '',
             customer: existingWithCust?.customer || memoryProjects[idx].customer,
             updated_at: new Date().toISOString(),
           };
@@ -416,10 +438,15 @@ export function useUpdateProject() {
 
       return data as unknown as Project;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (updated, variables) => {
+      queryClient.setQueriesData({ queryKey: ['projects'] }, (old: Project[] | undefined) => {
+        if (!old) return old;
+        return old.map((p) => (p.id === variables.id ? { ...p, ...variables.payload, ...(updated || {}) } : p));
+      });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
     },
   });
 }
@@ -455,7 +482,7 @@ export function useConvertEstimateToProject() {
         const newProjId = 'prj-' + (memoryProjects.length + 1).toString().padStart(3, '0');
         const newProj: Project = {
           id: newProjId,
-          company_id: 'comp-shivarivel-001',
+          company_id: '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef',
           customer_id: 'cust-01',
           estimate_id: estimateId,
           project_code: `PRJ-${nextCodeNum.toString().padStart(4, '0')}`,
@@ -489,18 +516,63 @@ export function useDeleteProject() {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
+        // 1. Unlink child purchases so foreign key doesn't block project deletion
+        await (supabase.from('purchases') as any)
+          .update({ project_id: null })
+          .eq('project_id', id);
+
+        // 2. Unlink daily wages and attendance
+        await (supabase.from('daily_wages') as any)
+          .update({ project_id: null })
+          .eq('project_id', id);
+
+        await (supabase.from('attendance') as any)
+          .update({ project_id: null })
+          .eq('project_id', id);
+
+        // 3. Unlink tasks and customer payments
+        await (supabase.from('tasks') as any)
+          .update({ project_id: null })
+          .eq('project_id', id);
+
+        await (supabase.from('customer_payments') as any)
+          .update({ project_id: null })
+          .eq('project_id', id);
+
+        // 4. Delete progress tracking and site reports
+        await (supabase.from('work_progress') as any)
+          .delete()
+          .eq('project_id', id);
+
+        await (supabase.from('daily_site_reports') as any)
+          .delete()
+          .eq('project_id', id);
+
+        // 5. Delete project from Supabase
         const { error } = await supabase.from('projects').delete().eq('id', id);
         if (error) {
-          console.warn('Supabase project delete notice:', error.message);
+          console.warn('Supabase direct project delete notice:', error.message);
+          // If foreign key constraint still blocks, soft-delete to Cancelled
+          await (supabase.from('projects') as any)
+            .update({ status: 'Cancelled' })
+            .eq('id', id);
         }
       } catch (err) {
         console.warn('Supabase project delete error:', err);
+        await (supabase.from('projects') as any)
+          .update({ status: 'Cancelled' })
+          .eq('id', id)
+          .catch(() => {});
       }
+
       memoryProjects = memoryProjects.filter((p) => p.id !== id);
       saveStoredProjects(memoryProjects);
       return id;
     },
     onSuccess: (id) => {
+      queryClient.setQueryData(['projects'], (old: Project[] | undefined) => {
+        return (old || []).filter((p) => p.id !== id);
+      });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

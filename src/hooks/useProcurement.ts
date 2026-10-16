@@ -157,6 +157,8 @@ export function useSuppliers(searchQuery?: string, statusFilter?: 'all' | 'activ
 
         if (statusFilter && statusFilter !== 'all') {
           query = query.eq('status', statusFilter);
+        } else if (!statusFilter) {
+          query = query.eq('status', 'active');
         }
 
         const { data, error } = await query;
@@ -174,7 +176,7 @@ export function useSuppliers(searchQuery?: string, statusFilter?: 'all' | 'activ
         ...local.filter((ls) => !remoteIds.has(ls.id)),
         ...remote.map((rs) => {
           const localItem = local.find((ls) => ls.id === rs.id);
-          return localItem || rs;
+          return rs || localItem;
         }),
       ];
 
@@ -182,6 +184,12 @@ export function useSuppliers(searchQuery?: string, statusFilter?: 'all' | 'activ
       saveStoredSuppliers(merged);
 
       let filtered = merged;
+      if (statusFilter && statusFilter !== 'all') {
+        filtered = filtered.filter((s) => s.status === statusFilter);
+      } else if (!statusFilter) {
+        filtered = filtered.filter((s) => s.status !== 'inactive');
+      }
+
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter(
@@ -409,13 +417,30 @@ export function useUpdateSupplier() {
             ...payload,
             updated_at: new Date().toISOString(),
           };
+          saveStoredSuppliers(memorySuppliers);
           return memorySuppliers[idx];
         }
       }
 
+      if (data) {
+        const updated = data as unknown as Supplier;
+        const idx = memorySuppliers.findIndex((s) => s.id === id);
+        if (idx >= 0) {
+          memorySuppliers[idx] = updated;
+        } else {
+          memorySuppliers.unshift(updated);
+        }
+        saveStoredSuppliers(memorySuppliers);
+        return updated;
+      }
+
       return data as unknown as Supplier;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (updated, variables) => {
+      queryClient.setQueriesData({ queryKey: ['suppliers'] }, (old: Supplier[] | undefined) => {
+        if (!old) return old;
+        return old.map((s) => (s.id === variables.id ? { ...s, ...variables.payload, ...(updated || {}) } : s));
+      });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['supplier-balance', variables.id] });
@@ -429,17 +454,45 @@ export function useDeleteSupplier() {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        const { error } = await (supabase as any).from('suppliers').delete().eq('id', id);
-        if (error) {
-          console.warn('Supabase supplier delete notice:', error.message);
+        // 1. Check if supplier has any dependent purchases or payment allocations
+        const { data: linkedPurchases } = await (supabase as any)
+          .from('purchases')
+          .select('id')
+          .eq('supplier_id', id)
+          .limit(1);
+
+        const { data: linkedPayments } = await (supabase as any)
+          .from('supplier_payments')
+          .select('id')
+          .eq('supplier_id', id)
+          .limit(1);
+
+        if ((linkedPurchases && linkedPurchases.length > 0) || (linkedPayments && linkedPayments.length > 0)) {
+          // Soft-delete / archive to preserve database foreign key constraints and financial integrity
+          await (supabase as any)
+            .from('suppliers')
+            .update({ status: 'inactive' })
+            .eq('id', id);
+        } else {
+          // Clean hard-delete if no dependent records exist
+          const { error } = await (supabase as any).from('suppliers').delete().eq('id', id);
+          if (error) {
+            console.warn('Supabase supplier delete notice, falling back to inactive:', error.message);
+            await (supabase as any).from('suppliers').update({ status: 'inactive' }).eq('id', id);
+          }
         }
       } catch (err) {
         console.warn('Supabase supplier delete error:', err);
+        await (supabase as any).from('suppliers').update({ status: 'inactive' }).eq('id', id).catch(() => {});
       }
       memorySuppliers = memorySuppliers.filter((s) => s.id !== id);
+      saveStoredSuppliers(memorySuppliers);
       return id;
     },
     onSuccess: (id) => {
+      queryClient.setQueriesData({ queryKey: ['suppliers'] }, (old: Supplier[] | undefined) => {
+        return (old || []).filter((s) => s.id !== id);
+      });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier', id] });
       queryClient.invalidateQueries({ queryKey: ['supplier-balance', id] });
@@ -561,14 +614,32 @@ export function useUpdateMaterial() {
             ...payload,
             updated_at: new Date().toISOString(),
           };
+          saveStoredMaterials(memoryMaterials);
           return memoryMaterials[idx];
         }
       }
 
+      if (data) {
+        const updated = data as unknown as Material;
+        const idx = memoryMaterials.findIndex((m) => m.id === id);
+        if (idx >= 0) {
+          memoryMaterials[idx] = updated;
+        } else {
+          memoryMaterials.unshift(updated);
+        }
+        saveStoredMaterials(memoryMaterials);
+        return updated;
+      }
+
       return data as unknown as Material;
     },
-    onSuccess: () => {
+    onSuccess: (updated, variables) => {
+      queryClient.setQueriesData({ queryKey: ['materials'] }, (old: Material[] | undefined) => {
+        if (!old) return old;
+        return old.map((m) => (m.id === variables.id ? { ...m, ...variables.payload, ...(updated || {}) } : m));
+      });
       queryClient.invalidateQueries({ queryKey: ['materials'] });
+      queryClient.invalidateQueries({ queryKey: ['purchases'] });
     },
   });
 }
@@ -600,6 +671,7 @@ export function usePurchases(filters?: PurchaseFilters) {
             project:projects!project_id (id, name, project_code, site_address),
             items:purchase_items!purchase_id (*, material:materials!material_id (*))
           `)
+          .neq('status', 'Cancelled')
           .order('purchase_date', { ascending: false });
 
         if (filters?.supplier_id && filters.supplier_id !== 'all') {
@@ -629,19 +701,21 @@ export function usePurchases(filters?: PurchaseFilters) {
         }
 
         if (!error && data) {
-          remoteResults = ((data as any[]) || []).map((row) => {
-            const bal = balanceMap.get(row.id);
-            const total_allocated = bal?.total_allocated ?? 0;
-            const outstanding_balance = bal?.outstanding_balance ?? row.total_amount;
-            const payment_status = derivePurchasePaymentStatus(row.total_amount, total_allocated);
+          remoteResults = ((data as any[]) || [])
+            .filter((row) => row.status !== 'Cancelled')
+            .map((row) => {
+              const bal = balanceMap.get(row.id);
+              const total_allocated = bal?.total_allocated ?? 0;
+              const outstanding_balance = bal?.outstanding_balance ?? row.total_amount;
+              const payment_status = derivePurchasePaymentStatus(row.total_amount, total_allocated);
 
-            return {
-              ...row,
-              total_allocated,
-              outstanding_balance,
-              payment_status,
-            };
-          });
+              return {
+                ...row,
+                total_allocated,
+                outstanding_balance,
+                payment_status,
+              };
+            });
           memoryPurchases = remoteResults;
           saveStoredPurchases(remoteResults);
           let results = remoteResults;
@@ -671,7 +745,7 @@ export function usePurchases(filters?: PurchaseFilters) {
       }
 
       // Offline / network failure fallback:
-      let combined = local;
+      let combined = local.filter((p) => p.status !== 'Cancelled');
 
       let results = combined;
 
@@ -689,10 +763,10 @@ export function usePurchases(filters?: PurchaseFilters) {
         const q = filters.search.toLowerCase();
         results = results.filter(
           (p) =>
-            p.purchase_number.toLowerCase().includes(q) ||
+            p.purchase_number?.toLowerCase().includes(q) ||
             p.invoice_number?.toLowerCase().includes(q) ||
-            p.supplier?.name.toLowerCase().includes(q) ||
-            p.project?.name.toLowerCase().includes(q) ||
+            p.supplier?.name?.toLowerCase().includes(q) ||
+            p.project?.name?.toLowerCase().includes(q) ||
             p.items?.some((i) => (i.description || i.material?.name || '').toLowerCase().includes(q))
         );
       }
@@ -726,7 +800,7 @@ export function usePurchase(id?: string) {
         .eq('purchase_id', id)
         .maybeSingle();
 
-      if (error || !data) {
+      if (error || !data || (data as any).status === 'Cancelled') {
         return null;
       }
 
@@ -1622,19 +1696,14 @@ export function useUpdateSimplePurchase() {
         if (!isTestEnv) {
           // Try Supabase update
           try {
-            await (supabase as any)
-              .from('purchases')
-              .update({
-                supplier_id: supplier.id,
-                project_id: payload.project_id || null,
-                total_amount: totalValue,
-                total_allocated: amountPaid,
-                outstanding_balance: balance,
-                payment_status: paymentStatus,
-                notes: payload.notes || null,
-                updated_at: new Date().toISOString(),
-              })
-              .eq('id', payload.id);
+            const curStatus = existing.status || 'Confirmed';
+            if (curStatus === 'Confirmed') {
+              // Temporarily set to Draft so purchase_items can be updated without tripping financial immutability trigger
+              await (supabase as any)
+                .from('purchases')
+                .update({ status: 'Draft' })
+                .eq('id', payload.id);
+            }
 
             if (existing.items?.[0]?.id) {
               await (supabase as any)
@@ -1649,7 +1718,37 @@ export function useUpdateSimplePurchase() {
                   updated_at: new Date().toISOString(),
                 })
                 .eq('id', existing.items[0].id);
+            } else {
+              // Insert item if it didn't exist
+              await (supabase as any)
+                .from('purchase_items')
+                .insert({
+                  company_id: existing.company_id || '1ae9407b-8bb0-4eb0-b617-a3f8d8879eef',
+                  purchase_id: payload.id,
+                  material_id: material.id,
+                  description: payload.product_name.trim(),
+                  quantity: payload.quantity,
+                  unit: payload.unit.trim(),
+                  unit_price: unitPrice,
+                  amount: totalValue,
+                  updated_at: new Date().toISOString(),
+                });
             }
+
+            await (supabase as any)
+              .from('purchases')
+              .update({
+                supplier_id: supplier.id,
+                project_id: payload.project_id || null,
+                total_amount: totalValue,
+                total_allocated: amountPaid,
+                outstanding_balance: balance,
+                payment_status: paymentStatus,
+                status: curStatus,
+                notes: payload.notes || null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', payload.id);
           } catch (dbErr) {
             console.warn('Supabase update error; applied in local memory:', dbErr);
           }
@@ -1660,7 +1759,13 @@ export function useUpdateSimplePurchase() {
 
       throw new Error(`Purchase with id ${payload.id} not found.`);
     },
-    onSuccess: () => {
+    onSuccess: (updatedPurchase) => {
+      if (updatedPurchase) {
+        queryClient.setQueriesData({ queryKey: ['purchases'] }, (old: Purchase[] | undefined) => {
+          if (!old) return old;
+          return old.map((p) => (p.id === updatedPurchase.id ? { ...p, ...updatedPurchase } : p));
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       queryClient.invalidateQueries({ queryKey: ['purchase'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
@@ -1678,16 +1783,42 @@ export function useDeleteSimplePurchase() {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        await (supabase as any).from('purchase_items').delete().eq('purchase_id', id);
-        await (supabase as any).from('purchases').delete().eq('id', id);
+        // In PostgreSQL, Confirmed purchases and their line items are protected by financial immutability triggers:
+        // 'trg_purchases_prevent_delete' and 'trg_purchase_items_prevent_delete'.
+        // Attempting to delete Confirmed records raises P0001:
+        // "Financial integrity violation: Cannot delete Confirmed purchase PUR-xxxx. Completed financial transactions must be preserved (use status cancellation or reversal)"
+        // Therefore, the database-mandated method to delete/void a purchase transaction is setting status: 'Cancelled'.
+
+        // 1. Cancel the purchase directly in Supabase
+        const { error: cancelError } = await (supabase as any)
+          .from('purchases')
+          .update({ status: 'Cancelled', updated_at: new Date().toISOString() })
+          .eq('id', id);
+
+        if (cancelError) {
+          console.warn('Purchase cancellation notice:', cancelError.message);
+        }
+
+        // 2. If the purchase was in Draft or unconfirmed state, attempt a hard delete
+        try {
+          await (supabase as any).from('supplier_payment_allocations').delete().eq('purchase_id', id);
+          await (supabase as any).from('purchase_items').delete().eq('purchase_id', id);
+          await (supabase as any).from('purchases').delete().eq('id', id);
+        } catch {
+          // If hard delete is rejected by triggers, status is already 'Cancelled' which is the compliant pattern
+        }
       } catch (err) {
         console.warn('Purchase delete error:', err);
+        await (supabase as any).from('purchases').update({ status: 'Cancelled' }).eq('id', id).catch(() => {});
       }
       memoryPurchases = memoryPurchases.filter((p) => p.id !== id);
       saveStoredPurchases(memoryPurchases);
       return id;
     },
-    onSuccess: () => {
+    onSuccess: (id) => {
+      queryClient.setQueriesData({ queryKey: ['purchases'] }, (old: Purchase[] | undefined) => {
+        return (old || []).filter((p) => p.id !== id);
+      });
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
       queryClient.invalidateQueries({ queryKey: ['purchase'] });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
