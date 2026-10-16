@@ -253,19 +253,22 @@ export const ProjectDetailPage: React.FC = () => {
               <span className="text-2xl font-bold text-[#242424] block">
                 {siteWageBreakdown.items.length}
               </span>
-              <span className="text-[11px] text-[#6B6B6B]">Labourers</span>
+              <span className="text-[11px] text-[#6B6B6B] block truncate">Labourers</span>
             </div>
-            <div>
-              <span className="text-2xl font-bold text-[#242424] block">
+            <div className="min-w-0">
+              <span className="text-xl sm:text-2xl font-bold text-[#242424] block truncate">
                 {siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
               </span>
-              <span className="text-[11px] text-[#6B6B6B]">Man-days</span>
+              <span className="text-[11px] text-[#6B6B6B] block truncate">Man-days</span>
             </div>
-            <div>
-              <span className="text-base font-bold text-[#1E6B37] block">
+            <div className="min-w-0">
+              <span
+                className="text-sm sm:text-base font-bold text-[#1E6B37] block truncate"
+                title={formatINR(siteWageBreakdown.totalSiteWages)}
+              >
                 {formatINR(siteWageBreakdown.totalSiteWages)}
               </span>
-              <span className="text-[11px] text-[#6B6B6B]">Total Wages</span>
+              <span className="text-[11px] text-[#6B6B6B] block truncate">Total Wages</span>
             </div>
           </div>
         </div>
@@ -298,24 +301,33 @@ export const ProjectDetailPage: React.FC = () => {
 
         {/* Purchase Total Summary */}
         {purchaseTotals.count > 0 && (
-          <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] bg-[#FAFAF8] border-b border-[#E8E4DC]">
-            <div className="px-4 py-3 text-center">
-              <span className="text-base font-bold text-[#242424] block">
+          <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] bg-[#FAFAF8] border-b border-[#E8E4DC] overflow-hidden">
+            <div className="px-2 sm:px-4 py-3 text-center min-w-0">
+              <span
+                className="text-sm sm:text-base font-bold text-[#242424] block truncate"
+                title={formatINR(purchaseTotals.total)}
+              >
                 {formatINR(purchaseTotals.total)}
               </span>
-              <span className="text-[10px] text-[#6B6B6B]">Total Purchased</span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Total Purchased</span>
             </div>
-            <div className="px-4 py-3 text-center">
-              <span className="text-base font-bold text-[#1E6B37] block">
+            <div className="px-2 sm:px-4 py-3 text-center min-w-0">
+              <span
+                className="text-sm sm:text-base font-bold text-[#1E6B37] block truncate"
+                title={formatINR(purchaseTotals.paid)}
+              >
                 {formatINR(purchaseTotals.paid)}
               </span>
-              <span className="text-[10px] text-[#6B6B6B]">Paid</span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Paid</span>
             </div>
-            <div className="px-4 py-3 text-center">
-              <span className="text-base font-bold text-rose-600 block">
+            <div className="px-2 sm:px-4 py-3 text-center min-w-0">
+              <span
+                className="text-sm sm:text-base font-bold text-rose-600 block truncate"
+                title={formatINR(purchaseTotals.outstanding)}
+              >
                 {formatINR(purchaseTotals.outstanding)}
               </span>
-              <span className="text-[10px] text-[#6B6B6B]">Outstanding</span>
+              <span className="text-[10px] text-[#6B6B6B] block truncate">Outstanding</span>
             </div>
           </div>
         )}

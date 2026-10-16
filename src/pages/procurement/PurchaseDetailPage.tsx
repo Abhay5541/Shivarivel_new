@@ -288,28 +288,38 @@ export const PurchaseDetailPage: React.FC = () => {
 
           <div className="w-full sm:w-64 space-y-1.5">
             {purchase.discount > 0 && (
-              <div className="flex justify-between text-[#6B6B6B]">
-                <span>Discount Deduction:</span>
-                <span className="font-sans tabular-nums text-[#A84B14]">- {formatINR(purchase.discount)}</span>
+              <div className="flex justify-between gap-2 text-[#6B6B6B] overflow-hidden">
+                <span className="truncate">Discount Deduction:</span>
+                <span className="font-sans tabular-nums text-[#A84B14] shrink-0" title={`- ${formatINR(purchase.discount)}`}>
+                  - {formatINR(purchase.discount)}
+                </span>
               </div>
             )}
             {purchase.tax > 0 && (
-              <div className="flex justify-between text-[#6B6B6B]">
-                <span>Tax / GST:</span>
-                <span className="font-sans tabular-nums text-[#242424]">+ {formatINR(purchase.tax)}</span>
+              <div className="flex justify-between gap-2 text-[#6B6B6B] overflow-hidden">
+                <span className="truncate">Tax / GST:</span>
+                <span className="font-sans tabular-nums text-[#242424] shrink-0" title={`+ ${formatINR(purchase.tax)}`}>
+                  + {formatINR(purchase.tax)}
+                </span>
               </div>
             )}
-            <div className="flex justify-between font-bold text-sm pt-1 border-t border-[#E2DDD5]">
-              <span className="text-[#242424]">Total Amount:</span>
-              <span className="font-sans tabular-nums text-[#4A0E0E]">{formatINR(purchase.total_amount)}</span>
+            <div className="flex justify-between gap-2 font-bold text-sm pt-1 border-t border-[#E2DDD5] overflow-hidden">
+              <span className="text-[#242424] truncate">Total Amount:</span>
+              <span className="font-sans tabular-nums text-[#4A0E0E] shrink-0" title={formatINR(purchase.total_amount)}>
+                {formatINR(purchase.total_amount)}
+              </span>
             </div>
-            <div className="flex justify-between text-[#1E6B37] font-semibold text-xs">
-              <span>Paid / Allocated:</span>
-              <span className="font-sans tabular-nums">{formatINR(paid)}</span>
+            <div className="flex justify-between gap-2 text-[#1E6B37] font-semibold text-xs overflow-hidden">
+              <span className="truncate">Paid / Allocated:</span>
+              <span className="font-sans tabular-nums shrink-0" title={formatINR(paid)}>
+                {formatINR(paid)}
+              </span>
             </div>
-            <div className="flex justify-between font-bold text-xs pt-1 border-t border-[#E2DDD5]/60">
-              <span className="text-[#A84B14]">Balance Due:</span>
-              <span className="font-sans tabular-nums text-[#A84B14]">{formatINR(outstanding)}</span>
+            <div className="flex justify-between gap-2 font-bold text-xs pt-1 border-t border-[#E2DDD5]/60 overflow-hidden">
+              <span className="text-[#A84B14] truncate">Balance Due:</span>
+              <span className="font-sans tabular-nums text-[#A84B14] shrink-0" title={formatINR(outstanding)}>
+                {formatINR(outstanding)}
+              </span>
             </div>
           </div>
         </div>

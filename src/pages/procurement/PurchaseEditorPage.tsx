@@ -549,28 +549,40 @@ export const PurchaseEditorPage: React.FC = () => {
             </div>
 
             {/* Calculations Box */}
-            <div className="bg-[#F7F5F0] p-4 rounded-xl border border-[#E2DDD5] space-y-2 text-xs">
-              <div className="flex items-center justify-between text-[#6B6B6B]">
-                <span>Items Subtotal:</span>
-                <span className="font-sans tabular-nums font-semibold text-[#242424]">
+            <div className="bg-[#F7F5F0] p-4 rounded-xl border border-[#E2DDD5] space-y-2 text-xs overflow-hidden">
+              <div className="flex items-center justify-between gap-2 text-[#6B6B6B] overflow-hidden">
+                <span className="truncate">Items Subtotal:</span>
+                <span
+                  className="font-sans tabular-nums font-semibold text-[#242424] shrink-0"
+                  title={formatINR(itemsSubtotal)}
+                >
                   {formatINR(itemsSubtotal)}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[#6B6B6B]">
-                <span>Discount Deduction:</span>
-                <span className="font-sans tabular-nums text-[#A84B14]">
+              <div className="flex items-center justify-between gap-2 text-[#6B6B6B] overflow-hidden">
+                <span className="truncate">Discount Deduction:</span>
+                <span
+                  className="font-sans tabular-nums text-[#A84B14] shrink-0"
+                  title={`- ${formatINR(Number(watchedDiscount) || 0)}`}
+                >
                   - {formatINR(Number(watchedDiscount) || 0)}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[#6B6B6B]">
-                <span>Taxes & Levies:</span>
-                <span className="font-sans tabular-nums text-[#242424]">
+              <div className="flex items-center justify-between gap-2 text-[#6B6B6B] overflow-hidden">
+                <span className="truncate">Taxes & Levies:</span>
+                <span
+                  className="font-sans tabular-nums text-[#242424] shrink-0"
+                  title={`+ ${formatINR(Number(watchedTax) || 0)}`}
+                >
                   + {formatINR(Number(watchedTax) || 0)}
                 </span>
               </div>
-              <div className="pt-2 border-t border-[#E2DDD5] flex items-center justify-between font-bold text-sm">
-                <span className="text-[#242424]">Final Purchase Total:</span>
-                <span className="font-sans text-[#4A0E0E] text-base tabular-nums font-bold">
+              <div className="pt-2 border-t border-[#E2DDD5] flex items-center justify-between gap-2 font-bold text-sm overflow-hidden">
+                <span className="text-[#242424] truncate">Final Purchase Total:</span>
+                <span
+                  className="font-sans text-[#4A0E0E] text-base tabular-nums font-bold shrink-0"
+                  title={formatINR(finalTotal)}
+                >
                   {formatINR(finalTotal)}
                 </span>
               </div>

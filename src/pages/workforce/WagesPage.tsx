@@ -625,23 +625,26 @@ export function WagesPage() {
 
             {/* Header: Today's Wages Paid + Big Amount */}
             <div className="relative z-10 p-4 sm:p-5">
-              <div className="text-xs sm:text-sm font-semibold text-[#166534] dark:text-[#4ADE80]">
+              <div className="text-xs sm:text-sm font-semibold text-[#166534] dark:text-[#4ADE80] truncate">
                 {isSelectedDateToday ? "Today's Wages Paid" : `Wages Paid on ${formattedSelectedDate}`}
               </div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] dark:text-white mt-0.5 tracking-tight">
+              <div
+                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] dark:text-white mt-0.5 tracking-tight truncate block max-w-full"
+                title={formatINR(dailySummary.totalPaid)}
+              >
                 {formatINR(dailySummary.totalPaid)}
               </div>
             </div>
 
             {/* 4 Stats Grid in a Single Line at the Bottom */}
-            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] dark:border-white/10 bg-white/80 dark:bg-[#231F1B]/90 backdrop-blur-xs divide-x divide-[#E8E4DC] dark:divide-white/10 py-3 px-2 sm:px-3">
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] dark:border-white/10 bg-white/80 dark:bg-[#231F1B]/90 backdrop-blur-xs divide-x divide-[#E8E4DC] dark:divide-white/10 py-3 px-2 sm:px-3 overflow-hidden">
               {/* 1. Total Logged */}
-              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] dark:bg-[#1E3A8A]/40 text-[#1E3A8A] dark:text-[#93C5FD] flex items-center justify-center shrink-0">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#1E3A8A] dark:text-[#93C5FD] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#1E3A8A] dark:text-[#93C5FD] text-xs sm:text-sm tabular-nums leading-none truncate">
                     {dailySummary.totalEntries}
                   </span>
                 </div>
@@ -1015,23 +1018,26 @@ export function WagesPage() {
 
             {/* Header: Weekly Wages Disbursed + Big Amount */}
             <div className="relative z-10 p-4 sm:p-5">
-              <div className="text-xs sm:text-sm font-semibold text-[#166534] dark:text-[#4ADE80]">
+              <div className="text-xs sm:text-sm font-semibold text-[#166534] dark:text-[#4ADE80] truncate">
                 Weekly Wages Disbursed ({weekRange.label})
               </div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] dark:text-white mt-0.5 tracking-tight">
+              <div
+                className="text-2xl sm:text-3xl lg:text-4xl font-extrabold font-sans tabular-nums text-[#0E2920] dark:text-white mt-0.5 tracking-tight truncate block max-w-full"
+                title={formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
+              >
                 {formatINR(weeklyLaborerAggregation.grandWeeklyTotal)}
               </div>
             </div>
 
             {/* 4 Stats Grid in a Single Line at the Bottom */}
-            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] dark:border-white/10 bg-white/80 dark:bg-[#231F1B]/90 backdrop-blur-xs divide-x divide-[#E8E4DC] dark:divide-white/10 py-3 px-2 sm:px-3">
+            <div className="relative z-10 grid grid-cols-4 border-t border-[#E8E4DC] dark:border-white/10 bg-white/80 dark:bg-[#231F1B]/90 backdrop-blur-xs divide-x divide-[#E8E4DC] dark:divide-white/10 py-3 px-2 sm:px-3 overflow-hidden">
               {/* 1. Total Logged (Active Workers) */}
-              <div className="px-1.5 sm:px-2 flex flex-col justify-between">
+              <div className="px-1.5 sm:px-2 flex flex-col justify-between min-w-0">
                 <div className="flex items-center gap-1.5 mb-1">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-[#DBEAFE] dark:bg-[#1E3A8A]/40 text-[#1E3A8A] dark:text-[#93C5FD] flex items-center justify-center shrink-0">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                   </div>
-                  <span className="font-extrabold text-[#1E3A8A] dark:text-[#93C5FD] text-xs sm:text-sm tabular-nums leading-none">
+                  <span className="font-extrabold text-[#1E3A8A] dark:text-[#93C5FD] text-xs sm:text-sm tabular-nums leading-none truncate">
                     {weeklyLaborerAggregation.rows.length}
                   </span>
                 </div>

@@ -121,8 +121,9 @@ export const ProjectsPage: React.FC = () => {
     setIsSiteModalOpen(true);
   };
 
-  const handleSiteCreated = (createdSite: Project) => {
-    navigate(`/projects/${createdSite.id}`);
+  const handleSiteCreated = () => {
+    setIsSiteModalOpen(false);
+    setEditingProject(null);
   };
 
   const handleToggleComplete = (site: Project) => {
