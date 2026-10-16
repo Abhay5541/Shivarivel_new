@@ -438,7 +438,11 @@ export function useUpdateProject() {
 
       return data as unknown as Project;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (updated, variables) => {
+      queryClient.setQueriesData({ queryKey: ['projects'] }, (old: Project[] | undefined) => {
+        if (!old) return old;
+        return old.map((p) => (p.id === variables.id ? { ...p, ...variables.payload, ...(updated || {}) } : p));
+      });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

@@ -89,6 +89,7 @@ export const SimpleEmployeeModal: React.FC<SimpleEmployeeModalProps> = ({
     try {
       if (isEditing && employee) {
         const updated = await updateEmployeeMutation.mutateAsync({
+          id: employee.id,
           name: trimmedName,
           phone: trimmedPhone || null,
           worker_type: employee.worker_type || 'General Worker',

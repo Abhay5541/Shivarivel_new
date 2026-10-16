@@ -369,6 +369,12 @@ export function useUpdateEmployee(hookId?: string) {
       }
     },
     onSuccess: (updated) => {
+      if (updated?.id) {
+        queryClient.setQueriesData({ queryKey: ['employees'] }, (old: Employee[] | undefined) => {
+          if (!old) return old;
+          return old.map((e) => (e.id === updated.id ? { ...e, ...updated } : e));
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       if (updated?.id) {
         queryClient.invalidateQueries({ queryKey: ['employee', updated.id] });

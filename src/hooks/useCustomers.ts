@@ -35,7 +35,9 @@ export function useCustomers(options: UseCustomersOptions = {}) {
           return memoryCustomers;
         }
 
-        return (data || []) as Customer[];
+        const list = (data || []) as Customer[];
+        memoryCustomers = list;
+        return list;
       } catch (err) {
         console.warn('Customers query notice:', err);
         return memoryCustomers;
@@ -184,7 +186,11 @@ export function useUpdateCustomer() {
         return updated;
       }
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (updated, variables) => {
+      queryClient.setQueriesData({ queryKey: ['customers'] }, (old: Customer[] | undefined) => {
+        if (!old) return old;
+        return old.map((c) => (c.id === variables.id ? { ...c, ...variables.data, ...(updated || {}) } : c));
+      });
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       queryClient.invalidateQueries({ queryKey: ['customer', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
