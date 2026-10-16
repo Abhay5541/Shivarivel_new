@@ -442,7 +442,7 @@ export const PurchasesPage: React.FC = () => {
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
                 Total
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#242424] font-mono tabular-nums">
+              <span className="text-xs sm:text-sm font-bold text-[#242424] font-sans tabular-nums">
                 {formatINR(totalVal)}
               </span>
             </div>
@@ -450,7 +450,7 @@ export const PurchasesPage: React.FC = () => {
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] block">
                 Paid
               </span>
-              <span className="text-xs sm:text-sm font-bold text-[#166534] font-mono tabular-nums">
+              <span className="text-xs sm:text-sm font-bold text-[#166534] font-sans tabular-nums">
                 {formatINR(paidAmt)}
               </span>
             </div>
@@ -459,7 +459,7 @@ export const PurchasesPage: React.FC = () => {
                 Balance
               </span>
               <span
-                className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${
+                className={`text-xs sm:text-sm font-bold font-sans tabular-nums ${
                   bal > 0 ? 'text-[#991B1B]' : 'text-[#166534]'
                 }`}
               >
@@ -614,7 +614,7 @@ export const PurchasesPage: React.FC = () => {
                     </span>
                   </div>
                   {projectPendingBalance > 0 && (
-                    <span className="font-extrabold text-[#991B1B] tabular-nums font-mono text-xs sm:text-sm">
+                    <span className="font-extrabold text-[#991B1B] tabular-nums font-sans text-xs sm:text-sm">
                       {formatINR(projectPendingBalance)} pending
                     </span>
                   )}
@@ -732,7 +732,7 @@ export const PurchasesPage: React.FC = () => {
                     </span>
                   </div>
                   {generalPendingBalance > 0 && (
-                    <span className="font-extrabold text-[#991B1B] tabular-nums font-mono text-xs sm:text-sm">
+                    <span className="font-extrabold text-[#991B1B] tabular-nums font-sans text-xs sm:text-sm">
                       {formatINR(generalPendingBalance)} pending
                     </span>
                   )}

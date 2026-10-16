@@ -199,7 +199,7 @@ export const ProjectsPage: React.FC = () => {
             )}
             {site.contract_value ? (
               <div className="text-[11.5px] font-medium text-[#6B6B6B]">
-                Contract: <span className="font-bold text-[#242424] font-mono">₹{Number(site.contract_value).toLocaleString('en-IN')}</span>
+                Contract: <span className="font-bold text-[#242424] font-sans tabular-nums">₹{Number(site.contract_value).toLocaleString('en-IN')}</span>
               </div>
             ) : null}
           </div>

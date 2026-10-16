@@ -60,11 +60,11 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
         setDate(existingWage.wage_date || getTodayStr());
         setEmployeeId(existingWage.employee_id || '');
         setProjectId(existingWage.project_id || '');
-        // Determine attendance status:
+        const numUnits = Number(existingWage.payable_units);
         const status: AttendanceStatus =
-          existingWage.payable_units === 0.5
+          !isNaN(numUnits) && numUnits > 0 && numUnits < 1
             ? 'Half Day'
-            : existingWage.payable_units === 0
+            : numUnits === 0
             ? 'Absent'
             : 'Present';
         setAttendance(status);
@@ -122,8 +122,20 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
     setAttendance(newStatus);
     if (newStatus === 'Absent') {
       setWage('0');
-    } else if (wage === '0') {
-      setWage('');
+    } else if (newStatus === 'Half Day') {
+      const empRate = Number(selectedLaborer?.daily_wage || 0);
+      if (empRate > 0 && (!wage || Number(wage) === empRate)) {
+        setWage(String(Math.round(empRate / 2)));
+      } else if (wage === '0') {
+        setWage('');
+      }
+    } else if (newStatus === 'Present') {
+      const empRate = Number(selectedLaborer?.daily_wage || 0);
+      if (empRate > 0 && (!wage || Number(wage) === Math.round(empRate / 2))) {
+        setWage(String(empRate));
+      } else if (wage === '0') {
+        setWage('');
+      }
     }
   };
 
@@ -133,10 +145,11 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
     setDate(duplicateEntry.wage_date);
     setEmployeeId(duplicateEntry.employee_id);
     setProjectId(duplicateEntry.project_id || '');
+    const numUnits = Number(duplicateEntry.payable_units);
     const status: AttendanceStatus =
-      duplicateEntry.payable_units === 0.5
+      !isNaN(numUnits) && numUnits > 0 && numUnits < 1
         ? 'Half Day'
-        : duplicateEntry.payable_units === 0
+        : numUnits === 0
         ? 'Absent'
         : 'Present';
     setAttendance(status);
@@ -222,7 +235,7 @@ export const SimpleDailyWageModal: React.FC<SimpleDailyWageModalProps> = ({
               <Calendar className="w-4 h-4 text-[#C99A2E]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#242424] font-display">
+              <h2 className="text-base font-bold text-[#242424] font-inter">
                 {activeWageRecord ? 'Edit Wage Entry' : 'Add Wage Entry'}
               </h2>
             </div>

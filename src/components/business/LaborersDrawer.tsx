@@ -165,7 +165,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
               <UserCheck className="w-4 h-4 text-[#C99A2E]" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#242424] font-display">Laborers Directory</h2>
+              <h2 className="text-base font-bold text-[#242424] font-inter">Laborers Directory</h2>
             </div>
           </div>
           <button
@@ -323,7 +323,7 @@ export const LaborersDrawer: React.FC<LaborersDrawerProps> = ({
                       <HardHat className="w-5 h-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-sm text-[#242424] font-display truncate">
+                      <h4 className="font-bold text-sm text-[#242424] font-inter truncate">
                         {emp.name}
                       </h4>
                       <div className="mt-1 text-xs text-[#6B6B6B]">

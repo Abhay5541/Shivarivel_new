@@ -95,7 +95,7 @@ export function SettingsOverviewPage() {
                     </span>
                     <span className="flex items-center gap-1.5 text-[#6B6B6B] shrink-0">
                       <Phone className="w-3.5 h-3.5 text-[#C99A2E] shrink-0" />
-                      <span className="text-[#242424] font-medium font-mono">{company.phone}</span>
+                      <span className="text-[#242424] font-medium font-sans tabular-nums">{company.phone}</span>
                     </span>
                     <span className="flex items-center gap-1.5 text-[#6B6B6B] shrink-0">
                       <Mail className="w-3.5 h-3.5 text-[#C99A2E] shrink-0" />

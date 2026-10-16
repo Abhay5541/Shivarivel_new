@@ -251,7 +251,7 @@ export function CompanyProfilePage() {
                   value={formData.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   placeholder="contact@shivarivel.com"
-                  className="pl-9 h-10 text-sm font-mono"
+                  className="pl-9 h-10 text-sm font-sans tabular-nums"
                 />
               </div>
             </FormField>
@@ -268,7 +268,7 @@ export function CompanyProfilePage() {
                   value={formData.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}
                   placeholder="+91 94431 87654"
-                  className="pl-9 h-10 text-sm font-mono"
+                  className="pl-9 h-10 text-sm font-sans tabular-nums"
                 />
               </div>
             </FormField>
@@ -285,7 +285,7 @@ export function CompanyProfilePage() {
                   value={formData.alternate_phone || ''}
                   onChange={(e) => handleChange('alternate_phone', e.target.value)}
                   placeholder="+91 98421 23344"
-                  className="pl-9 h-10 text-sm font-mono"
+                  className="pl-9 h-10 text-sm font-sans tabular-nums"
                 />
               </div>
             </FormField>

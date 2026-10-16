@@ -1,7 +1,7 @@
 /* ── Bencho design tokens mapped locally to Shivarivel ERP ────────────────── */
 .sek {
   --bg: #F7F5F0;
-  --font-ui: var(--font-heading, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
+  --font-ui: var(--font-body, 'Inter', system-ui, -apple-system, sans-serif);
   --g-blur: 16px;
   --g-sat: 180%;
   --g-bright: 100%;

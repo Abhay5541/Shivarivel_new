@@ -285,7 +285,7 @@ export const CustomersPage: React.FC = () => {
                     {c.phone && (
                       <div className="flex items-center gap-2">
                         <Phone className="w-3.5 h-3.5 text-[#8C867E] shrink-0" />
-                        <span className="font-semibold text-[#242424] font-mono">
+                        <span className="font-semibold text-[#242424] font-sans tabular-nums">
                           +91 {c.phone}
                         </span>
                       </div>

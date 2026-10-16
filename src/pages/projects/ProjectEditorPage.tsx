@@ -309,7 +309,7 @@ export const ProjectEditorPage: React.FC = () => {
                 placeholder="e.g. 650000"
                 value={contractValue}
                 onChange={(e) => setContractValue(e.target.value)}
-                className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-2.5 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px] font-mono font-bold"
+                className="w-full text-xs bg-white border border-[#E2DDD5] rounded-lg p-2.5 focus:border-[#4A0E0E] focus:outline-hidden min-h-[44px] font-sans font-bold tabular-nums"
               />
             </div>
           </div>

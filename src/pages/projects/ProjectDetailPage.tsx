@@ -499,7 +499,7 @@ export const ProjectDetailPage: React.FC = () => {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-[#242424] font-display truncate">
+                      <span className="text-sm font-bold text-[#242424] font-inter truncate">
                         {name}
                       </span>
                     </div>
