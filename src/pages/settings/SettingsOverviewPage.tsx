@@ -30,15 +30,15 @@ export function SettingsOverviewPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent sm:from-black/80 sm:via-black/35 sm:to-transparent pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col justify-center h-full p-5 sm:p-6">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white/15 text-[#E5C378] border border-white/20 w-fit mb-2 backdrop-blur-xs">
-            <Sparkles className="w-3 h-3 text-[#E5C378]" />
+        <div className="relative z-10 flex flex-col justify-center h-full px-4 py-3 sm:p-6">
+          <div className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-white/15 text-[#E5C378] border border-white/20 w-fit mb-1 sm:mb-2 backdrop-blur-xs">
+            <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#E5C378]" />
             <span>Control Center</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold font-playfair text-white tracking-wide">
+          <h1 className="text-lg sm:text-2xl md:text-3xl font-bold font-playfair text-white tracking-wide leading-tight sm:leading-normal">
             Settings &amp; Administration
           </h1>
-          <p className="text-xs sm:text-sm text-white/85 font-inter mt-1 max-w-[240px] sm:max-w-sm leading-snug">
+          <p className="text-[11px] sm:text-sm text-white/85 font-inter mt-0.5 sm:mt-1 max-w-[210px] sm:max-w-sm leading-tight sm:leading-snug line-clamp-2">
             Configure entity profile, business credentials, and system preferences.
           </p>
         </div>
