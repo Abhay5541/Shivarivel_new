@@ -228,11 +228,17 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
                   <option value="">
                     Select Project...
                   </option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} {p.customer?.name ? `(${p.customer.name})` : ''}
-                    </option>
-                  ))}
+                  {projects.map((p) => {
+                    const clientName = (p as any).customer?.name || (p as any).customer_name;
+                    const label = clientName
+                      ? `${p.name} — ${clientName}`
+                      : p.name;
+                    return (
+                      <option key={p.id} value={p.id}>
+                        {label}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             )}

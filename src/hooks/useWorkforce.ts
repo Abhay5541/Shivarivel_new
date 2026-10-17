@@ -651,8 +651,24 @@ export function useWages(filters?: {
         const { data, error } = await query;
         if (!error && data) {
           remote = data as DailyWage[];
-          memoryDailyWages = remote;
-          saveStoredDailyWages(remote);
+          const isUnfiltered =
+            !filters ||
+            (!filters.employeeId &&
+              !filters.projectId &&
+              !filters.startDate &&
+              !filters.endDate &&
+              (!filters.status || filters.status === 'all'));
+
+          if (isUnfiltered) {
+            memoryDailyWages = remote;
+            saveStoredDailyWages(remote);
+          } else {
+            // Merge with local memory so queries filtered by project do not wipe out all other project wages
+            const remoteMap = new Map(remote.map((r) => [r.id, r]));
+            const existingUnchanged = memoryDailyWages.filter((m) => !remoteMap.has(m.id));
+            memoryDailyWages = [...remote, ...existingUnchanged];
+            saveStoredDailyWages(memoryDailyWages);
+          }
           return remote;
         } else if (error) {
           console.warn('Daily wages query error:', error.message);
@@ -842,34 +858,6 @@ export function useRecordDailyWage() {
       } else {
         // ADD new wage
         try {
-          // Cancel any existing active wage for this employee on this date FOR THIS SAME PROJECT
-          let wageQuery = (supabase.from('daily_wages') as any)
-            .select('id')
-            .eq('employee_id', payload.employee_id)
-            .eq('wage_date', payload.wage_date)
-            .neq('status', 'Cancelled');
-
-          if (payload.project_id) {
-            wageQuery = wageQuery.eq('project_id', payload.project_id);
-          } else {
-            wageQuery = wageQuery.is('project_id', null);
-          }
-
-          const { data: existingWages } = await wageQuery;
-
-          if (existingWages && existingWages.length > 0) {
-            for (const ew of existingWages) {
-              await (supabase.from('daily_wages') as any)
-                .update({ status: 'Cancelled' })
-                .eq('id', ew.id);
-            }
-            memoryDailyWages = memoryDailyWages.map((w) =>
-              existingWages.some((ew: any) => ew.id === w.id)
-                ? { ...w, status: 'Cancelled' as const }
-                : w
-            );
-          }
-
           // Check if this attendance_id is already bound to another active wage
           let wageAttId: string | null = attRecordId || null;
           if (wageAttId) {

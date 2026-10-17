@@ -40,6 +40,7 @@ function getTodayISO() {
 export function WagesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly'>('daily');
+  const projectIdParam = searchParams.get('projectId') || '';
   const [isAddWageModalOpen, setIsAddWageModalOpen] = useState(false);
   const [isLaborersDrawerOpen, setIsLaborersDrawerOpen] = useState(false);
   const [openInAddMode, setOpenInAddMode] = useState(false);
@@ -101,6 +102,7 @@ export function WagesPage() {
   const { data: allWages = [], isLoading: isWagesLoading } = useWages();
   const { data: employees = [] } = useEmployees();
   const { data: projects = [] } = useProjects();
+  const selectedProject = useMemo(() => projects.find((p) => p.id === projectIdParam), [projects, projectIdParam]);
   const deleteWageMutation = useDeleteDailyWage();
   const [deletingWageItem, setDeletingWageItem] = useState<{ wage: DailyWage; laborerName: string } | null>(null);
 
@@ -186,8 +188,12 @@ export function WagesPage() {
 
   // Entries for selected date
   const dayEntries = useMemo(() => {
-    return allWages.filter((w) => w.wage_date === selectedDate && w.status !== 'Cancelled');
-  }, [allWages, selectedDate]);
+    let list = allWages.filter((w) => w.wage_date === selectedDate && w.status !== 'Cancelled');
+    if (projectIdParam) {
+      list = list.filter((w) => (w.project_id || '') === projectIdParam);
+    }
+    return list;
+  }, [allWages, selectedDate, projectIdParam]);
 
   // Daily totals
   const dailySummary = useMemo(() => {
@@ -279,8 +285,12 @@ export function WagesPage() {
   // Weekly entries
   const weeklyEntries = useMemo(() => {
     const daySet = new Set(weekRange.days);
-    return allWages.filter((w) => w.wage_date && daySet.has(w.wage_date) && w.status !== 'Cancelled');
-  }, [allWages, weekRange.days]);
+    let list = allWages.filter((w) => w.wage_date && daySet.has(w.wage_date) && w.status !== 'Cancelled');
+    if (projectIdParam) {
+      list = list.filter((w) => (w.project_id || '') === projectIdParam);
+    }
+    return list;
+  }, [allWages, weekRange.days, projectIdParam]);
 
   // Aggregated weekly data per laborer
   const weeklyLaborerAggregation = useMemo(() => {
@@ -465,6 +475,30 @@ export function WagesPage() {
           <span className="truncate">Add Wage Entry</span>
         </button>
       </div>
+
+      {/* Active Project Filter Banner */}
+      {projectIdParam && (
+        <div className="mb-3 px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E2DDD5] rounded-xl flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 text-[#4A0E0E] font-semibold">
+            <Building2 className="w-4 h-4 text-[#C99A2E]" />
+            <span>
+              Project Filter:{' '}
+              <span className="font-bold">{selectedProject?.name || 'Selected Project'}</span>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete('projectId');
+              setSearchParams(next, { replace: true });
+            }}
+            className="text-xs text-[#8C867E] hover:text-[#4A0E0E] underline font-medium cursor-pointer"
+          >
+            Show All Projects
+          </button>
+        </div>
+      )}
 
       {/* 3. VIEW SWITCHER: [ Daily Wages ] [ Weekly Overview ] */}
       <div className="mb-4">
@@ -1398,6 +1432,7 @@ export function WagesPage() {
           setEditingWage(null);
         }}
         preselectedDate={selectedDate}
+        preselectedProjectId={projectIdParam || undefined}
         existingWage={editingWage}
         onSuccess={() => {
           setToastMessage(editingWage ? 'Wage entry updated.' : 'Wage entry saved.');
