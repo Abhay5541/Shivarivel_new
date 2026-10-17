@@ -52,13 +52,35 @@
 
 body {
   font-family: var(--font-body, 'Inter', sans-serif);
-  background-color: #F7F5F0;
-  background-image: url('./Asserts/backgroundUI1.jpg');
-  background-repeat: repeat;
-  background-size: 600px auto;
+  background-color: #E8CB96;
+  background-image: url('./Asserts/Layered Sandstone Waves-1.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: #242424;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 768px) {
+  body {
+    background-image: url('./Asserts/Layered Sandstone Waves-2.png');
+  }
+}
+
+.hero {
+  min-height: 100vh;
+  background-image: url('./Asserts/Layered Sandstone Waves-1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    background-image: url('./Asserts/Layered Sandstone Waves-2.png');
+  }
 }
 
 h1, h2 {

@@ -15,7 +15,7 @@ import { useEmployees } from '@/hooks/useWorkforce';
 import { usePurchases } from '@/hooks/useProcurement';
 import { useCompanySettings } from '@/hooks/useSettings';
 import { useAuth } from '@/context/AuthContext';
-import heroBg from '@/Asserts/Background_UI.jpg';
+import heroBg from '@/Asserts/hero_banner_completed_villa.jpg';
 
 export function DashboardPage() {
   const navigate = useNavigate();
@@ -111,27 +111,27 @@ export function DashboardPage() {
 
   return (
     <PageContainer>
-      {/* 1. HERO BANNER with Architecture Background */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#081812] border border-[#C9A24A]/25 text-white shadow-xl mb-4 sm:mb-6">
-        {/* Background Architectural Photo with Smooth Dark Gradient */}
+      {/* 1. HERO BANNER with Completed Luxury Sandstone Villa */}
+      <div className="relative overflow-hidden rounded-3xl bg-[#1C1814] border border-[#C9A24A]/30 text-white shadow-xl mb-4 sm:mb-6">
+        {/* Background Completed Architectural Villa with Smooth Dark Gradient */}
         <div
-          className="absolute inset-0 bg-cover bg-right opacity-35 mix-blend-luminosity pointer-events-none"
+          className="absolute inset-0 bg-cover bg-right sm:bg-center pointer-events-none"
           style={{ backgroundImage: `url(${heroBg})` }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#071711] via-[#071711]/90 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#14120E] via-[#14120E]/80 to-transparent pointer-events-none" />
 
         <div className="relative z-10 p-5 sm:p-7 lg:p-8">
-          <div className="flex items-center gap-1.5 text-[#C9A24A] text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2">
-            <span className="w-3 h-0.5 bg-[#C9A24A] rounded-full inline-block" />
+          <div className="flex items-center gap-1.5 text-[#E5C378] text-[10px] sm:text-[11px] font-bold tracking-widest uppercase mb-2">
+            <span className="w-3 h-0.5 bg-[#E5C378] rounded-full inline-block" />
             <span>{todayFormatted}</span>
           </div>
 
-          <h1 className="font-playfair text-2xl sm:text-3xl lg:text-4xl text-white font-normal tracking-tight leading-tight">
+          <h1 className="font-playfair text-2xl sm:text-3xl lg:text-4xl text-white font-normal tracking-tight leading-tight drop-shadow-md">
             {greeting},<br />
             <span className="font-semibold text-[#E5C378]">{ownerName}</span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#E2DDD5]/85 font-normal mt-1.5">
+          <p className="text-xs sm:text-sm text-[#F5EEDD]/90 font-normal mt-1.5 drop-shadow-sm">
             Keep building. Every project matters.
           </p>
         </div>

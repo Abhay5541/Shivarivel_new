@@ -9,7 +9,8 @@ import { SimplePurchaseModal } from '@/components/business/SimplePurchaseModal';
 import { SimpleDailyWageModal } from '@/components/business/SimpleDailyWageModal';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/context/ThemeContext';
-import appBg from '@/Asserts/backgroundUI1.jpg';
+import desktopBg from '@/Asserts/Layered Sandstone Waves-1.png';
+import mobileBg from '@/Asserts/Layered Sandstone Waves-2.png';
 
 const TOP_LEVEL_SPOKES = [
   '/customers',
@@ -53,19 +54,28 @@ export function AppLayout() {
 
   return (
     <div className={`min-h-screen flex flex-col antialiased relative transition-colors duration-200 ${isDark ? 'text-[#F5F5F4]' : 'text-[#242424]'}`}>
-      {/* Universal Textured Architectural Background */}
+      {/* Universal Textured Architectural Background - Responsive */}
+      {/* Desktop (Screens > 768px) */}
       <div
-        className={`fixed inset-0 pointer-events-none -z-10 bg-repeat bg-center transition-opacity duration-300 ${
+        className={`fixed inset-0 pointer-events-none -z-10 bg-no-repeat bg-cover bg-center transition-opacity duration-300 hidden md:block ${
           isDark ? 'opacity-0' : 'opacity-100'
         }`}
         style={{
-          backgroundImage: `url(${appBg})`,
-          backgroundSize: '600px auto',
+          backgroundImage: `url(${desktopBg})`,
+        }}
+      />
+      {/* Mobile (Screens <= 768px) */}
+      <div
+        className={`fixed inset-0 pointer-events-none -z-10 bg-no-repeat bg-cover bg-center transition-opacity duration-300 block md:hidden ${
+          isDark ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{
+          backgroundImage: `url(${mobileBg})`,
         }}
       />
       <div
         className={`fixed inset-0 pointer-events-none -z-20 transition-colors duration-300 ${
-          isDark ? 'bg-[#0E0D0B]' : 'bg-[#F7F5F0]'
+          isDark ? 'bg-[#0E0D0B]' : 'bg-[#E8CB96]'
         }`}
       />
       {/* Universal Top Header (Both PC & Mobile) */}
