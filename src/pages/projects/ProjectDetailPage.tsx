@@ -546,28 +546,32 @@ export const ProjectDetailPage: React.FC = () => {
                 </div>
               </div>
             ))}
-            {confirmedPurchases.length > 4 && (
+            {confirmedPurchases.length > 0 && (
               <div className="px-5 py-3 text-center bg-[#FAFAF8] border-t border-[#E8E4DC] flex items-center justify-center gap-3">
+                {confirmedPurchases.length > 4 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllPurchases((prev) => !prev)}
+                      className="text-xs font-bold text-[#4A0E0E] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>
+                        {showAllPurchases
+                          ? 'Show Less (4 items)'
+                          : `View all ${confirmedPurchases.length} items`}
+                      </span>
+                      {showAllPurchases ? (
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                    <span className="text-[#D5D0C7]">|</span>
+                  </>
+                )}
                 <button
                   type="button"
-                  onClick={() => setShowAllPurchases((prev) => !prev)}
-                  className="text-xs font-bold text-[#4A0E0E] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>
-                    {showAllPurchases
-                      ? 'Show Less (4 items)'
-                      : `View all ${confirmedPurchases.length} items`}
-                  </span>
-                  {showAllPurchases ? (
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <span className="text-[#D5D0C7]">|</span>
-                <button
-                  type="button"
-                  onClick={() => navigate(`/procurement?tab=project&projectId=${site.id}`)}
+                  onClick={() => navigate(`/procurement?tab=project&projectId=${site?.id || id}`)}
                   className="text-xs font-semibold text-[#8C867E] hover:text-[#4A0E0E] transition-colors cursor-pointer"
                 >
                   Open in Purchases tab →
@@ -648,16 +652,26 @@ export const ProjectDetailPage: React.FC = () => {
             <p className="text-xs font-semibold text-[#6B6B6B]">
               No daily wages recorded for this project.
             </p>
-            <button
-              type="button"
-              onClick={() => {
-                setEditingWage(null);
-                setIsWageModalOpen(true);
-              }}
-              className="text-xs font-bold text-[#4A0E0E] underline cursor-pointer"
-            >
-              Add wages →
-            </button>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingWage(null);
+                  setIsWageModalOpen(true);
+                }}
+                className="text-xs font-bold text-[#4A0E0E] underline cursor-pointer"
+              >
+                Add wages →
+              </button>
+              <span className="text-[#D5D0C7]">|</span>
+              <button
+                type="button"
+                onClick={() => navigate(`/wages?tab=daily&projectId=${site?.id || id}`)}
+                className="text-xs font-semibold text-[#8C867E] hover:text-[#4A0E0E] transition-colors cursor-pointer"
+              >
+                Open in Wages tab →
+              </button>
+            </div>
           </div>
         ) : (
           <div className="divide-y divide-[#E8E4DC]">
@@ -710,31 +724,36 @@ export const ProjectDetailPage: React.FC = () => {
                 </div>
               );
             })}
-            {siteWages.length > 4 && (
+            {siteWages.length > 0 && (
               <div className="px-5 py-3 text-center bg-[#FAFAF8] border-t border-[#E8E4DC] flex items-center justify-center gap-3">
+                {siteWages.length > 4 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowAllWages((prev) => !prev)}
+                      className="text-xs font-bold text-[#4A0E0E] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <span>
+                        {showAllWages
+                          ? 'Show Less (4 items)'
+                          : `View all ${siteWages.length} items`}
+                      </span>
+                      {showAllWages ? (
+                        <ChevronUp className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                    <span className="text-[#D5D0C7]">|</span>
+                  </>
+                )}
                 <button
                   type="button"
-                  onClick={() => setShowAllWages((prev) => !prev)}
-                  className="text-xs font-bold text-[#4A0E0E] hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>
-                    {showAllWages
-                      ? 'Show Less (4 items)'
-                      : `View all ${siteWages.length} items`}
-                  </span>
-                  {showAllWages ? (
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  ) : (
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  )}
-                </button>
-                <span className="text-[#D5D0C7]">|</span>
-                <Link
-                  to="/wages"
+                  onClick={() => navigate(`/wages?tab=daily&projectId=${site?.id || id}`)}
                   className="text-xs font-semibold text-[#8C867E] hover:text-[#4A0E0E] transition-colors cursor-pointer"
                 >
                   Open in Wages tab →
-                </Link>
+                </button>
               </div>
             )}
           </div>
