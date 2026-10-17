@@ -331,10 +331,10 @@ export const CustomerDetailPage: React.FC = () => {
         {/* Tabs: Active / Completed */}
         {customerSites.length > 0 && (
           <div className="w-fit">
-            <SlidingSegmentedControl
+            <SlidingSegmentedControl<'active' | 'completed'>
               options={projectFilterOptions}
               value={activeProjectTab}
-              onChange={setActiveProjectTab}
+              onChange={(val) => setActiveProjectTab(val)}
               size="sm"
               ariaLabel="Filter projects"
             />
