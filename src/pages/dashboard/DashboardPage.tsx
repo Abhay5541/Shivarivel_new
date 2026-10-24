@@ -9,6 +9,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useProjects } from '@/hooks/useProjects';
 import { useEmployees } from '@/hooks/useWorkforce';
@@ -112,7 +113,7 @@ export function DashboardPage() {
   return (
     <PageContainer>
       {/* 1. HERO BANNER with Completed Luxury Sandstone Villa */}
-      <div className="relative overflow-hidden rounded-3xl bg-[#1C1814] border border-[#C9A24A]/30 text-white shadow-xl mb-4 sm:mb-6">
+      <div className="relative overflow-hidden rounded-3xl bg-[#1C1814] border border-[#C9A24A]/30 text-white shadow-xl mb-4 sm:mb-6 animate-dashboard-hero">
         {/* Background Completed Architectural Villa with Smooth Dark Gradient */}
         <div
           className="absolute inset-0 bg-cover bg-right sm:bg-center pointer-events-none"
@@ -142,7 +143,7 @@ export function DashboardPage() {
         {/* Module 1: Clients */}
         <div
           onClick={() => navigate('/customers')}
-          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98] animate-dashboard-card dashboard-stagger-1"
         >
           <div>
             <div className="w-10 h-10 rounded-2xl bg-[#FBF3E6] text-[#A67C24] flex items-center justify-center">
@@ -152,7 +153,7 @@ export function DashboardPage() {
               CLIENTS
             </div>
             <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
-              {kpis.totalCustomers}
+              <AnimatedCounter value={kpis.totalCustomers} delay={50} />
             </div>
             <div className="mt-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
@@ -172,7 +173,7 @@ export function DashboardPage() {
         {/* Module 2: Projects */}
         <div
           onClick={() => navigate('/projects')}
-          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98] animate-dashboard-card dashboard-stagger-2"
         >
           <div>
             <div className="w-10 h-10 rounded-2xl bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center">
@@ -182,7 +183,7 @@ export function DashboardPage() {
               PROJECTS
             </div>
             <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
-              {kpis.totalProjects}
+              <AnimatedCounter value={kpis.totalProjects} delay={110} />
             </div>
             <div className="mt-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
@@ -202,7 +203,7 @@ export function DashboardPage() {
         {/* Module 3: Daily Laborers */}
         <div
           onClick={() => navigate('/wages')}
-          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98] animate-dashboard-card dashboard-stagger-3"
         >
           <div>
             <div className="w-10 h-10 rounded-2xl bg-[#FBEFEF] text-[#4A0E0E] flex items-center justify-center">
@@ -212,7 +213,7 @@ export function DashboardPage() {
               LABORERS
             </div>
             <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
-              {kpis.totalEmployees}
+              <AnimatedCounter value={kpis.totalEmployees} delay={170} />
             </div>
             <div className="mt-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
@@ -232,7 +233,7 @@ export function DashboardPage() {
         {/* Module 4: Procurement */}
         <div
           onClick={() => navigate('/procurement')}
-          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98]"
+          className="group bg-white rounded-3xl border border-[#E8E4DC] p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between active:scale-[0.98] animate-dashboard-card dashboard-stagger-4"
         >
           <div>
             <div className="w-10 h-10 rounded-2xl bg-[#FBF3E6] text-[#A67C24] flex items-center justify-center">
@@ -242,7 +243,7 @@ export function DashboardPage() {
               PURCHASES
             </div>
             <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
-              {kpis.totalPurchases}
+              <AnimatedCounter value={kpis.totalPurchases} delay={230} />
             </div>
             <div className="mt-2">
               {kpis.unpaidPurchasesCount > 0 ? (
@@ -270,7 +271,7 @@ export function DashboardPage() {
       </div>
 
       {/* 3. OPERATIONAL PANEL: ACTIVE PROJECTS */}
-      <div className="mb-6">
+      <div className="mb-6 animate-dashboard-panel dashboard-stagger-panel">
         <div className="bg-[#081812] border border-[#C9A24A]/25 rounded-3xl p-5 text-white shadow-md">
           <div className="flex items-center justify-between pb-3.5 border-b border-white/10 mb-4">
             <div className="flex items-center gap-2">
@@ -292,7 +293,7 @@ export function DashboardPage() {
           </div>
 
           {projects.length === 0 ? (
-            <div className="py-8 text-center space-y-3">
+            <div className="py-8 text-center space-y-3 animate-dashboard-row" style={{ animationDelay: '320ms' }}>
               <div className="w-12 h-12 rounded-2xl bg-white/5 border border-[#C9A24A]/30 flex items-center justify-center text-[#C9A24A] mx-auto">
                 <Building2 className="w-6 h-6 stroke-[1.75]" />
               </div>
@@ -312,11 +313,12 @@ export function DashboardPage() {
                 : projects
               )
                 .slice(0, 4)
-                .map((p) => (
+                .map((p, idx) => (
                   <div
                     key={p.id}
                     onClick={() => navigate(`/projects/${p.id}`)}
-                    className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98] group"
+                    style={{ animationDelay: `${320 + idx * 60}ms` }}
+                    className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[#C9A24A]/50 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.98] group animate-dashboard-row"
                   >
                     <div className="min-w-0 flex-1">
                       <h3 className="text-xs sm:text-sm font-bold text-white truncate group-hover:text-[#E5C378] transition-colors">

@@ -432,7 +432,7 @@ export function WagesPage() {
       )}
 
       {/* 1. HERO BANNER (Wages Background Banner with Text) */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4">
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4 animate-dashboard-hero">
         <img
           src={wagesBannerBg}
           alt="Wages Banner"

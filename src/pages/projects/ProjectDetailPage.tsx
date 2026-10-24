@@ -17,6 +17,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { LoadingState } from '@/components/ui/LoadingState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
@@ -232,7 +233,7 @@ export const ProjectDetailPage: React.FC = () => {
       </div>
 
       {/* ── Main Project Header Card ─────────────────────────────── */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-5 shadow-xs">
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-5 shadow-xs animate-dashboard-hero">
         {/* Status Badge */}
         <div className="mb-2">
           <span
@@ -358,13 +359,16 @@ export const ProjectDetailPage: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center bg-white/70 backdrop-blur-xs rounded-xl p-3 border border-[#1E7E34]/15">
             <div>
               <span className="text-lg sm:text-xl font-bold text-[#242424] block">
-                {siteWageBreakdown.items.length}
+                <AnimatedCounter value={siteWageBreakdown.items.length} delay={40} />
               </span>
               <span className="text-[10px] text-[#6B6B6B] block truncate">Labourers</span>
             </div>
             <div>
               <span className="text-lg sm:text-xl font-bold text-[#242424] block truncate">
-                {siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
+                <AnimatedCounter
+                  value={siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
+                  delay={80}
+                />
               </span>
               <span className="text-[10px] text-[#6B6B6B] block truncate">Man-days</span>
             </div>
@@ -373,7 +377,11 @@ export const ProjectDetailPage: React.FC = () => {
                 className="text-lg sm:text-xl font-bold text-[#1E6B37] block truncate"
                 title={formatINR(siteWageBreakdown.totalSiteWages)}
               >
-                {formatINR(siteWageBreakdown.totalSiteWages)}
+                <AnimatedCounter
+                  value={siteWageBreakdown.totalSiteWages}
+                  delay={120}
+                  formatFn={formatINR}
+                />
               </span>
               <span className="text-[10px] text-[#6B6B6B] block truncate">Total Wages</span>
             </div>
@@ -382,7 +390,11 @@ export const ProjectDetailPage: React.FC = () => {
                 className="text-lg sm:text-xl font-bold text-[#4A0E0E] block truncate"
                 title={formatINR(purchaseTotals.total)}
               >
-                {formatINR(purchaseTotals.total)}
+                <AnimatedCounter
+                  value={purchaseTotals.total}
+                  delay={160}
+                  formatFn={formatINR}
+                />
               </span>
               <span className="text-[10px] text-[#6B6B6B] block truncate">Procurement</span>
             </div>
@@ -391,7 +403,7 @@ export const ProjectDetailPage: React.FC = () => {
       )}
 
       {/* ── Project Purchases ────────────────────────────────────── */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden animate-dashboard-panel dashboard-stagger-1">
         {/* Section Header */}
         <div className="px-5 py-4 border-b border-[#E8E4DC] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -583,7 +595,7 @@ export const ProjectDetailPage: React.FC = () => {
       </div>
 
       {/* ── Labour / Daily Wages ─────────────────────────────────── */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden">
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl shadow-xs overflow-hidden animate-dashboard-panel dashboard-stagger-2">
         {/* Section Header */}
         <div className="px-5 py-4 border-b border-[#E8E4DC] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">

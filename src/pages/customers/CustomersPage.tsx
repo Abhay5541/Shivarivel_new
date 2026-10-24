@@ -177,7 +177,7 @@ export const CustomersPage: React.FC = () => {
   return (
     <PageContainer className="pb-24 select-none">
       {/* 1. HERO BANNER (Clients Background Banner with Text) */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4">
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4 animate-dashboard-hero">
         <img
           src={clientBannerBg}
           alt="Clients Banner"
@@ -244,13 +244,14 @@ export const CustomersPage: React.FC = () => {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {filteredCustomers.map((c) => {
+          {filteredCustomers.map((c, idx) => {
             const isActive = c.status !== 'inactive';
             return (
               <div
                 key={c.id}
                 onClick={() => navigate(`/customers/${c.id}`)}
-                className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99]"
+                style={{ animationDelay: `${Math.min(idx * 45, 270)}ms` }}
+                className="bg-white border border-[#E8E4DC] rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group active:scale-[0.99] animate-dashboard-card"
               >
                 <div>
                   {/* Header: Avatar, Name, Status Badge */}

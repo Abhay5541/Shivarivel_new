@@ -20,6 +20,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { usePurchases, useDeleteSimplePurchase } from '@/hooks/useProcurement';
 import { useProjects } from '@/hooks/useProjects';
 import { formatINR } from '@/lib/utils';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { TableSkeleton } from '@/components/ui/LoadingState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
@@ -49,7 +50,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
   const duePercent = total > 0 ? Math.max(0, 100 - paidPercent) : 0;
 
   return (
-    <div className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-3xl p-5 sm:p-6 shadow-2xs transition-colors">
+    <div className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-3xl p-5 sm:p-6 shadow-2xs transition-colors animate-dashboard-panel dashboard-stagger-1">
       {/* 1. Header with Coins Symbol */}
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 rounded-lg bg-[#F5EDE2] dark:bg-[#2A241C] text-[#8C6D23] dark:text-[#E2A855] flex items-center justify-center shrink-0">
@@ -65,7 +66,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
         className="text-2xl sm:text-3xl lg:text-[38px] font-bold font-sans text-[#1F1F1F] dark:text-white tracking-tight my-2 sm:my-2.5 tabular-nums truncate block"
         title={formatINR(total)}
       >
-        {formatINR(total)}
+        <AnimatedCounter value={total} formatFn={formatINR} delay={50} />
       </div>
 
       {/* 3. Progress Track & Fill Bar */}
@@ -99,7 +100,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
             className="text-base sm:text-xl lg:text-2xl font-bold font-sans text-[#166534] dark:text-[#4ADE80] tabular-nums mt-1.5 truncate block"
             title={formatINR(paid)}
           >
-            {formatINR(paid)}
+            <AnimatedCounter value={paid} formatFn={formatINR} delay={100} />
           </div>
         </div>
 
@@ -118,7 +119,7 @@ const ProcurementCostCard: React.FC<ProcurementCostCardProps> = ({
             className="text-base sm:text-xl lg:text-2xl font-bold font-sans text-[#991B1B] dark:text-[#F87171] tabular-nums mt-1.5 truncate block"
             title={formatINR(balance)}
           >
-            {formatINR(balance)}
+            <AnimatedCounter value={balance} formatFn={formatINR} delay={150} />
           </div>
         </div>
       </div>
@@ -393,7 +394,7 @@ export const PurchasesPage: React.FC = () => {
   );
 
   // Reusable purchase card rendering with clear payment badge & action
-  const renderPurchaseCard = (p: Purchase, isProject: boolean) => {
+  const renderPurchaseCard = (p: Purchase, isProject: boolean, index: number = 0) => {
     const item = p.items?.[0];
     const productName = item?.description || item?.material?.name || 'Material Item';
     const projectObj = p.project_id ? projectMap.get(p.project_id) : p.project;
@@ -410,7 +411,8 @@ export const PurchasesPage: React.FC = () => {
     return (
       <div
         key={p.id}
-        className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99]"
+        style={{ animationDelay: `${Math.min(index * 40, 240)}ms` }}
+        className="bg-white dark:bg-[#1A1714] border border-[#E8E4DC] dark:border-white/10 rounded-2xl p-4 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between group active:scale-[0.99] animate-dashboard-card"
       >
         <div>
           {/* Header: Avatar, Name, Date/Project, Status Badge */}
@@ -556,7 +558,7 @@ export const PurchasesPage: React.FC = () => {
   return (
     <PageContainer className="pb-24 select-none">
       {/* 1. HERO BANNER (Procurement Background Banner with Text) */}
-      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4">
+      <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm border border-[#E2DDD5]/70 bg-[#12100E] h-[135px] sm:h-[155px] md:h-[175px] mb-4 animate-dashboard-hero">
         <img
           src={procurementBannerBg}
           alt="Procurement Banner"
@@ -722,7 +724,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                          {projectPendingPurchases.map((p) => renderPurchaseCard(p, true))}
+                          {projectPendingPurchases.map((p, idx) => renderPurchaseCard(p, true, idx))}
                         </div>
                       )}
                     </div>
@@ -754,7 +756,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                          {projectPaidPurchases.map((p) => renderPurchaseCard(p, true))}
+                          {projectPaidPurchases.map((p, idx) => renderPurchaseCard(p, true, idx))}
                         </div>
                       )}
                     </div>
@@ -840,7 +842,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                          {generalPendingPurchases.map((p) => renderPurchaseCard(p, false))}
+                          {generalPendingPurchases.map((p, idx) => renderPurchaseCard(p, false, idx))}
                         </div>
                       )}
                     </div>
@@ -872,7 +874,7 @@ export const PurchasesPage: React.FC = () => {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                          {generalPaidPurchases.map((p) => renderPurchaseCard(p, false))}
+                          {generalPaidPurchases.map((p, idx) => renderPurchaseCard(p, false, idx))}
                         </div>
                       )}
                     </div>

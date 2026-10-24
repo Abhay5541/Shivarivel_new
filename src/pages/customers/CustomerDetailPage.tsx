@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { LoadingState } from '@/components/ui/LoadingState';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { SimpleCustomerModal } from '@/components/business/SimpleCustomerModal';
 import { SimpleSiteModal } from '@/components/business/SimpleSiteModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
@@ -30,9 +31,10 @@ import { useWages } from '@/hooks/useWorkforce';
 import type { Project } from '@/types/projects';
 
 // Sub-component: summary card for a completed project
-const CompletedProjectSummary: React.FC<{ site: Project; onNavigate: () => void }> = ({
+const CompletedProjectSummary: React.FC<{ site: Project; onNavigate: () => void; index?: number }> = ({
   site,
   onNavigate,
+  index = 0,
 }) => {
   const { data: wages = [] } = useWages({ projectId: site.id });
 
@@ -52,7 +54,8 @@ const CompletedProjectSummary: React.FC<{ site: Project; onNavigate: () => void 
   return (
     <div
       onClick={onNavigate}
-      className="bg-white border border-[#E2DDD5] rounded-2xl overflow-hidden hover:border-[#4A0E0E]/30 hover:shadow-md transition-all cursor-pointer group"
+      style={{ animationDelay: `${Math.min(index * 50, 250)}ms` }}
+      className="bg-white border border-[#E2DDD5] rounded-2xl overflow-hidden hover:border-[#4A0E0E]/30 hover:shadow-md transition-all cursor-pointer group animate-dashboard-card"
     >
       {/* Top bar */}
       <div className="px-4 pt-4 pb-3 flex items-start justify-between">
@@ -77,12 +80,16 @@ const CompletedProjectSummary: React.FC<{ site: Project; onNavigate: () => void 
       <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] border-t border-[#E8E4DC] bg-[#FAFAF8]">
         <div className="px-3 py-2.5 flex flex-col items-center text-center">
           <Users2 className="w-3.5 h-3.5 text-[#4A0E0E] mb-1" />
-          <span className="text-sm font-bold text-[#242424]">{summary.uniqueLabourers}</span>
+          <span className="text-sm font-bold text-[#242424]">
+            <AnimatedCounter value={summary.uniqueLabourers} />
+          </span>
           <span className="text-[10px] text-[#6B6B6B]">Labourers</span>
         </div>
         <div className="px-3 py-2.5 flex flex-col items-center text-center">
           <Briefcase className="w-3.5 h-3.5 text-[#4A0E0E] mb-1" />
-          <span className="text-sm font-bold text-[#242424]">{summary.totalDays}</span>
+          <span className="text-sm font-bold text-[#242424]">
+            <AnimatedCounter value={summary.totalDays} />
+          </span>
           <span className="text-[10px] text-[#6B6B6B]">Man-days</span>
         </div>
         <div className="px-3 py-2.5 flex flex-col items-center text-center">
@@ -215,7 +222,7 @@ export const CustomerDetailPage: React.FC = () => {
       </div>
 
       {/* Customer Info Card */}
-      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs">
+      <div className="bg-white border border-[#E2DDD5] rounded-2xl p-6 shadow-xs animate-dashboard-hero">
         {/* Status + Name row */}
         <div className="flex items-start justify-between gap-4 mb-4">
           <div className="min-w-0">
@@ -351,11 +358,12 @@ export const CustomerDetailPage: React.FC = () => {
               />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {activeProjects.map((site) => (
+                {activeProjects.map((site, idx) => (
                   <div
                     key={site.id}
                     onClick={() => navigate(`/projects/${site.id}`)}
-                    className="bg-white border border-[#E2DDD5] rounded-2xl p-5 hover:border-[#4A0E0E]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
+                    style={{ animationDelay: `${Math.min(idx * 50, 250)}ms` }}
+                    className="bg-white border border-[#E2DDD5] rounded-2xl p-5 hover:border-[#4A0E0E]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group animate-dashboard-card"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
@@ -406,10 +414,11 @@ export const CustomerDetailPage: React.FC = () => {
               />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {completedProjects.map((site) => (
+                {completedProjects.map((site, idx) => (
                   <CompletedProjectSummary
                     key={site.id}
                     site={site}
+                    index={idx}
                     onNavigate={() => navigate(`/projects/${site.id}`)}
                   />
                 ))}

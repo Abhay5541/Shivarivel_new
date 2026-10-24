@@ -40,3 +40,4 @@ scratch/
 *.png
 !src/Asserts/**
 !public/**
+brag-output/
