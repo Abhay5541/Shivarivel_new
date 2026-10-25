@@ -7,7 +7,7 @@ import {
   CounterAnimationController,
   MAX_PRECISION,
 } from './AnimatedCounter';
-import { formatINR } from '@/lib/utils';
+import { formatINR } from '../../lib/utils';
 
 describe('AnimatedCounter Math & Sanitization Logic', () => {
   describe('sanitizePrecision', () => {
