@@ -439,7 +439,7 @@ export function useUpdateSupplier() {
     onSuccess: (updated, variables) => {
       queryClient.setQueriesData({ queryKey: ['suppliers'] }, (old: Supplier[] | undefined) => {
         if (!old) return old;
-        return old.map((s) => (s.id === variables.id ? { ...s, ...variables.payload, ...(updated || {}) } : s));
+        return old.map((s) => (s.id === variables.id ? { ...s, ...variables.payload, ...updated } : s));
       });
       queryClient.invalidateQueries({ queryKey: ['suppliers'] });
       queryClient.invalidateQueries({ queryKey: ['supplier', variables.id] });
@@ -636,7 +636,7 @@ export function useUpdateMaterial() {
     onSuccess: (updated, variables) => {
       queryClient.setQueriesData({ queryKey: ['materials'] }, (old: Material[] | undefined) => {
         if (!old) return old;
-        return old.map((m) => (m.id === variables.id ? { ...m, ...variables.payload, ...(updated || {}) } : m));
+        return old.map((m) => (m.id === variables.id ? { ...m, ...variables.payload, ...updated } : m));
       });
       queryClient.invalidateQueries({ queryKey: ['materials'] });
       queryClient.invalidateQueries({ queryKey: ['purchases'] });
@@ -1809,9 +1809,10 @@ export function useUpdateSimplePurchase() {
             .update({
               supplier_id: supplier.id,
               project_id: payload.project_id || null,
+              purchase_date: payload.purchase_date || existing?.purchase_date || new Date().toISOString().split('T')[0],
               total_amount: totalValue,
               status: curStatus,
-              notes: payload.notes || null,
+              notes: payload.notes !== undefined ? (payload.notes || null) : (existing?.notes ?? null),
               updated_at: new Date().toISOString(),
             })
             .eq('id', payload.id);
@@ -1873,6 +1874,7 @@ export function useUpdateSimplePurchase() {
     },
     onSuccess: (updatedPurchase) => {
       if (updatedPurchase) {
+        queryClient.setQueryData(['purchase', updatedPurchase.id], updatedPurchase);
         queryClient.setQueriesData({ queryKey: ['purchases'] }, (old: Purchase[] | undefined) => {
           if (!old) return [updatedPurchase];
           return old.map((p) => (p.id === updatedPurchase.id ? { ...p, ...updatedPurchase } : p));

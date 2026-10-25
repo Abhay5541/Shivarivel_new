@@ -433,6 +433,7 @@ export const CustomerDetailPage: React.FC = () => {
         isOpen={isEditCustomerOpen}
         onClose={() => setIsEditCustomerOpen(false)}
         customer={customer}
+        onSuccess={() => refetch()}
       />
 
       {/* Add Site Modal */}

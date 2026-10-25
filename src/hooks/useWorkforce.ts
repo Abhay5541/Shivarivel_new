@@ -370,6 +370,7 @@ export function useUpdateEmployee(hookId?: string) {
     },
     onSuccess: (updated) => {
       if (updated?.id) {
+        queryClient.setQueryData(['employee', updated.id], updated);
         queryClient.setQueriesData({ queryKey: ['employees'] }, (old: Employee[] | undefined) => {
           if (!old) return old;
           return old.map((e) => (e.id === updated.id ? { ...e, ...updated } : e));

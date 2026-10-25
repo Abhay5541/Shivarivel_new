@@ -777,6 +777,7 @@ export const ProjectDetailPage: React.FC = () => {
         isOpen={isEditSiteOpen}
         onClose={() => setIsEditSiteOpen(false)}
         site={site}
+        onSuccess={() => refetch()}
         onDeleteSuccess={() => navigate('/projects')}
       />
 

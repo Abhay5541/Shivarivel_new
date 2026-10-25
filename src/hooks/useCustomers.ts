@@ -187,9 +187,12 @@ export function useUpdateCustomer() {
       }
     },
     onSuccess: (updated, variables) => {
+      if (updated) {
+        queryClient.setQueryData(['customer', variables.id], updated);
+      }
       queryClient.setQueriesData({ queryKey: ['customers'] }, (old: Customer[] | undefined) => {
         if (!old) return old;
-        return old.map((c) => (c.id === variables.id ? { ...c, ...variables.data, ...(updated || {}) } : c));
+        return old.map((c) => (c.id === variables.id ? { ...c, ...variables.data, ...updated } : c));
       });
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       queryClient.invalidateQueries({ queryKey: ['customer', variables.id] });
