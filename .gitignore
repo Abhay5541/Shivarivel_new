@@ -41,3 +41,4 @@ scratch/
 !src/Asserts/**
 !public/**
 brag-output/
+skills-lock.json
