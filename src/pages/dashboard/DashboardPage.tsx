@@ -159,7 +159,17 @@ export function DashboardPage() {
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <span className="truncate">
-                  <strong className="font-semibold text-emerald-950">{kpis.activeCustomersCount}</strong> Active Clients
+                  {kpis.totalCustomers === 0 ? (
+                    <strong className="font-semibold text-emerald-950">0 Registered</strong>
+                  ) : kpis.activeCustomersCount === kpis.totalCustomers ? (
+                    <strong className="font-semibold text-emerald-950">All Active in System</strong>
+                  ) : (
+                    <>
+                      <strong className="font-semibold text-emerald-950">{kpis.activeCustomersCount} Active</strong>
+                      <span className="text-[#6B6B6B] mx-1">·</span>
+                      <strong className="font-semibold text-amber-900">{kpis.totalCustomers - kpis.activeCustomersCount} Inactive</strong>
+                    </>
+                  )}
                 </span>
               </span>
             </div>
@@ -180,16 +190,24 @@ export function DashboardPage() {
               <Building2 className="w-5 h-5" />
             </div>
             <div className="text-[10.5px] font-bold text-[#6B6B6B] uppercase tracking-wider mt-3">
-              PROJECTS
+              ACTIVE SITES
             </div>
             <div className="text-2xl font-bold font-sans text-[#242424] tabular-nums mt-0.5 tracking-tight">
-              <AnimatedCounter value={kpis.totalProjects} delay={110} />
+              <AnimatedCounter value={kpis.activeProjectsCount} delay={110} />
             </div>
             <div className="mt-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <span className="truncate">
-                  <strong className="font-semibold text-emerald-950">{kpis.activeProjectsCount}</strong> Active Sites
+                  {kpis.completedProjectsCount > 0 ? (
+                    <>
+                      <strong className="font-semibold text-emerald-950">{kpis.completedProjectsCount}</strong> Completed Sites
+                    </>
+                  ) : (
+                    <strong className="font-semibold text-emerald-950">
+                      {kpis.activeProjectsCount > 0 ? 'All Sites Running' : '0 Sites'}
+                    </strong>
+                  )}
                 </span>
               </span>
             </div>
@@ -219,7 +237,17 @@ export function DashboardPage() {
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E8F8EE] border border-[#C5EBD2] text-[10.5px] font-medium text-[#166534]">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <span className="truncate">
-                  <strong className="font-semibold text-emerald-950">{kpis.activeEmployeesCount}</strong> Active Laborers
+                  {kpis.totalEmployees === 0 ? (
+                    <strong className="font-semibold text-emerald-950">0 Registered</strong>
+                  ) : kpis.activeEmployeesCount === kpis.totalEmployees ? (
+                    <strong className="font-semibold text-emerald-950">All Active on Roster</strong>
+                  ) : (
+                    <>
+                      <strong className="font-semibold text-emerald-950">{kpis.activeEmployeesCount} Active</strong>
+                      <span className="text-[#6B6B6B] mx-1">·</span>
+                      <strong className="font-semibold text-amber-900">{kpis.totalEmployees - kpis.activeEmployeesCount} Inactive</strong>
+                    </>
+                  )}
                 </span>
               </span>
             </div>

@@ -303,32 +303,21 @@ export const CustomerDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Project Stats Overview */}
-      {customerSites.length > 0 && (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs text-center">
-            <span className="text-2xl font-bold text-[#4A0E0E] block">{activeProjects.length}</span>
-            <span className="text-xs text-[#6B6B6B] font-medium">Active Projects</span>
-          </div>
-          <div className="bg-white border border-[#E2DDD5] rounded-2xl p-4 shadow-xs text-center">
-            <span className="text-2xl font-bold text-[#1E6B37] block">{completedProjects.length}</span>
-            <span className="text-xs text-[#6B6B6B] font-medium">Completed</span>
-          </div>
-        </div>
-      )}
-
-      {/* Projects Section */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-[#242424] font-heading">Projects</h2>
+      {/* Projects Section Header Card */}
+      <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E2DDD5] dark:border-white/10 rounded-2xl p-4 sm:p-5 shadow-xs">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-[#4A0E0E] dark:text-[#E2A855]" />
+            <h2 className="text-base sm:text-lg font-bold text-[#242424] dark:text-[#F5F5F4] font-heading">
+              Projects ({customerSites.length})
+            </h2>
           </div>
 
           <Button
             type="button"
             variant="primary"
             onClick={() => setIsAddSiteOpen(true)}
-            className="h-10 px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            className="h-9 sm:h-10 px-3.5 sm:px-4 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>Add Project</span>
@@ -337,7 +326,7 @@ export const CustomerDetailPage: React.FC = () => {
 
         {/* Tabs: Active / Completed */}
         {customerSites.length > 0 && (
-          <div className="w-fit">
+          <div className="w-fit mt-3 pt-3 border-t border-[#E8E4DC] dark:border-white/10">
             <SlidingSegmentedControl<'active' | 'completed'>
               options={projectFilterOptions}
               value={activeProjectTab}
@@ -347,6 +336,10 @@ export const CustomerDetailPage: React.FC = () => {
             />
           </div>
         )}
+      </div>
+
+      {/* Projects Content Grid */}
+      <div className="space-y-4">
 
         {/* Active Projects */}
         {activeProjectTab === 'active' && (

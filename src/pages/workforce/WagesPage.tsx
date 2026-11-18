@@ -1152,11 +1152,14 @@ export function WagesPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-sm font-bold text-[#242424] font-heading">
-                  Laborers Logged ({weeklyLaborerAggregation.rows.length})
-                </h3>
-                <div className="hidden md:flex items-center gap-1 bg-[#FAF8F5] p-1 border border-[#E8E4DC] rounded-xl text-xs font-semibold">
+              <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E8E4DC] dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#3E1012] dark:bg-[#E2A855]" />
+                  <h3 className="text-sm font-bold text-[#3E1012] dark:text-[#E2A855] font-inter">
+                    Laborers Logged ({weeklyLaborerAggregation.rows.length})
+                  </h3>
+                </div>
+                <div className="hidden md:flex items-center gap-1 bg-[#FAF8F5] dark:bg-[#231F1B] p-1 border border-[#E8E4DC] dark:border-white/10 rounded-xl text-xs font-semibold">
                   <button
                     type="button"
                     onClick={() => setWeeklyViewMode('cards')}

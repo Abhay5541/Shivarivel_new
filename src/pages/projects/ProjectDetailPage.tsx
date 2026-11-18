@@ -53,6 +53,7 @@ export const ProjectDetailPage: React.FC = () => {
   const [editingWage, setEditingWage] = useState<DailyWage | null>(null);
   const [isWageModalOpen, setIsWageModalOpen] = useState(false);
   const [showAllWages, setShowAllWages] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const { data: site, isLoading: isLoadingSite, isError, error, refetch } = useProject(id);
   const { data: siteWages = [], isLoading: isLoadingWages, refetch: refetchWages } = useWages({ projectId: id });
@@ -289,6 +290,56 @@ export const ProjectDetailPage: React.FC = () => {
               <span>{site.site_address || 'Not specified'}</span>
             </div>
           </div>
+        </div>
+
+        {/* Collapsible Project Specifications & Notes Accordion */}
+        <div className="mt-4 pt-3 border-t border-[#E8E4DC]">
+          <button
+            type="button"
+            onClick={() => setIsDetailsOpen((prev) => !prev)}
+            className="w-full flex items-center justify-between text-xs font-bold text-[#4A0E0E] hover:text-[#380A0A] py-1 cursor-pointer transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              <FileText className="w-3.5 h-3.5 text-[#C99A2E]" />
+              <span>Project Specifications &amp; Notes</span>
+            </span>
+            <div className="flex items-center gap-1 text-[11px] text-[#6B6B6B] font-medium">
+              <span>{isDetailsOpen ? 'Hide' : 'View'}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDetailsOpen ? 'rotate-180' : ''}`} />
+            </div>
+          </button>
+
+          {isDetailsOpen && (
+            <div className="mt-2.5 p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E8E4DC] text-xs space-y-2.5 animate-filter-slide">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <span className="text-[10px] font-bold text-[#6B6B6B] uppercase block">Project Code</span>
+                  <span className="font-bold text-[#242424] font-mono">{site.project_code || 'N/A'}</span>
+                </div>
+                {resolvedCustomer?.phone && (
+                  <div>
+                    <span className="text-[10px] font-bold text-[#6B6B6B] uppercase block">Client Phone</span>
+                    <a href={`tel:${resolvedCustomer.phone}`} className="font-semibold text-[#4A0E0E] hover:underline">
+                      {resolvedCustomer.phone}
+                    </a>
+                  </div>
+                )}
+                <div>
+                  <span className="text-[10px] font-bold text-[#6B6B6B] uppercase block">Created On</span>
+                  <span className="text-[#242424]">
+                    {site.created_at ? new Date(site.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
+                  </span>
+                </div>
+              </div>
+
+              {site.description && (
+                <div className="pt-2 border-t border-[#E8E4DC]">
+                  <span className="text-[10px] font-bold text-[#6B6B6B] uppercase block mb-1">Scope &amp; Description</span>
+                  <p className="text-[#242424] leading-relaxed whitespace-pre-line">{site.description}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action Buttons */}

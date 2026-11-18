@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Search as SearchIcon,
   Trash2,
-  Clock,
   Wallet,
   Scale,
   Coins,
@@ -669,23 +668,6 @@ export const PurchasesPage: React.FC = () => {
                 fullWidth
               />
 
-              {/* Pending Payment Alert Strip */}
-              {projectPendingPurchases.length > 0 && projectPaymentFilter !== 'paid' && (
-                <div className="bg-[#FEF6E9] dark:bg-[#261E14] border border-[#F5E2B8] dark:border-[#5C451E]/60 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#C99A2E]" />
-                    <span className="font-bold text-[#784D09] dark:text-[#E2A855]">
-                      {projectPendingPurchases.length} Pending {projectPendingPurchases.length === 1 ? 'Payment' : 'Payments'}
-                    </span>
-                  </div>
-                  {projectPendingBalance > 0 && (
-                    <span className="font-extrabold text-[#991B1B] dark:text-[#F87171] tabular-nums font-sans text-xs sm:text-sm">
-                      {formatINR(projectPendingBalance)} pending
-                    </span>
-                  )}
-                </div>
-              )}
-
               {/* Project Purchases List */}
               {allProjectPurchases.length === 0 ? (
                 <EmptyState
@@ -701,18 +683,18 @@ export const PurchasesPage: React.FC = () => {
                   {/* 1. Pending Payment Section */}
                   {(projectPaymentFilter === 'all' || projectPaymentFilter === 'pending') && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between px-1">
+                      <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E8E4DC] dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs">
                         <div className="flex items-center gap-2">
                           <div className="w-2.5 h-2.5 rounded-full bg-[#C99A2E]" />
-                          <h3 className="text-sm font-bold text-[#242424] font-heading">
+                          <h3 className="text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-heading">
                             Pending Payment
                           </h3>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40">
                             {projectPendingPurchases.length}
                           </span>
                         </div>
                         {projectPendingBalance > 0 && (
-                          <span className="text-xs font-bold text-[#991B1B]">
+                          <span className="text-xs sm:text-sm font-extrabold text-[#991B1B] dark:text-[#F87171] tabular-nums font-sans">
                             {formatINR(projectPendingBalance)} pending
                           </span>
                         )}
@@ -733,18 +715,18 @@ export const PurchasesPage: React.FC = () => {
                   {/* 2. Fully Paid Section */}
                   {(projectPaymentFilter === 'all' || projectPaymentFilter === 'paid') && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between px-1 pt-2">
+                      <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E8E4DC] dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs mt-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#166534]" />
-                          <h3 className="text-sm font-bold text-[#242424] font-heading">
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#166534] dark:bg-[#4ADE80]" />
+                          <h3 className="text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-heading">
                             Fully Paid
                           </h3>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
                             {projectPaidPurchases.length}
                           </span>
                         </div>
                         {projectPaidSettled > 0 && (
-                          <span className="text-xs font-bold text-[#166534]">
+                          <span className="text-xs sm:text-sm font-extrabold text-[#166534] dark:text-[#4ADE80] tabular-nums font-sans">
                             {formatINR(projectPaidSettled)} settled
                           </span>
                         )}
@@ -787,23 +769,6 @@ export const PurchasesPage: React.FC = () => {
                 fullWidth
               />
 
-              {/* Pending Payment Alert Strip */}
-              {generalPendingPurchases.length > 0 && generalPaymentFilter !== 'paid' && (
-                <div className="bg-[#FEF6E9] dark:bg-[#261E14] border border-[#F5E2B8] dark:border-[#5C451E]/60 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-2xs">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#C99A2E]" />
-                    <span className="font-bold text-[#784D09] dark:text-[#E2A855]">
-                      {generalPendingPurchases.length} Pending {generalPendingPurchases.length === 1 ? 'Payment' : 'Payments'}
-                    </span>
-                  </div>
-                  {generalPendingBalance > 0 && (
-                    <span className="font-extrabold text-[#991B1B] dark:text-[#F87171] tabular-nums font-sans text-xs sm:text-sm">
-                      {formatINR(generalPendingBalance)} pending
-                    </span>
-                  )}
-                </div>
-              )}
-
               {/* General Purchases List */}
               {generalPurchases.length === 0 ? (
                 <EmptyState
@@ -819,18 +784,18 @@ export const PurchasesPage: React.FC = () => {
                   {/* 1. Pending Payment Section */}
                   {(generalPaymentFilter === 'all' || generalPaymentFilter === 'pending') && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between px-1">
+                      <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E8E4DC] dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs">
                         <div className="flex items-center gap-2">
                           <div className="w-2.5 h-2.5 rounded-full bg-[#C99A2E]" />
-                          <h3 className="text-sm font-bold text-[#242424] font-heading">
+                          <h3 className="text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-heading">
                             Pending Payment
                           </h3>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40">
                             {generalPendingPurchases.length}
                           </span>
                         </div>
                         {generalPendingBalance > 0 && (
-                          <span className="text-xs font-bold text-[#991B1B]">
+                          <span className="text-xs sm:text-sm font-extrabold text-[#991B1B] dark:text-[#F87171] tabular-nums font-sans">
                             {formatINR(generalPendingBalance)} pending
                           </span>
                         )}
@@ -851,18 +816,18 @@ export const PurchasesPage: React.FC = () => {
                   {/* 2. Fully Paid Section */}
                   {(generalPaymentFilter === 'all' || generalPaymentFilter === 'paid') && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between px-1 pt-2">
+                      <div className="bg-white/95 dark:bg-[#1A1714]/95 backdrop-blur-xs border border-[#E8E4DC] dark:border-white/10 rounded-xl px-4 py-2.5 flex items-center justify-between shadow-2xs mt-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#166534]" />
-                          <h3 className="text-sm font-bold text-[#242424] font-heading">
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#166534] dark:bg-[#4ADE80]" />
+                          <h3 className="text-sm font-bold text-[#242424] dark:text-[#F5F5F4] font-heading">
                             Fully Paid
                           </h3>
-                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
                             {generalPaidPurchases.length}
                           </span>
                         </div>
                         {generalPaidSettled > 0 && (
-                          <span className="text-xs font-bold text-[#166534]">
+                          <span className="text-xs sm:text-sm font-extrabold text-[#166534] dark:text-[#4ADE80] tabular-nums font-sans">
                             {formatINR(generalPaidSettled)} settled
                           </span>
                         )}
