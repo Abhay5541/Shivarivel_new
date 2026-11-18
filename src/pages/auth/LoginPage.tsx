@@ -315,7 +315,7 @@ export function LoginPage() {
                   <h3 className="font-playfair text-[20px] sm:text-[22px] font-semibold text-[#0A1813] leading-tight">
                     Welcome Back!
                   </h3>
-                  <p className="font-inter text-[11.5px] text-gray-500 mt-0.5 mb-2.5">
+                  <p className="font-inter text-[11.5px] text-gray-700 mt-0.5 mb-2.5">
                     Sign in to access your administrative portal
                   </p>
                 </div>
@@ -369,7 +369,7 @@ export function LoginPage() {
                   <button
                     type="button"
                     onClick={handleOpenForgotModal}
-                    className="text-[11.5px] font-medium text-[#4B5563] hover:text-[#0A1813] hover:underline cursor-pointer"
+                    className="text-[11.5px] font-medium text-gray-700 hover:text-[#0A1813] hover:underline cursor-pointer"
                   >
                     Forgot password?
                   </button>
