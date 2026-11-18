@@ -23,8 +23,8 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { Watcher } from '@/components/ui/Watcher';
 import { LabelInput } from '@/components/ui/LabelInput';
-import logoImg from '@/Asserts/shivarivel_svc_logo.png';
-import bgImg from '@/Asserts/Background_UI.jpg';
+import logoImg from '@/Asserts/shivarivel_svc_logo.webp';
+import bgImg from '@/Asserts/Background_UI.webp';
 
 // 8 Core Services matching Shivarivel Construction Hero Banner Reference UI
 const SERVICES = [
@@ -186,6 +186,8 @@ export function LoginPage() {
               <img
                 src={logoImg}
                 alt="Shivarivel Official Logo"
+                width={48}
+                height={48}
                 className="w-full h-full object-cover scale-[1.14]"
               />
             </div>
@@ -223,6 +225,8 @@ export function LoginPage() {
                 <img
                   src={logoImg}
                   alt="Shivarivel Official SVC Logo"
+                  width={56}
+                  height={56}
                   className="w-full h-full object-cover scale-[1.14]"
                 />
               </div>
