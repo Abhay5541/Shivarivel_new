@@ -273,12 +273,12 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                     Official Closure
                   </span>
                 </div>
-                <div className="text-2xl sm:text-3xl font-extrabold text-[#242424] font-sans mt-1">
+                <div className="text-2xl sm:text-3xl font-extrabold text-[#242424] font-sans tabular-nums mt-1">
                   {formatINR(totalProjectCost)}
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#6B6B6B] mt-2 pt-2 border-t border-[#E8DACB]/60">
-                  <span>Wages: <strong className="text-[#1E6B37]">{formatINR(wageSummary.totalWages)}</strong></span>
-                  <span>Procurement: <strong className="text-[#242424]">{formatINR(procurementSummary.totalPurchased)}</strong></span>
+                  <span>Wages: <strong className="text-[#1E6B37] font-sans tabular-nums">{formatINR(wageSummary.totalWages)}</strong></span>
+                  <span>Procurement: <strong className="text-[#242424] font-sans tabular-nums">{formatINR(procurementSummary.totalPurchased)}</strong></span>
                 </div>
               </div>
 
@@ -292,7 +292,7 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                     </div>
                     <span className="text-xs font-bold text-[#242424]">Labour Wages</span>
                   </div>
-                  <div className="text-lg font-bold text-[#1E6B37]">
+                  <div className="text-lg font-bold text-[#1E6B37] font-sans tabular-nums">
                     {formatINR(wageSummary.totalWages)}
                   </div>
                   <div className="text-[11px] text-[#6B6B6B] mt-1">
@@ -308,7 +308,7 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                     </div>
                     <span className="text-xs font-bold text-[#242424]">Procurement</span>
                   </div>
-                  <div className="text-lg font-bold text-[#242424]">
+                  <div className="text-lg font-bold text-[#242424] font-sans tabular-nums">
                     {formatINR(procurementSummary.totalPurchased)}
                   </div>
                   <div className="text-[11px] text-[#6B6B6B] mt-1">
@@ -364,14 +364,14 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                         <span className="text-[10px] text-[#6B6B6B]">{labour.trade}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-xs font-bold text-[#1E6B37] block">{formatINR(labour.total)}</span>
+                        <span className="text-xs font-bold font-sans tabular-nums text-[#1E6B37] block">{formatINR(labour.total)}</span>
                         <span className="text-[10px] text-[#8C867E]">{labour.days} {labour.days === 1 ? 'day' : 'days'}</span>
                       </div>
                     </div>
                   ))}
                   <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#F7F5F0]">
                     <span className="text-xs font-bold text-[#242424]">Total Wages</span>
-                    <span className="text-sm font-bold text-[#1E6B37]">{formatINR(wageSummary.totalWages)}</span>
+                    <span className="text-sm font-bold font-sans tabular-nums text-[#1E6B37]">{formatINR(wageSummary.totalWages)}</span>
                   </div>
                 </div>
               )}
@@ -401,7 +401,7 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                         </span>
                       </div>
                       <div className="text-right shrink-0">
-                        <span className="text-xs font-bold text-[#242424] block">{formatINR(item.amount)}</span>
+                        <span className="text-xs font-bold font-sans tabular-nums text-[#242424] block">{formatINR(item.amount)}</span>
                         <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${item.paymentStatus === 'Paid' ? 'bg-[#E8F8EE] text-[#1E7E34]' : 'bg-rose-50 text-rose-600'}`}>
                           {item.paymentStatus}
                         </span>
@@ -410,7 +410,7 @@ export const ProjectCompletionModal: React.FC<ProjectCompletionModalProps> = ({
                   ))}
                   <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#F7F5F0]">
                     <span className="text-xs font-bold text-[#242424]">Total Materials</span>
-                    <span className="text-sm font-bold text-[#242424]">{formatINR(procurementSummary.totalPurchased)}</span>
+                    <span className="text-sm font-bold font-sans tabular-nums text-[#242424]">{formatINR(procurementSummary.totalPurchased)}</span>
                   </div>
                 </div>
               )}

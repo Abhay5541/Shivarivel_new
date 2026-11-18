@@ -80,21 +80,21 @@ const CompletedProjectSummary: React.FC<{ site: Project; onNavigate: () => void;
       <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] border-t border-[#E8E4DC] bg-[#FAFAF8]">
         <div className="px-3 py-2.5 flex flex-col items-center text-center">
           <Users2 className="w-3.5 h-3.5 text-[#4A0E0E] mb-1" />
-          <span className="text-sm font-bold text-[#242424]">
+          <span className="text-sm font-bold font-sans tabular-nums text-[#242424]">
             <AnimatedCounter value={summary.uniqueLabourers} />
           </span>
           <span className="text-[10px] text-[#6B6B6B]">Labourers</span>
         </div>
         <div className="px-3 py-2.5 flex flex-col items-center text-center">
           <Briefcase className="w-3.5 h-3.5 text-[#4A0E0E] mb-1" />
-          <span className="text-sm font-bold text-[#242424]">
+          <span className="text-sm font-bold font-sans tabular-nums text-[#242424]">
             <AnimatedCounter value={summary.totalDays} />
           </span>
           <span className="text-[10px] text-[#6B6B6B]">Man-days</span>
         </div>
         <div className="px-3 py-2.5 flex flex-col items-center text-center">
           <IndianRupee className="w-3.5 h-3.5 text-[#1E6B37] mb-1" />
-          <span className="text-sm font-bold text-[#1E6B37]">
+          <span className="text-sm font-bold font-sans tabular-nums text-[#1E6B37]">
             {summary.totalWages >= 1000
               ? `${(summary.totalWages / 1000).toFixed(1)}K`
               : summary.totalWages > 0

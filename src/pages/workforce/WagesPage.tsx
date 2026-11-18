@@ -26,8 +26,8 @@ import { LaborersDrawer } from '@/components/business/LaborersDrawer';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import type { DailyWage, AttendanceStatus } from '@/types/workforce';
-import wagesBannerBg from '@/Asserts/Wages banner.png';
-import totalWagesBanner from '@/Asserts/Total_wages banner.png';
+import wagesBannerBg from '@/Asserts/Wages banner.webp';
+import totalWagesBanner from '@/Asserts/Total_wages banner.webp';
 
 function getTodayISO() {
   const d = new Date();

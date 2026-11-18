@@ -23,7 +23,7 @@ import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/Sli
 import { useCustomers, useDeleteCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
 import type { Customer } from '@/types/business';
 import type { Project } from '@/types/projects';
-import clientBannerBg from '@/Asserts/Client_banner.png';
+import clientBannerBg from '@/Asserts/Client_banner.webp';
 
 export const CustomersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -28,7 +28,7 @@ import { RecordPaymentModal } from '@/components/business/RecordPaymentModal';
 import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import type { Purchase } from '@/types/procurement';
-import procurementBannerBg from '@/Asserts/Procurement banner.png';
+import procurementBannerBg from '@/Asserts/Procurement banner.webp';
 
 type ProcurementTab = 'project' | 'general';
 
@@ -468,8 +468,8 @@ export const PurchasesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* 3-Column Financial Matrix Card */}
-          <div className="grid grid-cols-3 gap-1 sm:gap-2 bg-[#FAF8F5] dark:bg-[#231F1B] border border-[#EFECE6] dark:border-white/10 rounded-xl p-2 sm:p-2.5 text-center mt-3.5 mb-1 overflow-hidden">
+          {/* 3-Column Financial Matrix Strip */}
+          <div className="grid grid-cols-3 gap-1 sm:gap-2 bg-[#FAF8F5] dark:bg-[#231F1B] rounded-xl p-2 sm:p-2.5 text-center mt-3.5 mb-1 overflow-hidden">
             <div className="min-w-0 px-0.5">
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#8C867E] dark:text-[#A8A29E] block truncate">
                 Total

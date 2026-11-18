@@ -332,20 +332,20 @@ export const SimplePurchaseModal: React.FC<SimplePurchaseModalProps> = ({
           <div className="p-3 bg-[#F7F5F0] rounded-xl border border-[#E2DDD5] grid grid-cols-3 gap-2 text-xs overflow-hidden">
             <div className="min-w-0">
               <span className="text-[#6B6B6B] block truncate">Total Value:</span>
-              <span className="font-bold text-[#242424] truncate block" title={formatINR(numTotal)}>
+              <span className="font-bold font-sans tabular-nums text-[#242424] truncate block" title={formatINR(numTotal)}>
                 {formatINR(numTotal)}
               </span>
             </div>
             <div className="min-w-0">
               <span className="text-[#6B6B6B] block truncate">Paid:</span>
-              <span className="font-bold text-[#166534] truncate block" title={formatINR(numPaid)}>
+              <span className="font-bold font-sans tabular-nums text-[#166534] truncate block" title={formatINR(numPaid)}>
                 {formatINR(numPaid)}
               </span>
             </div>
             <div className="min-w-0 text-right">
               <span className="text-[#6B6B6B] block truncate">Balance to Pay:</span>
               <span
-                className={`font-bold text-xs sm:text-sm truncate block ${balance > 0 ? 'text-[#991B1B]' : 'text-[#166534]'}`}
+                className={`font-bold font-sans tabular-nums text-xs sm:text-sm truncate block ${balance > 0 ? 'text-[#991B1B]' : 'text-[#166534]'}`}
                 title={formatINR(balance)}
               >
                 {formatINR(balance)}

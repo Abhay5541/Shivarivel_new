@@ -495,7 +495,7 @@ export const ProjectDetailPage: React.FC = () => {
           <div className="grid grid-cols-3 divide-x divide-[#E8E4DC] bg-[#FAFAF8] border-b border-[#E8E4DC] overflow-hidden">
             <div className="px-2 sm:px-4 py-3 text-center min-w-0">
               <span
-                className="text-sm sm:text-base font-bold text-[#242424] block truncate"
+                className="text-sm sm:text-base font-bold font-sans tabular-nums text-[#242424] block truncate"
                 title={formatINR(purchaseTotals.total)}
               >
                 {formatINR(purchaseTotals.total)}
@@ -504,7 +504,7 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
             <div className="px-2 sm:px-4 py-3 text-center min-w-0">
               <span
-                className="text-sm sm:text-base font-bold text-[#1E6B37] block truncate"
+                className="text-sm sm:text-base font-bold font-sans tabular-nums text-[#1E6B37] block truncate"
                 title={formatINR(purchaseTotals.paid)}
               >
                 {formatINR(purchaseTotals.paid)}
@@ -513,7 +513,7 @@ export const ProjectDetailPage: React.FC = () => {
             </div>
             <div className="px-2 sm:px-4 py-3 text-center min-w-0">
               <span
-                className="text-sm sm:text-base font-bold text-rose-600 block truncate"
+                className="text-sm sm:text-base font-bold font-sans tabular-nums text-rose-600 block truncate"
                 title={formatINR(purchaseTotals.outstanding)}
               >
                 {formatINR(purchaseTotals.outstanding)}
@@ -592,7 +592,7 @@ export const ProjectDetailPage: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2.5 shrink-0 ml-3">
                   <div className="text-right">
-                    <span className="text-sm font-bold text-[#242424] block">
+                    <span className="text-sm font-bold font-sans tabular-nums text-[#242424] block">
                       {formatINR(purchase.total_amount)}
                     </span>
                     <span
@@ -692,13 +692,13 @@ export const ProjectDetailPage: React.FC = () => {
               <span className="text-[10px] text-[#6B6B6B]">Labourers</span>
             </div>
             <div className="px-4 py-3 text-center">
-              <span className="text-base font-bold text-[#242424] block">
+              <span className="text-base font-bold font-sans tabular-nums text-[#242424] block">
                 {siteWageBreakdown.items.reduce((s, i) => s + i.days, 0)}
               </span>
               <span className="text-[10px] text-[#6B6B6B]">Man-days</span>
             </div>
             <div className="px-4 py-3 text-center">
-              <span className="text-base font-bold text-[#1E6B37] block">
+              <span className="text-base font-bold font-sans tabular-nums text-[#1E6B37] block">
                 {formatINR(siteWageBreakdown.totalSiteWages)}
               </span>
               <span className="text-[10px] text-[#6B6B6B]">Total Wages</span>
@@ -772,7 +772,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <div className="flex items-center gap-2.5 shrink-0 ml-3">
                     <div className="text-right">
                       <span
-                        className="text-sm font-bold block text-[#1E6B37]"
+                        className="text-sm font-bold font-sans tabular-nums block text-[#1E6B37]"
                       >
                         {formatINR(amount)}
                       </span>

@@ -19,7 +19,7 @@ import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { SlidingSegmentedControl, type SegmentOption } from '@/components/ui/SlidingSegmentedControl';
 import { useProjects, useUpdateProject, useDeleteProject } from '@/hooks/useProjects';
 import type { Project, ProjectStatus } from '@/types/projects';
-import projectBannerBg from '@/Asserts/project_banner.png';
+import projectBannerBg from '@/Asserts/project_banner.webp';
 
 export const ProjectsPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
